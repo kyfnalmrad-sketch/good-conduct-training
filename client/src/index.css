@@ -88,3 +88,9 @@
 .doc-meta small { font-size:16px; font-weight:800; }
 .doc-meta b { font-size:16px; font-weight:400; }
 @media print { .document-wrap { page-break-after:avoid; break-after:avoid; } .document { page-break-inside:avoid; break-inside:avoid; } }
+
+/* Reference-approved final spacing and personal QR readability. */
+.personal-code { width:clamp(88px,11vw,112px); height:clamp(88px,11vw,112px); }
+.personal-code img { width:30%; height:30%; }
+.qr-box span { display:block; max-width:112px; margin-top:3px; font-size:clamp(9px,1.15vw,13px); font-weight:800; line-height:1.2; text-align:center; white-space:normal; }
+.doc-signatures { padding-top:8%; }
