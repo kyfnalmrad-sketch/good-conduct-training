@@ -44,3 +44,10 @@
 .aztec-code { width:100%; height:100%; object-fit:contain; }
 .personal-code img { position:absolute; width:24%; height:24%; object-fit:contain; mix-blend-mode:multiply; }
 .photo-stack .linear-barcode { max-width:150px; height:30px; }
+
+/* Final readability pass for the personal QR, table values, and footer offices. */
+.personal-code img { width:32%; height:32%; z-index:2; mix-blend-mode:normal; }
+.doc-table { transform:scale(1.02); transform-origin:top center; margin-bottom:1.5%; }
+.doc-cell { padding:1.5% 1.8%; }
+.doc-cell b { font-size:clamp(8px,1.1vw,13px); font-weight:400; }
+.doc-signatures { font-size:clamp(9px,1.3vw,14px); font-weight:800; }
