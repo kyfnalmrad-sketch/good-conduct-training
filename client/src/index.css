@@ -20,3 +20,9 @@
 @media (max-width:1050px) { .app-shell { grid-template-columns:380px minmax(0,1fr); }.control-panel { padding:24px 20px; }.preview-panel { padding-inline:24px; } }
 @media (max-width:760px) { .app-shell { display:block; }.control-panel { max-height:none; border-right:0; border-bottom:1px solid #d8d5cc; }.preview-panel { padding:28px 12px; }.preview-top { align-items:start; flex-direction:column; gap:14px; }.preview-actions { width:100%; justify-content:space-between; }.document { width:100%; }.form-grid { grid-template-columns:1fr 1fr; } }
 @media print { body { background:white; }.control-panel,.preview-top,.preview-note { display:none!important; }.app-shell { display:block; }.preview-panel { padding:0; }.document-wrap { padding:0; }.document { width:210mm; height:297mm; box-shadow:none; } }
+
+/* Final alignment pass: keep issue metadata clear of the fixed title and preserve value sizing. */
+.doc-meta { padding-top:12%; }
+.doc-cell span { font-size:clamp(7px,.95vw,11px); font-weight:800; }
+.doc-cell.arabic span { font-size:clamp(8px,1.05vw,13px); font-weight:800; }
+.doc-statement, .doc-notes { font-weight:800; }
