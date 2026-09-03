@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
 import Preview from "@/pages/Preview";
+import Records from "@/pages/Records";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -15,6 +16,7 @@ function Router() {
       <Route path={"/login"} component={Login} />
       <Route path={"/editor"} component={Home} />
       <Route path={"/preview"} component={Preview} />
+      <Route path={"/records"} component={Records} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -3,6 +3,7 @@ import JsBarcode from "jsbarcode";
 import {
   Download,
   FileCheck2,
+  ClipboardList,
   ImagePlus,
   RotateCcw,
   ShieldCheck,
@@ -212,7 +213,12 @@ export function DocumentPreview({
   return (
     <div className="document-wrap">
       <article className="document" id="print-document">
-        <img className="word-template-bg" src={officialTemplate} alt="" aria-hidden="true" />
+        <img
+          className="word-template-bg"
+          src={officialTemplate}
+          alt=""
+          aria-hidden="true"
+        />
         <div className="doc-top">
           <div className="photo-stack">
             <img className="doc-photo" src={photo} alt="الصورة الشخصية" />
@@ -299,6 +305,16 @@ export default function Home() {
   const [data, setData] = useState(initial);
   const [photo, setPhoto] = useState(defaultPhoto);
   const [generated, setGenerated] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("good-conduct-form-data");
+      const savedPhoto = localStorage.getItem("good-conduct-form-photo");
+      if (saved) setData({ ...initial, ...JSON.parse(saved) });
+      if (savedPhoto) setPhoto(savedPhoto);
+    } catch {
+      /* keep defaults */
+    }
+  }, []);
   const update = (key: keyof FormState) => (value: string) =>
     setData(d => ({ ...d, [key]: value }));
   const fields = useMemo(
@@ -339,8 +355,31 @@ export default function Home() {
     reader.readAsDataURL(file);
   };
   const generate = () => {
+    if (
+      !data.issueNo.trim() ||
+      !(data.fullNameAr.trim() || data.fullNameEn.trim())
+    ) {
+      toast.error("أدخل رقم القيد واسم صاحب الطلب أولًا");
+      return;
+    }
     localStorage.setItem("good-conduct-form-data", JSON.stringify(data));
     localStorage.setItem("good-conduct-form-photo", photo);
+    const records = JSON.parse(
+      localStorage.getItem("good-conduct-records") || "[]"
+    );
+    const record = {
+      id: data.internalNo || `${data.issueNo}-${Date.now()}`,
+      savedAt: new Date().toISOString(),
+      data,
+      photo,
+    };
+    localStorage.setItem(
+      "good-conduct-records",
+      JSON.stringify([
+        record,
+        ...records.filter((r: { id: string }) => r.id !== record.id),
+      ])
+    );
     setGenerated(true);
     toast.success("تم تحديث المعاينة بالبيانات");
     setLocation("/preview");
@@ -492,6 +531,9 @@ export default function Home() {
           </Button>
           <Button variant="outline" onClick={reset}>
             <RotateCcw size={16} /> إعادة ضبط
+          </Button>
+          <Button variant="outline" onClick={() => setLocation("/records")}>
+            <ClipboardList size={16} /> السجلات
           </Button>
         </div>
       </aside>
