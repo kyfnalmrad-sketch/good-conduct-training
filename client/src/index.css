@@ -22,7 +22,8 @@
 @media print { body { background:white; }.control-panel,.preview-top,.preview-note { display:none!important; }.app-shell { display:block; }.preview-panel { padding:0; }.document-wrap { padding:0; }.document { width:210mm; height:297mm; box-shadow:none; } }
 
 /* Final alignment pass: keep issue metadata clear of the fixed title and preserve value sizing. */
-.doc-meta { padding-top:12%; }
+.doc-top { margin-top:28%; }
+.doc-meta { padding-top:10%; }
 .doc-cell span { font-size:clamp(7px,.95vw,11px); font-weight:800; }
 .doc-cell.arabic span { font-size:clamp(8px,1.05vw,13px); font-weight:800; }
 .doc-statement, .doc-notes { font-weight:800; }
