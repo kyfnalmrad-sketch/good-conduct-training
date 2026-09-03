@@ -1,6 +1,5 @@
 /* Design reminder: match the supplied Arabic/English certificate reference. Keep the document preview symmetrical, bilingual, A4-like, and visually restrained; generated training assets never alter the official document template. */
-import { useEffect, useMemo, useRef, useState } from "react";
-import JsBarcode from "jsbarcode";
+import { useMemo, useState } from "react";
 import { Download, FileCheck2, ImagePlus, RotateCcw, ShieldCheck, Sparkles } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
@@ -32,8 +31,6 @@ function Field({ label, value, onChange, dir = "rtl" }: { label: string; value: 
   return <div className="field"><Label>{label}</Label><Input dir={dir} value={value} onChange={(e) => onChange(e.target.value)} /></div>;
 }
 
-function Barcode({ value }: { value: string }) { const ref = useRef<SVGSVGElement>(null); useEffect(() => { if (ref.current) JsBarcode(ref.current, value || "TRAINING", { format: "CODE128", displayValue: false, margin: 0, width: 1.25, height: 30 }); }, [value]); return <svg ref={ref} className="linear-barcode" aria-label="باركود شريطي" />; }
-
 function DocumentPreview({ data, photo }: { data: FormState; photo: string }) {
   const rows = [
     [["Full Name", data.fullNameEn], ["SURNAME", data.surnameEn], ["اللقب", data.surnameAr], ["الاسم", data.fullNameAr]],
@@ -44,7 +41,7 @@ function DocumentPreview({ data, photo }: { data: FormState; photo: string }) {
     [["ID Issue Place", data.idIssuePlaceEn], ["Department Requested", data.departmentEn], ["جهة إصدار الهوية", data.idIssuePlaceAr], ["الجهة الطالبة", data.departmentAr]],
   ];
   return <div className="document-wrap"><article className="document" id="print-document"><div className="word-template-bg" style={{ backgroundImage: `url(${wordTemplate})` }} />
-    <div className="doc-top"><div className="photo-stack"><img className="doc-photo" src={photo} alt="الصورة الشخصية" /><Barcode value={`${data.referenceNo}|${data.internalNo}`} /></div><div className="doc-meta"><div><small>Issue Date | تاريخ الإصدار</small><b>{data.issueDate}</b></div><div><small>No. | رقم القيد</small><b>{data.issueNo}</b></div></div><div className="qr-box"><QRCodeSVG value={JSON.stringify({ reference: data.referenceNo, internal: data.internalNo, issue: data.issueNo, name: data.fullNameEn, id: data.idNumberEn })} size={64} level="M" includeMargin /><span>QR</span></div></div>
+    <div className="doc-top"><div className="photo-stack"><img className="doc-photo" src={photo} alt="الصورة الشخصية" /><div className="photo-qr"><QRCodeSVG value={JSON.stringify({ reference: data.referenceNo, internal: data.internalNo })} size={96} level="H" includeMargin /><span>QR</span></div></div><div className="doc-meta"><div><small>Issue Date | تاريخ الإصدار</small><b>{data.issueDate}</b></div><div><small>No. | رقم القيد</small><b>{data.issueNo}</b></div></div></div>
     <div className="doc-table" aria-label="جدول البيانات ثنائي اللغة">{rows.map((row, i) => <div className="doc-row" key={i}><div className="doc-language english-side">{row.slice(0, 2).map(([label, value]) => <div className="doc-cell english" key={label}><span>{label}</span><b dir="ltr">{value}</b></div>)}</div><div className="doc-language arabic-side">{row.slice(2).map(([label, value]) => <div className="doc-cell arabic" key={label}><span>{label}</span><b dir="rtl">{value}</b></div>)}</div></div>)}</div>
     <div className="doc-statement"><div>{data.notesEn}</div><div dir="rtl">{data.notesAr}</div></div>
     <div className="doc-notes"><div><p>Any scratch or modification of the information provided in this certificate, maker it found</p><p>Date of expired {data.expiryEn}</p></div><div dir="rtl"><p>أي محو أو تعديل أو شطب في هذه البيانات يعتبر هذه الوثيقة لاغية</p><p>تاريخ الانتهاء {data.expiryAr}</p></div></div>
