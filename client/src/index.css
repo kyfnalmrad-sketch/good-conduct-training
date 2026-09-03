@@ -66,3 +66,11 @@
 .doc-statement { font-size:clamp(10px,1.3vw,13px); font-weight:900; }
 .doc-notes { font-size:clamp(11px,1.4vw,14px); font-weight:900; }
 .doc-statement > div, .doc-notes p { font-weight:900; }
+
+/* Center the issue date below the two issue identifiers. */
+.doc-meta { grid-template-columns:1fr 1fr; row-gap:3px; }
+.doc-meta > div:nth-child(3) { grid-column:1 / -1; justify-self:center; }
+.doc-statement, .doc-notes { width:104%; margin-left:-2%; }
+.doc-statement { font-size:clamp(11px,1.45vw,14px); font-weight:900; }
+.doc-notes { font-size:clamp(12px,1.55vw,15px); font-weight:900; }
+.doc-statement > div, .doc-notes p { font-weight:900; }
