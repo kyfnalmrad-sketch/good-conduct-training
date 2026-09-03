@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-const wordTemplate = "/manus-storage/word-template-page_b02f86d6.png";
+const wordTemplate = "/manus-storage/word-template-full_09035c55.png";
 const wordTemplateSource = "/manus-storage/official-training-template_dd7d4bd9.docx";
 
 type FormState = {
