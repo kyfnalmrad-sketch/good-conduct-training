@@ -81,3 +81,10 @@
 
 /* Footer offices: 16px bold and slightly lower on the official sheet. */
 .doc-signatures { padding-top:6%; font-size:16px; font-weight:900; }
+
+/* Approved type scale: labels bold, values regular, and document print as its own page. */
+.doc-cell span, .doc-cell.arabic span { font-size:14px; font-weight:800; }
+.doc-cell b { font-size:14px; font-weight:400; }
+.doc-meta small { font-size:16px; font-weight:800; }
+.doc-meta b { font-size:16px; font-weight:400; }
+@media print { .document-wrap { page-break-after:avoid; break-after:avoid; } .document { page-break-inside:avoid; break-inside:avoid; } }
