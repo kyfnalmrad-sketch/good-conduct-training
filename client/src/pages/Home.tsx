@@ -10,7 +10,6 @@ import { toast } from "sonner";
 
 const watermark = "/manus-storage/provided-watermark_676486a9.jpeg";
 const emblem = "/manus-storage/provided-emblem_4a8d4279.png";
-const pattern = "/manus-storage/verification-pattern_bfff0525.jpg";
 
 type FormState = {
   issueNo: string; referenceNo: string; internalNo: string; issueDate: string; fullNameAr: string; fullNameEn: string; surnameAr: string; surnameEn: string;
@@ -41,13 +40,13 @@ function DocumentPreview({ data, photo }: { data: FormState; photo: string }) {
     [["Occupation", data.occupationEn], ["ID Issue Date", data.idIssueDateEn], ["تاريخ إصدار الهوية", data.idIssueDateAr], ["المهنة", data.occupationAr]],
     [["ID Issue Place", data.idIssuePlaceEn], ["Department Requested", data.departmentEn], ["جهة إصدار الهوية", data.idIssuePlaceAr], ["الجهة الطالبة", data.departmentAr]],
   ];
-  return <div className="document-wrap"><article className="document" id="print-document" style={{ backgroundImage: `url(${pattern})` }}>
+  return <div className="document-wrap"><article className="document" id="print-document">
     <div className="doc-watermark" style={{ backgroundImage: `url(${watermark})` }} />
     <header className="doc-header"><div className="header-en"><strong>Republic of Yemen</strong><strong>Ministry of Interior</strong><span>Criminal Evidence Administration / Aden</span><em>Computer Department</em></div><img src={emblem} className="doc-emblem" /><div className="header-ar" dir="rtl"><strong>الجمهورية اليمنية</strong><strong>وزارة الداخلية</strong><span>إدارة الأدلة الجنائية / عدن</span><em>الحاسب الآلي</em></div></header>
     <div className="doc-rule" />
     <div className="doc-title"><span dir="rtl">حسن سيرة وسلوك</span><b>Good Conduct</b></div>
     <div className="doc-top"><img className="doc-photo" src={photo} alt="الصورة الشخصية" /><div className="doc-meta"><div><small>Issue Date | تاريخ الإصدار</small><b>{data.issueDate}</b></div><div><small>No. | رقم القيد</small><b>{data.issueNo}</b></div><div><small>Reference | المرجعي</small><b>{data.referenceNo}</b></div><div><small>Internal | الداخلي</small><b>{data.internalNo}</b></div></div><div className="qr-box"><QRCodeSVG value={`${data.referenceNo}|${data.internalNo}|${data.issueNo}|${data.fullNameEn}|${data.idNumberEn}`} size={64} level="M" includeMargin /><span>QR</span></div></div>
-    <div className="doc-table">{rows.map((row, i) => <div className="doc-row" key={i}>{row.map(([label, value], j) => <div className={`doc-cell ${j > 1 ? "arabic" : "english"}`} key={label}><span>{label}</span><b dir={j > 1 ? "rtl" : "ltr"}>{value}</b></div>)}</div>)}</div>
+    <div className="doc-table" aria-label="جدول البيانات ثنائي اللغة">{rows.map((row, i) => <div className="doc-row" key={i}><div className="doc-language english-side">{row.slice(0, 2).map(([label, value]) => <div className="doc-cell english" key={label}><span>{label}</span><b dir="ltr">{value}</b></div>)}</div><div className="doc-language arabic-side">{row.slice(2).map(([label, value]) => <div className="doc-cell arabic" key={label}><span>{label}</span><b dir="rtl">{value}</b></div>)}</div></div>)}</div>
     <div className="doc-statement"><div>{data.notesEn}</div><div dir="rtl">{data.notesAr}</div></div>
     <div className="doc-notes"><div><p>Any scratch or modification of the information provided in this certificate, maker it found</p><p>Date of expired {data.expiryEn}</p></div><div dir="rtl"><p>أي محو أو تعديل أو شطب في هذه البيانات يعتبر هذه الوثيقة لاغية</p><p>تاريخ الانتهاء {data.expiryAr}</p></div></div>
     <div className="doc-signatures"><span dir="rtl">كبير الأدلة الجنائية / عدن</span><span dir="rtl">الحاسب الآلي / عدن</span></div>
@@ -55,7 +54,7 @@ function DocumentPreview({ data, photo }: { data: FormState; photo: string }) {
 }
 
 export default function Home() {
-  const [data, setData] = useState(initial); const [photo, setPhoto] = useState("https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=480&fit=crop&crop=faces");
+  const [data, setData] = useState(initial); const [photo, setPhoto] = useState("/manus-storage/dummy-training-photo_9abb6110.png");
   const [generated, setGenerated] = useState(false);
   const update = (key: keyof FormState) => (value: string) => setData((d) => ({ ...d, [key]: value }));
   const fields = useMemo(() => [
