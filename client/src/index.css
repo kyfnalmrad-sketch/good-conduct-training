@@ -56,3 +56,13 @@
 .doc-statement { font-size:clamp(8px,1.05vw,11px); font-weight:800; }
 .doc-notes { font-size:clamp(9px,1.15vw,12px); font-weight:800; }
 .doc-statement > div, .doc-notes p { font-weight:800; }
+
+/* Increase closing notes by two more steps while keeping them bold. */
+.doc-statement { font-size:clamp(10px,1.3vw,13px); font-weight:800; }
+.doc-notes { font-size:clamp(11px,1.4vw,14px); font-weight:800; }
+.doc-statement > div, .doc-notes p { font-weight:800; }
+
+/* Extra-large bold closing notes in Arabic and English. */
+.doc-statement { font-size:clamp(10px,1.3vw,13px); font-weight:900; }
+.doc-notes { font-size:clamp(11px,1.4vw,14px); font-weight:900; }
+.doc-statement > div, .doc-notes p { font-weight:900; }
