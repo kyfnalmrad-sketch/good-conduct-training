@@ -78,3 +78,6 @@
 /* A4 export: prevent overflow from creating a trailing blank page. */
 @page { size:A4 portrait; margin:0; }
 @media print { html, body, #root { width:210mm; height:297mm; overflow:hidden; } .preview-panel { overflow:visible; } .document-wrap { height:297mm; overflow:hidden; } }
+
+/* Footer offices: 16px bold and slightly lower on the official sheet. */
+.doc-signatures { padding-top:6%; font-size:16px; font-weight:900; }
