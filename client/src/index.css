@@ -74,3 +74,7 @@
 .doc-statement { font-size:clamp(11px,1.45vw,14px); font-weight:900; }
 .doc-notes { font-size:clamp(12px,1.55vw,15px); font-weight:900; }
 .doc-statement > div, .doc-notes p { font-weight:900; }
+
+/* A4 export: prevent overflow from creating a trailing blank page. */
+@page { size:A4 portrait; margin:0; }
+@media print { html, body, #root { width:210mm; height:297mm; overflow:hidden; } .preview-panel { overflow:visible; } .document-wrap { height:297mm; overflow:hidden; } }
