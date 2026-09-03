@@ -27,3 +27,6 @@
 .doc-cell span { font-size:clamp(7px,.95vw,11px); font-weight:800; }
 .doc-cell.arabic span { font-size:clamp(8px,1.05vw,13px); font-weight:800; }
 .doc-statement, .doc-notes { font-weight:800; }
+
+/* Keep issue number and date below the certificate title, clear of the photo and heading. */
+.doc-meta { position:relative; top:26%; padding-top:0; }
