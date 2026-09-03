@@ -38,3 +38,9 @@
 
 /* Clear rectangular barcode presentation. */
 .linear-barcode { max-width:150px; height:30px; }
+
+/* Compact transparent personal Aztec code with the Yemen emblem integrated. */
+.personal-code { position:relative; width:clamp(70px,9vw,96px); height:clamp(70px,9vw,96px); display:grid; place-items:center; }
+.aztec-code { width:100%; height:100%; object-fit:contain; }
+.personal-code img { position:absolute; width:24%; height:24%; object-fit:contain; mix-blend-mode:multiply; }
+.photo-stack .linear-barcode { max-width:150px; height:30px; }

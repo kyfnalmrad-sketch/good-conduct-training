@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
+import bwipjs from "@bwip-js/browser";
 
 const officialTemplate = "/assets/official-good-conduct-template.png";
 const defaultPhoto = "/assets/training-photo.svg";
@@ -33,6 +34,11 @@ const initial: FormState = {
 function Field({ label, value, onChange, dir = "rtl" }: { label: string; value: string; onChange: (v: string) => void; dir?: "rtl" | "ltr" }) {
   return <div className="field"><Label>{label}</Label><Input dir={dir} value={value} onChange={(e) => onChange(e.target.value)} /></div>;
 }
+function AdvancedBarcode({ value, bcid, className = "advanced-barcode" }: { value: string; bcid: "pdf417" | "azteccode"; className?: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => { if (ref.current) bwipjs.toCanvas(ref.current, { bcid, text: value || "TRAINING", scale: 2, height: bcid === "pdf417" ? 10 : 14, includetext: false, padding: 0, backgroundcolor: "FFFFFF00" }); }, [value, bcid]);
+  return <canvas ref={ref} className={className} aria-label={bcid === "pdf417" ? "باركود PDF417" : "باركود Aztec"} />;
+}
 function Barcode({ value }: { value: string }) {
   const ref = useRef<SVGSVGElement>(null);
   useEffect(() => { if (ref.current) JsBarcode(ref.current, value || "TRAINING", { format: "CODE128", displayValue: false, margin: 0, width: 1.25, height: 24 }); }, [value]);
@@ -51,7 +57,7 @@ function DocumentPreview({ data, photo }: { data: FormState; photo: string }) {
   const payload = JSON.stringify({ nameAr: data.fullNameAr, nameEn: data.fullNameEn, surnameAr: data.surnameAr, surnameEn: data.surnameEn, birthDate: data.birthDate, idNumber: data.idNumberAr, nationality: data.nationalityAr, occupation: data.occupationAr });
   return <div className="document-wrap"><article className="document" id="print-document">
     <div className="word-template-bg" style={{ backgroundImage: `url(${officialTemplate})` }} />
-    <div className="doc-top"><div className="photo-stack"><img className="doc-photo" src={photo} alt="الصورة الشخصية" /><Barcode value={`${data.issueNo}|${data.referenceNo}|${data.issuanceNo}`} /></div><div className="doc-meta"><div><small>No. | رقم القيد</small><b>{data.issueNo}</b></div><div><small>Issue No. | رقم الإصدار</small><b>{data.issuanceNo}</b></div><div><small>Issue Date | تاريخ الإصدار</small><b>{data.issueDate}</b></div></div><div className="qr-box"><QRCodeSVG value={payload} size={96} level="H" includeMargin /><span>{data.fullNameAr || data.fullNameEn}</span></div></div>
+    <div className="doc-top"><div className="photo-stack"><img className="doc-photo" src={photo} alt="الصورة الشخصية" /><AdvancedBarcode value={`${data.issueNo}|${data.referenceNo}|${data.issuanceNo}`} bcid="pdf417" className="linear-barcode" /></div><div className="doc-meta"><div><small>No. | رقم القيد</small><b>{data.issueNo}</b></div><div><small>Issue No. | رقم الإصدار</small><b>{data.issuanceNo}</b></div><div><small>Issue Date | تاريخ الإصدار</small><b>{data.issueDate}</b></div></div><div className="qr-box"><div className="personal-code"><AdvancedBarcode value={payload} bcid="azteccode" className="aztec-code" /><img src="/assets/yemen-emblem.png" alt="" /></div><span>{data.fullNameAr || data.fullNameEn}</span></div></div>
     <div className="doc-table" aria-label="جدول البيانات ثنائي اللغة">{rows.map((row, i) => <div className="doc-row" key={i}><div className="doc-language english-side">{row.slice(0, 2).map(([label, value]) => <div className="doc-cell english" key={label}><span>{label}</span><b dir="ltr">{value}</b></div>)}</div><div className="doc-language arabic-side">{row.slice(2).map(([label, value]) => <div className="doc-cell arabic" key={label}><span>{label}</span><b dir="rtl">{value}</b></div>)}</div></div>)}</div>
     <div className="doc-statement"><div>{data.notesEn}</div><div dir="rtl">{data.notesAr}</div></div>
     <div className="doc-notes"><div><p>Any scratch or modification of the information provided in this certificate, maker it found</p><p>Date of expired {data.expiryEn}</p></div><div dir="rtl"><p>أي محو أو تعديل أو شطب في هذه البيانات يعتبر هذه الوثيقة لاغية</p><p>تاريخ الانتهاء {data.expiryAr}</p></div></div>
