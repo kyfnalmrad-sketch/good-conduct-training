@@ -55,7 +55,7 @@ function DocumentPreview({ data, photo }: { data: FormState; photo: string }) {
     <div className="doc-table" aria-label="جدول البيانات ثنائي اللغة">{rows.map((row, i) => <div className="doc-row" key={i}><div className="doc-language english-side">{row.slice(0, 2).map(([label, value]) => <div className="doc-cell english" key={label}><span>{label}</span><b dir="ltr">{value}</b></div>)}</div><div className="doc-language arabic-side">{row.slice(2).map(([label, value]) => <div className="doc-cell arabic" key={label}><span>{label}</span><b dir="rtl">{value}</b></div>)}</div></div>)}</div>
     <div className="doc-statement"><div>{data.notesEn}</div><div dir="rtl">{data.notesAr}</div></div>
     <div className="doc-notes"><div><p>Any scratch or modification of the information provided in this certificate, maker it found</p><p>Date of expired {data.expiryEn}</p></div><div dir="rtl"><p>أي محو أو تعديل أو شطب في هذه البيانات يعتبر هذه الوثيقة لاغية</p><p>تاريخ الانتهاء {data.expiryAr}</p></div></div>
-    <div className="doc-signatures"><span dir="rtl">مدير الأدلة الجنائية والبحث / عدن</span><span dir="rtl">الحاسب الآلي / عدن</span></div>
+    <div className="doc-signatures"><span dir="rtl">مدير الجنائية والبحث م/عدن</span><span dir="rtl">الحاسب الآلي م/عدن</span></div>
   </article></div>;
 }
 

@@ -23,13 +23,14 @@
 
 /* Final alignment pass: keep issue metadata clear of the fixed title and preserve value sizing. */
 .doc-top { margin-top:28%; }
-.doc-meta { padding-top:10%; }
-.doc-cell span { font-size:clamp(8px,1.1vw,12px); font-weight:800; }
-.doc-cell.arabic span { font-size:clamp(9px,1.2vw,14px); font-weight:800; }
+.doc-meta { padding-top:15%; }
+.doc-cell span { font-size:clamp(10px,1.35vw,14px); font-weight:800; }
+.doc-cell.arabic span { font-size:clamp(11px,1.45vw,16px); font-weight:800; }
 .doc-cell b { font-weight:400; }
 .doc-table, .doc-cell { background:transparent; }
 .doc-notes { font-size:clamp(8px,1.05vw,11px); font-weight:800; }
 .doc-statement, .doc-notes { font-weight:800; }
+.doc-signatures { padding-top:4%; }
 
 /* Keep issue number and date below the certificate title, clear of the photo and heading. */
 .doc-meta { position:relative; top:26%; padding-top:0; }
