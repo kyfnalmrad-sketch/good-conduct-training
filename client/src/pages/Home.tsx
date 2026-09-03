@@ -36,7 +36,7 @@ function Field({ label, value, onChange, dir = "rtl" }: { label: string; value: 
 }
 function AdvancedBarcode({ value, bcid, className = "advanced-barcode" }: { value: string; bcid: "pdf417" | "azteccode"; className?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => { if (ref.current) bwipjs.toCanvas(ref.current, { bcid, text: value || "TRAINING", scale: 2, height: bcid === "pdf417" ? 10 : 14, includetext: false, padding: 0, backgroundcolor: "FFFFFF00" }); }, [value, bcid]);
+  useEffect(() => { if (ref.current) bwipjs.toCanvas(ref.current, { bcid, text: value || "TRAINING", scale: 2, height: bcid === "pdf417" ? 10 : 14, includetext: false, padding: 0 }); }, [value, bcid]);
   return <canvas ref={ref} className={className} aria-label={bcid === "pdf417" ? "باركود PDF417" : "باركود Aztec"} />;
 }
 function Barcode({ value }: { value: string }) {
