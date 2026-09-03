@@ -24,8 +24,8 @@
 /* Final alignment pass: keep issue metadata clear of the fixed title and preserve value sizing. */
 .doc-top { margin-top:28%; }
 .doc-meta { padding-top:10%; }
-.doc-cell span { font-size:clamp(7px,.95vw,11px); font-weight:800; }
-.doc-cell.arabic span { font-size:clamp(8px,1.05vw,13px); font-weight:800; }
+.doc-cell span { font-size:clamp(8px,1.1vw,12px); font-weight:800; }
+.doc-cell.arabic span { font-size:clamp(9px,1.2vw,14px); font-weight:800; }
 .doc-cell b { font-weight:400; }
 .doc-statement, .doc-notes { font-weight:800; }
 
