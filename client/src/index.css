@@ -35,3 +35,6 @@
 
 /* Keep issue number and date below the certificate title, clear of the photo and heading. */
 .doc-meta { position:relative; top:26%; padding-top:0; }
+
+/* Clear rectangular barcode presentation. */
+.linear-barcode { max-width:150px; height:30px; }
