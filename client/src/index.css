@@ -916,10 +916,10 @@
 }
 
 /* Keep the bilingual cancellation notice visible at the bottom of the official sheet. */
-.doc-notes { position:absolute; left:6%; right:6%; bottom:7.2%; width:auto; margin:0; padding:0; z-index:3; display:grid; grid-template-columns:1fr 1fr; gap:5%; color:#222; font-size:clamp(8px,1vw,11px); line-height:1.35; }
+.doc-notes { position:absolute; left:6%; right:6%; bottom:9.2%; width:auto; margin:0; padding:0; z-index:3; display:grid; grid-template-columns:1fr 1fr; gap:5%; color:#222; font-size:clamp(8px,1vw,11px); line-height:1.35; }
 .doc-notes > div { background:#ffffffd9; padding:2px 4px; }
 .doc-notes p { margin:0 0 3px; font-weight:800; }
-.doc-signatures { position:absolute; left:7%; right:7%; bottom:2.6%; padding:0; z-index:3; font-size:clamp(9px,1.05vw,13px); }
+.doc-signatures { position:absolute; left:7%; right:7%; bottom:5.6%; padding:0; z-index:3; font-size:clamp(9px,1.05vw,13px); }
 
 .records-page { min-height:100vh; background:#eef0ed; color:#21343b; }
 .records-header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px clamp(18px,4vw,58px); background:#17333c; color:#f8f4ea; }
