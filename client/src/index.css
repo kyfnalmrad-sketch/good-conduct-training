@@ -28,6 +28,7 @@
 .doc-cell.arabic span { font-size:clamp(11px,1.45vw,16px); font-weight:800; }
 .doc-cell b { font-weight:400; }
 .doc-table, .doc-cell { background:transparent; }
+.doc-statement, .doc-notes { background:transparent; }
 .doc-notes { font-size:clamp(8px,1.05vw,11px); font-weight:800; }
 .doc-statement, .doc-notes { font-weight:800; }
 .doc-signatures { padding-top:4%; }
