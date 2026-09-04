@@ -175,6 +175,15 @@ function makeTransparentPhoto(file: File): Promise<string> {
   });
 }
 
+function readPhoto(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("photo-read-failed"));
+    reader.onload = () => resolve(String(reader.result));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function migrateData(saved: Partial<FormState>) {
   const merged = { ...initial, ...saved };
   const idDate = toInputDate(merged.idIssueDateEn || merged.idIssueDateAr);
@@ -1016,9 +1025,11 @@ function Barcode({ value }: { value: string }) {
 export function DocumentPreview({
   data,
   photo,
+  watermarkPhoto = photo,
 }: {
   data: FormState;
   photo: string;
+  watermarkPhoto?: string;
 }) {
   const rows = [
     [
@@ -1082,7 +1093,7 @@ export function DocumentPreview({
 	        />
 	        {photo !== defaultPhoto && (
 	          <div className="doc-watermark-wrap" aria-hidden="true">
-	            <img className="doc-watermark" src={photo} alt="" />
+            <img className="doc-watermark" src={watermarkPhoto} alt="" />
 	            <span>{data.internalNo}</span>
 	          </div>
 	        )}
@@ -1178,6 +1189,8 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [data, setData] = useState(initial);
   const [photo, setPhoto] = useState(defaultPhoto);
+  const [watermarkPhoto, setWatermarkPhoto] = useState(defaultPhoto);
+  const [removePhotoBackground, setRemovePhotoBackground] = useState(false);
   const [closingTextMode, setClosingTextMode] = useState<"fixed" | "custom">(
     "fixed"
   );
@@ -1197,6 +1210,12 @@ export default function Home() {
     try {
       const saved = localStorage.getItem("good-conduct-form-data");
       const savedPhoto = localStorage.getItem("good-conduct-form-photo");
+      const savedWatermarkPhoto = localStorage.getItem(
+        "good-conduct-watermark-photo"
+      );
+      const savedTransparency = localStorage.getItem(
+        "good-conduct-remove-photo-background"
+      );
       const savedClosingTextMode = localStorage.getItem(
         "good-conduct-closing-text-mode"
       );
@@ -1205,6 +1224,10 @@ export default function Home() {
       );
       if (saved) setData(migrateData(JSON.parse(saved)));
       if (savedPhoto) setPhoto(savedPhoto);
+      if (savedWatermarkPhoto) setWatermarkPhoto(savedWatermarkPhoto);
+      else if (savedPhoto) setWatermarkPhoto(savedPhoto);
+      if (savedTransparency !== null)
+        setRemovePhotoBackground(savedTransparency === "true");
       if (savedClosingTextMode === "custom" || savedClosingTextMode === "fixed")
         setClosingTextMode(savedClosingTextMode);
       if (savedDestinations) {
@@ -1220,13 +1243,20 @@ export default function Home() {
       try {
         localStorage.setItem("good-conduct-form-data", JSON.stringify(data));
         localStorage.setItem("good-conduct-form-photo", photo);
+        localStorage.setItem("good-conduct-watermark-photo", watermarkPhoto);
         setDraftSaved(true);
       } catch {
         setDraftSaved(false);
       }
     }, 450);
     return () => window.clearTimeout(timer);
-  }, [data, photo]);
+  }, [data, photo, watermarkPhoto]);
+  useEffect(() => {
+    localStorage.setItem(
+      "good-conduct-remove-photo-background",
+      String(removePhotoBackground)
+    );
+  }, [removePhotoBackground]);
   useEffect(() => {
     localStorage.setItem("good-conduct-closing-text-mode", closingTextMode);
   }, [closingTextMode]);
@@ -1412,8 +1442,16 @@ export default function Home() {
       return;
     }
     try {
-      setPhoto(await makeTransparentPhoto(file));
-      toast.success("تم تحسين الصورة وإزالة الخلفية البيضاء المتصلة");
+      const originalPhoto = await readPhoto(file);
+      setWatermarkPhoto(originalPhoto);
+      setPhoto(
+        removePhotoBackground ? await makeTransparentPhoto(file) : originalPhoto
+      );
+      toast.success(
+        removePhotoBackground
+          ? "تم تحسين الصورة وإزالة الخلفية البيضاء المتصلة"
+          : "تم حفظ الصورة دون إزالة الخلفية"
+      );
     } catch {
       toast.error("تعذر معالجة الصورة");
     }
@@ -1428,6 +1466,7 @@ export default function Home() {
     }
     localStorage.setItem("good-conduct-form-data", JSON.stringify(data));
     localStorage.setItem("good-conduct-form-photo", photo);
+    localStorage.setItem("good-conduct-watermark-photo", watermarkPhoto);
     const records = readStoredRecords();
     const record = {
       id: data.internalNo || `${data.issueNo}-${Date.now()}`,
@@ -1450,8 +1489,11 @@ export default function Home() {
   const reset = () => {
     setData(initial);
     setPhoto(defaultPhoto);
+    setWatermarkPhoto(defaultPhoto);
+    setRemovePhotoBackground(false);
     localStorage.removeItem("good-conduct-form-data");
     localStorage.removeItem("good-conduct-form-photo");
+    localStorage.removeItem("good-conduct-watermark-photo");
     setGenerated(false);
     setDraftSaved(false);
     toast.info("تمت استعادة البيانات التجريبية");
@@ -1734,6 +1776,35 @@ export default function Home() {
               onChange={e => onPhoto(e.target.files?.[0])}
             />
           </label>
+          <label className="transparency-toggle">
+            <input
+              type="checkbox"
+              checked={removePhotoBackground}
+              onChange={async e => {
+                const enabled = e.target.checked;
+                setRemovePhotoBackground(enabled);
+                if (watermarkPhoto === defaultPhoto) return;
+                try {
+                  const response = await fetch(watermarkPhoto);
+                  const blob = await response.blob();
+                  const file = new File([blob], "uploaded-photo", {
+                    type: blob.type || "image/png",
+                  });
+                  setPhoto(
+                    enabled
+                      ? await makeTransparentPhoto(file)
+                      : watermarkPhoto
+                  );
+                } catch {
+                  toast.error("تعذر تحديث شفافية الصورة");
+                }
+              }}
+            />
+            <span>
+              <strong>إزالة خلفية الصورة</strong>
+              <small>تؤثر على الصورة الشخصية فقط، ولا تغيّر العلامة المائية</small>
+            </span>
+          </label>
         </section>
         <section className="form-section">
           <div className="section-heading">
@@ -1807,6 +1878,10 @@ export default function Home() {
                   JSON.stringify(data)
                 );
                 localStorage.setItem("good-conduct-form-photo", photo);
+                localStorage.setItem(
+                  "good-conduct-watermark-photo",
+                  watermarkPhoto
+                );
                 setLocation("/preview");
               }}
             >
@@ -1821,7 +1896,11 @@ export default function Home() {
             التحكم.
           </span>
         </div>
-        <DocumentPreview data={data} photo={photo} />
+        <DocumentPreview
+          data={data}
+          photo={photo}
+          watermarkPhoto={watermarkPhoto}
+        />
       </section>
     </main>
   );

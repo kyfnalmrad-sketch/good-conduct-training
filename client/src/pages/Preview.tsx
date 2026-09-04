@@ -12,11 +12,15 @@ import { useEffect, useState } from "react";
 
 const savedDataKey = "good-conduct-form-data";
 const savedPhotoKey = "good-conduct-form-photo";
+const savedWatermarkPhotoKey = "good-conduct-watermark-photo";
 
 export default function Preview() {
   const [, setLocation] = useLocation();
   const [data, setData] = useState<FormState>(initial);
   const [photo, setPhoto] = useState("/assets/training-photo.svg");
+  const [watermarkPhoto, setWatermarkPhoto] = useState(
+    "/assets/training-photo.svg"
+  );
 
   useEffect(() => {
     document.title = createDocumentFileName(data.fullNameEn);
@@ -29,8 +33,11 @@ export default function Preview() {
     try {
       const storedData = localStorage.getItem(savedDataKey);
       const storedPhoto = localStorage.getItem(savedPhotoKey);
+      const storedWatermarkPhoto = localStorage.getItem(savedWatermarkPhotoKey);
       if (storedData) setData(migrateData(JSON.parse(storedData)));
       if (storedPhoto) setPhoto(storedPhoto);
+      if (storedWatermarkPhoto) setWatermarkPhoto(storedWatermarkPhoto);
+      else if (storedPhoto) setWatermarkPhoto(storedPhoto);
     } catch {
       // Keep the training defaults if saved data is unavailable.
     }
@@ -72,7 +79,11 @@ export default function Preview() {
           <ArrowRight size={16} /> العودة للمحرر
         </Button>
       </section>
-      <DocumentPreview data={data} photo={photo} />
+      <DocumentPreview
+        data={data}
+        photo={photo}
+        watermarkPhoto={watermarkPhoto}
+      />
     </main>
   );
 }

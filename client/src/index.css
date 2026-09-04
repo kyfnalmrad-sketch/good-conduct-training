@@ -411,6 +411,36 @@
   opacity: 0;
   cursor: pointer;
 }
+.transparency-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #dedbd4;
+  border-radius: 8px;
+  background: #fbfaf7;
+  color: #30434a;
+  cursor: pointer;
+}
+.transparency-toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: #2f5262;
+}
+.transparency-toggle span {
+  display: grid;
+  gap: 3px;
+}
+.transparency-toggle strong {
+  font-size: 11px;
+}
+.transparency-toggle small {
+  color: #7c817f;
+  font-size: 9px;
+  line-height: 1.4;
+}
 .actions {
   display: flex;
   gap: 10px;
@@ -2109,6 +2139,8 @@
 .document .photo-stack {
   top: 38mm;
   width: 40mm;
+  height: 60mm;
+  margin: 0;
   height: auto;
   overflow: visible;
 }
@@ -2132,6 +2164,29 @@
   object-fit: cover;
   object-position: center;
   overflow: hidden;
+}
+
+/* الصورة الرئيسية: مقاس ثابت 40 × 60 مم، أسفل الخط العلوي وبمحاذاة الباركود. */
+.document .photo-stack {
+  left: 3mm;
+  top: 42mm;
+  width: 40mm;
+  height: 60mm;
+  min-width: 40mm;
+  min-height: 60mm;
+  max-width: 40mm;
+  max-height: 60mm;
+  margin: 0;
+}
+.document .photo-stack .doc-photo {
+  width: 40mm;
+  height: 60mm;
+  min-width: 40mm;
+  min-height: 60mm;
+  max-width: 40mm;
+  max-height: 60mm;
+  object-fit: cover;
+  object-position: center;
 }
 /* Smaller, orderly watermark crop with its reference number directly below. */
 .document .doc-watermark-wrap {
@@ -2160,6 +2215,21 @@
   font-size: 7px;
   line-height: 1;
   margin-top: 1mm;
+}
+
+/* موضع العلامة المائية: ١.٥ سم فوق أسفل الورقة ومحاذاة الحافة اليسرى. */
+.document .doc-watermark-wrap {
+  left: 0;
+  top: auto;
+  bottom: 15mm;
+  transform: none;
+  justify-items: start;
+}
+.document .doc-watermark {
+  object-position: left center;
+}
+.doc-watermark-wrap span {
+  text-align: left;
 }
 
 /* Final signature and barcode alignment refinement. */
