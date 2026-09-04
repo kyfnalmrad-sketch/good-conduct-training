@@ -380,15 +380,15 @@ export function DocumentPreview({
       ["نوع الهوية", data.idTypeAr],
     ],
       [
-        ["Passport Expiry Date", formatDate(data.passportEn)],
+        ["ID Issue Date", formatDate(data.idIssueDateEn)],
         ["Nationality", data.nationalityEn],
         ["الجنسية", data.nationalityAr],
-        ["تاريخ انتهاء الجواز", formatArabicDate(data.passportAr)],
+        ["تاريخ إصدار الهوية", formatArabicDate(data.idIssueDateAr)],
       ],
       [
         ["Occupation", data.occupationEn],
-        ["ID Issue Date", formatDate(data.idIssueDateEn)],
-        ["تاريخ إصدار الهوية", formatArabicDate(data.idIssueDateAr)],
+        ["Passport Expiry Date", formatDate(data.passportEn)],
+        ["تاريخ انتهاء الجواز", formatArabicDate(data.passportAr)],
         ["المهنة", data.occupationAr],
       ],
     [
@@ -702,20 +702,20 @@ export default function Home() {
               onChange={changes => setData(d => ({ ...d, ...changes }))}
             />
             <DatePairField
-              label="تاريخ إصدار الهوية / ID Issue Date"
-              arabicValue={data.idIssueDateAr}
-              englishValue={data.idIssueDateEn}
-              linked={linkedDates.idIssue}
-              onToggle={() => setLinkedDates(d => ({ ...d, idIssue: !d.idIssue }))}
-              onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "idIssueDateAr" : "idIssueDateEn"]: value }))}
-            />
-            <DatePairField
               label="تاريخ انتهاء الهوية / الجواز / Passport Expiry Date"
               arabicValue={data.passportAr}
               englishValue={data.passportEn}
               linked={linkedDates.passport}
               onToggle={() => setLinkedDates(d => ({ ...d, passport: !d.passport }))}
               onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "passportAr" : "passportEn"]: value }))}
+            />
+            <DatePairField
+              label="تاريخ إصدار الهوية / ID Issue Date"
+              arabicValue={data.idIssueDateAr}
+              englishValue={data.idIssueDateEn}
+              linked={linkedDates.idIssue}
+              onToggle={() => setLinkedDates(d => ({ ...d, idIssue: !d.idIssue }))}
+              onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "idIssueDateAr" : "idIssueDateEn"]: value }))}
             />
             <DatePairField
               label="تاريخ انتهاء الوثيقة / Document Expiry Date"
