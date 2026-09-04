@@ -1,7 +1,13 @@
 import { ArrowRight, Download, FilePenLine, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { DocumentPreview, initial, migrateData, type FormState } from "./Home";
+import {
+  createDocumentFileName,
+  DocumentPreview,
+  initial,
+  migrateData,
+  type FormState,
+} from "./Home";
 import { useEffect, useState } from "react";
 
 const savedDataKey = "good-conduct-form-data";
@@ -11,6 +17,13 @@ export default function Preview() {
   const [, setLocation] = useLocation();
   const [data, setData] = useState<FormState>(initial);
   const [photo, setPhoto] = useState("/assets/training-photo.svg");
+
+  useEffect(() => {
+    document.title = createDocumentFileName(data.fullNameEn);
+    return () => {
+      document.title = "نظام إصدار حسن السيرة | معاينة تدريبية";
+    };
+  }, [data.fullNameEn]);
 
   useEffect(() => {
     try {
