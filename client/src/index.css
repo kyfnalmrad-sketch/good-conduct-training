@@ -2161,3 +2161,21 @@
   line-height: 1;
   margin-top: 1mm;
 }
+
+/* Final signature and barcode alignment refinement. */
+.document .photo-stack .linear-barcode {
+  flex: 0 0 auto;
+  width: 100% !important;
+  min-width: 0;
+  max-width: 100% !important;
+  height: 9mm !important;
+  min-height: 9mm;
+  margin: 1mm 0 0;
+}
+.document .doc-photo-name {
+  width: 100%;
+}
+.document .doc-signatures {
+  bottom: 24mm;
+  column-gap: 28%;
+}
