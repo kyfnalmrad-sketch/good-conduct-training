@@ -336,10 +336,9 @@ function referenceInitials(fullName: string, surname: string) {
     .split(/\s+/)
     .filter(Boolean);
   const initials = nameParts
-    .slice(0, 3)
     .map(part => part.charAt(0).toUpperCase())
     .join("");
-  return initials.padEnd(3, "X").slice(0, 3);
+  return initials || "USR";
 }
 
 function referenceCheckCode(seed: string) {
@@ -386,16 +385,11 @@ function generateUniqueIdentifiers(
       used
     ),
     referenceNo: uniqueIdentifier(
-      () => {
-        const serial = randomDigits(4);
-        const prefix = `${initials}${stamp.slice(0, 8)}${serial}`;
-        return `REF-${initials}-${stamp.slice(0, 8)}-${serial}-${referenceCheckCode(prefix)}`;
-      },
+      () => `REF-${initials}-${randomDigits(6)}`,
       used
     ),
     internalNo: uniqueIdentifier(
-      () =>
-        `INT-${stamp.slice(0, 4)}-${englishInitials(name)}-${randomDigits(6)}`,
+      () => `INT-${initials}-${randomDigits(6)}`,
       used
     ),
     issuanceNo: uniqueIdentifier(() => `ISS-${stamp}-${randomDigits(6)}`, used),
@@ -441,8 +435,8 @@ export type FormState = {
 
 export const initial: FormState = {
   issueNo: "20059",
-  referenceNo: "20260903-1811",
-  internalNo: "INT-00020059",
+  referenceNo: "REF-AJJAA-482731",
+  internalNo: "INT-AJJAA-739204",
   issuanceNo: "20260904-7318",
   issueDate: "2025-12-11",
   fullNameAr: "جميل جبر أحمد",
@@ -1083,7 +1077,7 @@ export function DocumentPreview({
       ["Issuing Authority", data.idIssuePlaceEn],
       ["Department Requested", data.departmentEn],
       ["جهة الإصدار", data.idIssuePlaceAr],
-      ["الجهة الطالبة", data.departmentAr],
+      ["الجهة التي سيُقدَّم إليها", data.departmentAr],
     ],
   ];
   const qrPayload = [
