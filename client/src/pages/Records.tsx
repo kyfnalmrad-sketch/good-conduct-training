@@ -15,6 +15,7 @@ type RecordItem = {
   savedAt: string;
   data: FormState;
   photo: string;
+  watermarkPhoto?: string;
 };
 const recordsKey = "good-conduct-records";
 
@@ -55,6 +56,8 @@ export default function Records() {
   const edit = (record: RecordItem) => {
     localStorage.setItem("good-conduct-form-data", JSON.stringify(record.data));
     localStorage.setItem("good-conduct-form-photo", record.photo);
+    if (record.watermarkPhoto)
+      localStorage.setItem("good-conduct-watermark-photo", record.watermarkPhoto);
     setLocation("/editor");
   };
   const remove = (id: string) => {

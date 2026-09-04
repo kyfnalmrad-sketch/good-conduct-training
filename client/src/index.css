@@ -2217,19 +2217,20 @@
   margin-top: 1mm;
 }
 
-/* موضع العلامة المائية: ١.٥ سم فوق أسفل الورقة ومحاذاة الحافة اليسرى. */
+/* الموضع الأصلي للعلامة المائية: في منتصف الصفحة وفوق الجدول. */
 .document .doc-watermark-wrap {
-  left: 0;
-  top: auto;
-  bottom: 15mm;
-  transform: none;
-  justify-items: start;
+  left: 50%;
+  top: 83mm;
+  bottom: auto;
+  width: 20mm;
+  transform: translateX(-50%);
+  justify-items: center;
 }
 .document .doc-watermark {
-  object-position: left center;
+  object-position: center;
 }
 .doc-watermark-wrap span {
-  text-align: left;
+  text-align: center;
 }
 
 /* Final signature and barcode alignment refinement. */

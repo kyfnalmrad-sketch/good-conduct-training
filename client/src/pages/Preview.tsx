@@ -21,6 +21,7 @@ export default function Preview() {
   const [watermarkPhoto, setWatermarkPhoto] = useState(
     "/assets/training-photo.svg"
   );
+  const [showWatermark, setShowWatermark] = useState(false);
 
   useEffect(() => {
     document.title = createDocumentFileName(data.fullNameEn);
@@ -34,10 +35,15 @@ export default function Preview() {
       const storedData = localStorage.getItem(savedDataKey);
       const storedPhoto = localStorage.getItem(savedPhotoKey);
       const storedWatermarkPhoto = localStorage.getItem(savedWatermarkPhotoKey);
+      const storedWatermarkVisibility = localStorage.getItem(
+        "good-conduct-show-watermark"
+      );
       if (storedData) setData(migrateData(JSON.parse(storedData)));
       if (storedPhoto) setPhoto(storedPhoto);
       if (storedWatermarkPhoto) setWatermarkPhoto(storedWatermarkPhoto);
       else if (storedPhoto) setWatermarkPhoto(storedPhoto);
+      if (storedWatermarkVisibility !== null)
+        setShowWatermark(storedWatermarkVisibility === "true");
     } catch {
       // Keep the training defaults if saved data is unavailable.
     }
@@ -83,6 +89,7 @@ export default function Preview() {
         data={data}
         photo={photo}
         watermarkPhoto={watermarkPhoto}
+        showWatermark={showWatermark}
       />
     </main>
   );

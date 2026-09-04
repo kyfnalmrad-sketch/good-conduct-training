@@ -1026,10 +1026,12 @@ export function DocumentPreview({
   data,
   photo,
   watermarkPhoto = photo,
+  showWatermark = false,
 }: {
   data: FormState;
   photo: string;
   watermarkPhoto?: string;
+  showWatermark?: boolean;
 }) {
   const rows = [
     [
@@ -1091,10 +1093,10 @@ export function DocumentPreview({
 	          alt=""
 	          aria-hidden="true"
 	        />
-	        {photo !== defaultPhoto && (
+        {showWatermark && watermarkPhoto !== defaultPhoto && (
 	          <div className="doc-watermark-wrap" aria-hidden="true">
             <img className="doc-watermark" src={watermarkPhoto} alt="" />
-	            <span>{data.internalNo}</span>
+            <span>{data.referenceNo}</span>
 	          </div>
 	        )}
 	        <div className="doc-top">
@@ -1191,6 +1193,7 @@ export default function Home() {
   const [photo, setPhoto] = useState(defaultPhoto);
   const [watermarkPhoto, setWatermarkPhoto] = useState(defaultPhoto);
   const [removePhotoBackground, setRemovePhotoBackground] = useState(false);
+  const [showWatermark, setShowWatermark] = useState(false);
   const [closingTextMode, setClosingTextMode] = useState<"fixed" | "custom">(
     "fixed"
   );
@@ -1216,6 +1219,9 @@ export default function Home() {
       const savedTransparency = localStorage.getItem(
         "good-conduct-remove-photo-background"
       );
+      const savedWatermarkVisibility = localStorage.getItem(
+        "good-conduct-show-watermark"
+      );
       const savedClosingTextMode = localStorage.getItem(
         "good-conduct-closing-text-mode"
       );
@@ -1228,6 +1234,8 @@ export default function Home() {
       else if (savedPhoto) setWatermarkPhoto(savedPhoto);
       if (savedTransparency !== null)
         setRemovePhotoBackground(savedTransparency === "true");
+      if (savedWatermarkVisibility !== null)
+        setShowWatermark(savedWatermarkVisibility === "true");
       if (savedClosingTextMode === "custom" || savedClosingTextMode === "fixed")
         setClosingTextMode(savedClosingTextMode);
       if (savedDestinations) {
@@ -1257,6 +1265,9 @@ export default function Home() {
       String(removePhotoBackground)
     );
   }, [removePhotoBackground]);
+  useEffect(() => {
+    localStorage.setItem("good-conduct-show-watermark", String(showWatermark));
+  }, [showWatermark]);
   useEffect(() => {
     localStorage.setItem("good-conduct-closing-text-mode", closingTextMode);
   }, [closingTextMode]);
@@ -1456,6 +1467,24 @@ export default function Home() {
       toast.error("تعذر معالجة الصورة");
     }
   };
+  const transferToRecords = () => {
+    const records = readStoredRecords();
+    const record = {
+      id: data.internalNo || `${data.issueNo}-${Date.now()}`,
+      savedAt: new Date().toISOString(),
+      data,
+      photo,
+      watermarkPhoto,
+    };
+    localStorage.setItem(
+      "good-conduct-records",
+      JSON.stringify([
+        record,
+        ...records.filter((r: { id: string }) => r.id !== record.id),
+      ])
+    );
+    toast.success("تم ترحيل الوثيقة إلى السجلات");
+  };
   const generate = () => {
     if (
       !data.issueNo.trim() ||
@@ -1473,6 +1502,7 @@ export default function Home() {
       savedAt: new Date().toISOString(),
       data,
       photo,
+      watermarkPhoto,
     };
     localStorage.setItem(
       "good-conduct-records",
@@ -1805,6 +1835,17 @@ export default function Home() {
               <small>تؤثر على الصورة الشخصية فقط، ولا تغيّر العلامة المائية</small>
             </span>
           </label>
+          <label className="transparency-toggle">
+            <input
+              type="checkbox"
+              checked={showWatermark}
+              onChange={e => setShowWatermark(e.target.checked)}
+            />
+            <span>
+              <strong>إضافة العلامة المائية</strong>
+              <small>تظهر في منتصف الصفحة فوق الجدول مع الرقم المرجعي</small>
+            </span>
+          </label>
         </section>
         <section className="form-section">
           <div className="section-heading">
@@ -1846,6 +1887,9 @@ export default function Home() {
         <div className="actions">
           <Button onClick={generate}>
             <FileCheck2 size={17} /> تحديث المعاينة
+          </Button>
+          <Button variant="outline" onClick={transferToRecords}>
+            <ClipboardList size={16} /> ترحيل للسجلات
           </Button>
           <Button variant="outline" onClick={reset}>
             <RotateCcw size={16} /> إعادة ضبط
@@ -1900,6 +1944,7 @@ export default function Home() {
           data={data}
           photo={photo}
           watermarkPhoto={watermarkPhoto}
+          showWatermark={showWatermark}
         />
       </section>
     </main>
