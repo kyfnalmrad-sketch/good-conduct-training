@@ -2233,6 +2233,34 @@
   text-align: center;
 }
 
+/* الرقم المرجعي كاملًا تحت العلامة المائية وباللون الأحمر. */
+.document .doc-watermark-wrap span {
+  width: 48mm;
+  max-width: 48mm;
+  color: #c62828;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.15;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+/* الاسم الإنجليزي الكامل أسفل الباركود وباللون الأزرق. */
+.document .doc-photo-name {
+  width: 40mm;
+  max-width: 40mm;
+  color: #1f5fae;
+  font: 700 9px/1.1 Arial, sans-serif;
+  text-align: center;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
 /* Final signature and barcode alignment refinement. */
 .document .photo-stack .linear-barcode {
   flex: 0 0 auto;
