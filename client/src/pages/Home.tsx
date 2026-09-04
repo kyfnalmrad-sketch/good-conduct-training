@@ -192,6 +192,25 @@ function englishInitials(name: string) {
   return initials || "USR";
 }
 
+function referenceInitials(fullName: string, surname: string) {
+  const nameParts = cleanEnglish(`${surname} ${fullName}`)
+    .split(/\s+/)
+    .filter(Boolean);
+  const initials = nameParts
+    .slice(0, 3)
+    .map(part => part.charAt(0).toUpperCase())
+    .join("");
+  return initials.padEnd(3, "X").slice(0, 3);
+}
+
+function referenceCheckCode(seed: string) {
+  return Array.from(seed).reduce(
+    (total, character, index) =>
+      (total + character.charCodeAt(0) * (index + 1)) % 100,
+    0
+  ).toString().padStart(2, "0");
+}
+
 function identifierValues(records: Array<{ data: FormState }>) {
   return new Set(
     records.flatMap(record => [
@@ -216,17 +235,23 @@ function uniqueIdentifier(create: () => string, used: Set<string>) {
 
 function generateUniqueIdentifiers(
   name: string,
+  surname: string,
   records: Array<{ data: FormState }>
 ) {
   const used = identifierValues(records);
   const stamp = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  const initials = referenceInitials(name, surname);
   return {
     issueNo: uniqueIdentifier(
       () => `${stamp.slice(0, 4)}${randomDigits(6)}`,
       used
     ),
     referenceNo: uniqueIdentifier(
-      () => `REF-${stamp}-${randomDigits(8)}`,
+      () => {
+        const serial = randomDigits(4);
+        const prefix = `${initials}${stamp.slice(0, 8)}${serial}`;
+        return `REF-${initials}-${stamp.slice(0, 8)}-${serial}-${referenceCheckCode(prefix)}`;
+      },
       used
     ),
     internalNo: uniqueIdentifier(
@@ -1084,6 +1109,7 @@ export default function Home() {
       ...d,
       ...generateUniqueIdentifiers(
         d.fullNameEn || d.fullNameAr,
+        d.surnameEn || d.surnameAr,
         readStoredRecords()
       ),
     }));
@@ -1115,6 +1141,7 @@ export default function Home() {
       const imported = excelRowToForm(rows[0]);
       const identifiers = generateUniqueIdentifiers(
         String(imported.fullNameEn || imported.fullNameAr || data.fullNameEn),
+        String(imported.surnameEn || imported.surnameAr || data.surnameEn),
         readStoredRecords()
       );
       let next = migrateData({ ...data, ...imported, ...identifiers });
