@@ -54,6 +54,62 @@ function cleanEnglish(value: string) {
     .trim();
 }
 
+function makeTransparentPhoto(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("photo-read-failed"));
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = () => reject(new Error("photo-decode-failed"));
+      image.onload = () => {
+        const scale = Math.min(1, 1200 / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+        if (!context) return reject(new Error("canvas-unavailable"));
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+        const { data, width, height } = pixels;
+        const isNearWhite = (index: number) =>
+          data[index] > 232 && data[index + 1] > 232 && data[index + 2] > 232;
+        const visited = new Uint8Array(width * height);
+        const queue: number[] = [];
+        const add = (x: number, y: number) => {
+          const position = y * width + x;
+          if (visited[position]) return;
+          const index = position * 4;
+          if (!isNearWhite(index)) return;
+          visited[position] = 1;
+          queue.push(position);
+        };
+        for (let x = 0; x < width; x++) {
+          add(x, 0);
+          add(x, height - 1);
+        }
+        for (let y = 0; y < height; y++) {
+          add(0, y);
+          add(width - 1, y);
+        }
+        for (let cursor = 0; cursor < queue.length; cursor++) {
+          const position = queue[cursor];
+          const x = position % width;
+          const y = Math.floor(position / width);
+          data[position * 4 + 3] = 0;
+          if (x > 0) add(x - 1, y);
+          if (x + 1 < width) add(x + 1, y);
+          if (y > 0) add(x, y - 1);
+          if (y + 1 < height) add(x, y + 1);
+        }
+        context.putImageData(pixels, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      image.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export function migrateData(saved: Partial<FormState>) {
   const merged = { ...initial, ...saved };
   const idDate = toInputDate(merged.idIssueDateEn || merged.idIssueDateAr);
@@ -1055,6 +1111,9 @@ export default function Home() {
   const [closingTextMode, setClosingTextMode] = useState<"fixed" | "custom">(
     "fixed"
   );
+  const [customDestinations, setCustomDestinations] = useState<
+    Array<{ ar: string; en: string }>
+  >([]);
   const [generated, setGenerated] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   const [documentYearLinked, setDocumentYearLinked] = useState(true);
@@ -1071,10 +1130,17 @@ export default function Home() {
       const savedClosingTextMode = localStorage.getItem(
         "good-conduct-closing-text-mode"
       );
+      const savedDestinations = localStorage.getItem(
+        "good-conduct-custom-destinations"
+      );
       if (saved) setData(migrateData(JSON.parse(saved)));
       if (savedPhoto) setPhoto(savedPhoto);
       if (savedClosingTextMode === "custom" || savedClosingTextMode === "fixed")
         setClosingTextMode(savedClosingTextMode);
+      if (savedDestinations) {
+        const parsed = JSON.parse(savedDestinations);
+        if (Array.isArray(parsed)) setCustomDestinations(parsed);
+      }
     } catch {
       /* keep defaults */
     }
@@ -1094,6 +1160,26 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem("good-conduct-closing-text-mode", closingTextMode);
   }, [closingTextMode]);
+  useEffect(() => {
+    const ar = data.departmentAr.trim();
+    const en = data.departmentEn.trim();
+    if (!ar || !en || findBilingualOption(ar, COUNTRIES)) return;
+    setCustomDestinations(previous => {
+      if (previous.some(option => option.ar === ar && option.en === en))
+        return previous;
+      return [...previous, { ar, en }];
+    });
+  }, [data.departmentAr, data.departmentEn]);
+  useEffect(() => {
+    localStorage.setItem(
+      "good-conduct-custom-destinations",
+      JSON.stringify(customDestinations)
+    );
+  }, [customDestinations]);
+  const destinationOptions = useMemo(
+    () => [...COUNTRIES, ...customDestinations],
+    [customDestinations]
+  );
   const update = (key: keyof FormState) => (value: string) =>
     setData(d => ({ ...d, [key]: value }));
   const fields = useMemo(
@@ -1245,7 +1331,7 @@ export default function Home() {
       return nextLinked;
     });
   };
-  const onPhoto = (file?: File) => {
+  const onPhoto = async (file?: File) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast.error("اختر ملف صورة صالحًا");
@@ -1255,10 +1341,12 @@ export default function Home() {
       toast.error("حجم الصورة يجب ألا يتجاوز 5 ميجابايت");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setPhoto(String(reader.result));
-    reader.onerror = () => toast.error("تعذر قراءة الصورة");
-    reader.readAsDataURL(file);
+    try {
+      setPhoto(await makeTransparentPhoto(file));
+      toast.success("تم تحسين الصورة وإزالة الخلفية البيضاء المتصلة");
+    } catch {
+      toast.error("تعذر معالجة الصورة");
+    }
   };
   const generate = () => {
     if (
@@ -1525,7 +1613,7 @@ export default function Home() {
             <BilingualChoiceField
               label="الجهة التي سيُقدَّم إليها / Department Requested"
               field="department"
-              options={COUNTRIES}
+              options={destinationOptions}
               arabicValue={data.departmentAr}
               englishValue={data.departmentEn}
               onChange={changes => setData(d => ({ ...d, ...changes }))}
