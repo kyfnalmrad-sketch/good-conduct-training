@@ -292,8 +292,12 @@ export function DocumentPreview({
           </div>
         </div>
         <div className="doc-signatures">
-          <span dir="rtl">مدير الجنائية والبحث م/عدن</span>
-          <span dir="rtl">الحاسب الآلي م/عدن</span>
+          <div className="office-signature">
+            <b dir="rtl">مدير الجنائية والبحث م/عدن</b>
+          </div>
+          <div className="office-signature">
+            <b dir="rtl">الحاسب الآلي م/عدن</b>
+          </div>
         </div>
       </article>
     </div>

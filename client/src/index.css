@@ -921,6 +921,76 @@
 .doc-notes p { margin:0 0 3px; font-weight:800; }
 .doc-signatures { position:absolute; left:7%; right:7%; bottom:5.6%; padding:0; z-index:3; font-size:clamp(9px,1.05vw,13px); }
 
+/* Exact portrait photo size: 4cm wide by 6cm high on the A4 certificate. */
+.doc-top { grid-template-columns: 40mm 1fr 15%; }
+.photo-stack { width: 40mm; }
+.photo-stack .doc-photo,
+.doc-photo {
+  width: 40mm;
+  height: 60mm;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+/* Lift the closing notice and pair each Arabic office title with its English equivalent. */
+.doc-notes { bottom: 11.2%; }
+.doc-signatures {
+  bottom: 6.9%;
+  align-items: end;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.office-signature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  text-align: center;
+}
+.office-signature b,
+.office-signature span {
+  font-size: 14px;
+  font-weight: 900;
+}
+.office-signature span { font-family: Arial, sans-serif; direction: ltr; }
+
+/* Final requested emphasis: the Arabic and English erasure notice is red, bold, and 16px. */
+.doc-notes {
+  bottom: 10.5%;
+  color: #b42318;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+.doc-notes > div {
+  color: #b42318;
+  background: transparent;
+  padding: 2px 6px;
+}
+.doc-notes p {
+  color: #b42318;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+.doc-notes p:nth-child(2) {
+  color: #1f5fae;
+  font-size: 12px;
+  font-weight: 900;
+}
+.doc-signatures {
+  bottom: 5.5%;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.office-signature b {
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .records-page { min-height:100vh; background:#eef0ed; color:#21343b; }
 .records-header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px clamp(18px,4vw,58px); background:#17333c; color:#f8f4ea; }
 .records-header button { color:#f8f4ea; border-color:#ffffff44; }
