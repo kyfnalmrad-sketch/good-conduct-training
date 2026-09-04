@@ -1820,6 +1820,11 @@
 
 /* Final print handling: one exact A4 portrait page with no clipping or trailing page. */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
   html,
   body,
   #root {
@@ -2169,7 +2174,7 @@
 /* الصورة الرئيسية: مقاس ثابت 40 × 60 مم، أسفل الخط العلوي وبمحاذاة الباركود. */
 .document .photo-stack {
   left: 3mm;
-  top: 42mm;
+  top: 44mm;
   width: 40mm;
   height: 60mm;
   min-width: 40mm;
@@ -2207,6 +2212,7 @@
   object-fit: cover;
   object-position: center;
   overflow: hidden;
+  mix-blend-mode: multiply;
 }
 .doc-watermark-wrap span {
   max-width: 20mm;
@@ -2306,15 +2312,17 @@
 /* Final signature and barcode alignment refinement. */
 .document .photo-stack .linear-barcode {
   flex: 0 0 auto;
-  width: 100% !important;
-  min-width: 0;
-  max-width: 100% !important;
+  width: 40mm !important;
+  min-width: 40mm;
+  max-width: 40mm !important;
   height: 9mm !important;
   min-height: 9mm;
+  max-height: 9mm;
   margin: 1mm 0 0;
+  display: block;
 }
 .document .doc-photo-name {
-  width: 100%;
+  width: 40mm;
 }
 .document .doc-signatures {
   bottom: 24mm;

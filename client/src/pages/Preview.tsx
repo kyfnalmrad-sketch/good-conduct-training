@@ -21,7 +21,7 @@ export default function Preview() {
   const [watermarkPhoto, setWatermarkPhoto] = useState(
     "/assets/training-photo.svg"
   );
-  const [showWatermark, setShowWatermark] = useState(false);
+  const [showWatermark, setShowWatermark] = useState(true);
 
   useEffect(() => {
     document.title = createDocumentFileName(data.fullNameEn);

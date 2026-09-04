@@ -1,4 +1,3 @@
-import JsBarcode from "jsbarcode";
 import {
   Download,
   FileCheck2,
@@ -1017,18 +1016,27 @@ function AdvancedBarcode({
   );
 }
 function Barcode({ value }: { value: string }) {
-  const ref = useRef<SVGSVGElement>(null);
+  const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    if (ref.current)
-      JsBarcode(ref.current, value || "TRAINING", {
-        format: "CODE128",
-        displayValue: false,
-        margin: 0,
-        width: 1.25,
-        height: 24,
+    if (ref.current) {
+      bwipjs.toCanvas(ref.current, {
+        bcid: "code128",
+        text: value || "TRAINING",
+        scale: 2,
+        height: 10,
+        includetext: false,
+        padding: 0,
       });
+    }
   }, [value]);
-  return <svg ref={ref} className="linear-barcode" aria-label="باركود شريطي" />;
+  return (
+    <canvas
+      ref={ref}
+      className="linear-barcode"
+      data-barcode-value={value}
+      aria-label="باركود شريطي"
+    />
+  );
 }
 
 export function DocumentPreview({
@@ -1089,10 +1097,13 @@ export function DocumentPreview({
     `OCCUPATION: ${cleanEnglish(data.occupationEn)}`,
   ].join("\n");
   const barcodePayload = [
-    `ISSUE NO: ${data.issueNo}`,
-    `REFERENCE NO: ${data.referenceNo}`,
-    `ISSUANCE NO: ${data.issuanceNo}`,
-  ].join("\n");
+    data.issueNo,
+    data.referenceNo,
+    data.internalNo,
+    data.issuanceNo,
+  ]
+    .filter(Boolean)
+    .join("|");
   return (
     <div className="document-wrap">
       <article className="document" id="print-document">
@@ -1102,7 +1113,7 @@ export function DocumentPreview({
 	          alt=""
 	          aria-hidden="true"
 	        />
-        {showWatermark && watermarkPhoto !== defaultPhoto && (
+        {showWatermark && watermarkPhoto && (
 	          <div className="doc-watermark-wrap" aria-hidden="true">
             <img className="doc-watermark" src={watermarkPhoto} alt="" />
             <span>{data.referenceNo}</span>
@@ -1111,7 +1122,7 @@ export function DocumentPreview({
 	        <div className="doc-top">
 	          <div className="photo-stack">
             <img className="doc-photo" src={photo} alt="الصورة الشخصية" />
-            <Barcode value={data.issueNo} />
+            <Barcode value={barcodePayload} />
             <span className="doc-photo-name" dir="ltr">
               {cleanEnglish(data.fullNameEn)}
             </span>
@@ -1212,9 +1223,10 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [data, setData] = useState(initial);
   const [photo, setPhoto] = useState(defaultPhoto);
+  const [originalPhoto, setOriginalPhoto] = useState(defaultPhoto);
   const [watermarkPhoto, setWatermarkPhoto] = useState(defaultPhoto);
   const [removePhotoBackground, setRemovePhotoBackground] = useState(false);
-  const [showWatermark, setShowWatermark] = useState(false);
+  const [showWatermark, setShowWatermark] = useState(true);
   const [closingTextMode, setClosingTextMode] = useState<"fixed" | "custom">(
     "fixed"
   );
@@ -1250,7 +1262,10 @@ export default function Home() {
         "good-conduct-custom-destinations"
       );
       if (saved) setData(migrateData(JSON.parse(saved)));
-      if (savedPhoto) setPhoto(savedPhoto);
+      if (savedPhoto) {
+        setPhoto(savedPhoto);
+        setOriginalPhoto(savedPhoto);
+      }
       if (savedWatermarkPhoto) setWatermarkPhoto(savedWatermarkPhoto);
       else if (savedPhoto) setWatermarkPhoto(savedPhoto);
       if (savedTransparency !== null)
@@ -1475,10 +1490,10 @@ export default function Home() {
     }
     try {
       const originalPhoto = await readPhoto(file);
-      setWatermarkPhoto(originalPhoto);
-      setPhoto(
-        removePhotoBackground ? await makeTransparentPhoto(file) : originalPhoto
-      );
+      const transparentPhoto = await makeTransparentPhoto(file);
+      setOriginalPhoto(originalPhoto);
+      setWatermarkPhoto(transparentPhoto);
+      setPhoto(removePhotoBackground ? transparentPhoto : originalPhoto);
       toast.success(
         removePhotoBackground
           ? "تم تحسين الصورة وإزالة الخلفية البيضاء المتصلة"
@@ -1519,6 +1534,7 @@ export default function Home() {
     ) as FormState;
     setData(cleared);
     setPhoto(defaultPhoto);
+    setOriginalPhoto(defaultPhoto);
     setWatermarkPhoto(defaultPhoto);
     setGenerated(false);
     setDraftSaved(false);
@@ -1561,6 +1577,7 @@ export default function Home() {
   const reset = () => {
     setData(initial);
     setPhoto(defaultPhoto);
+    setOriginalPhoto(defaultPhoto);
     setWatermarkPhoto(defaultPhoto);
     setRemovePhotoBackground(false);
     localStorage.removeItem("good-conduct-form-data");
@@ -1871,21 +1888,8 @@ export default function Home() {
               onChange={async e => {
                 const enabled = e.target.checked;
                 setRemovePhotoBackground(enabled);
-                if (watermarkPhoto === defaultPhoto) return;
-                try {
-                  const response = await fetch(watermarkPhoto);
-                  const blob = await response.blob();
-                  const file = new File([blob], "uploaded-photo", {
-                    type: blob.type || "image/png",
-                  });
-                  setPhoto(
-                    enabled
-                      ? await makeTransparentPhoto(file)
-                      : watermarkPhoto
-                  );
-                } catch {
-                  toast.error("تعذر تحديث شفافية الصورة");
-                }
+                if (originalPhoto !== defaultPhoto)
+                  setPhoto(enabled ? watermarkPhoto : originalPhoto);
               }}
             />
             <span>
