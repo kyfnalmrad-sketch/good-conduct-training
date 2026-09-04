@@ -24,19 +24,33 @@ export default function Records() {
   const [query, setQuery] = useState("");
   useEffect(() => {
     try {
-      setRecords(JSON.parse(localStorage.getItem(recordsKey) || "[]"));
+      const parsed = JSON.parse(localStorage.getItem(recordsKey) || "[]");
+      setRecords(
+        Array.isArray(parsed)
+          ? parsed.filter(
+              item =>
+                item &&
+                typeof item.id === "string" &&
+                typeof item.savedAt === "string" &&
+                item.data &&
+                typeof item.data === "object" &&
+                typeof item.photo === "string"
+            )
+          : []
+      );
     } catch {
       setRecords([]);
     }
   }, []);
+  const normalizedQuery = query.trim().toLocaleLowerCase("ar");
   const filtered = useMemo(
     () =>
       records.filter(r =>
         `${r.data.issueNo} ${r.data.fullNameAr} ${r.data.fullNameEn} ${r.data.referenceNo}`
-          .toLowerCase()
-          .includes(query.toLowerCase())
+          .toLocaleLowerCase("ar")
+          .includes(normalizedQuery)
       ),
-    [records, query]
+    [records, normalizedQuery]
   );
   const edit = (record: RecordItem) => {
     localStorage.setItem("good-conduct-form-data", JSON.stringify(record.data));
@@ -44,6 +58,8 @@ export default function Records() {
     setLocation("/editor");
   };
   const remove = (id: string) => {
+    if (!window.confirm("هل تريد حذف هذا السجل نهائيًا من هذا المتصفح؟"))
+      return;
     const next = records.filter(r => r.id !== id);
     setRecords(next);
     localStorage.setItem(recordsKey, JSON.stringify(next));
@@ -79,6 +95,7 @@ export default function Records() {
         <label className="records-search">
           <Search size={17} />
           <input
+            aria-label="البحث في السجلات"
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="ابحث بالاسم أو رقم القيد أو الرقم المرجعي"
@@ -94,8 +111,8 @@ export default function Records() {
                   </span>
                   <h2>{record.data.fullNameAr || record.data.fullNameEn}</h2>
                   <p>
-                    {record.data.fullNameEn} · تاريخ الإصدار{" "}
-                    {record.data.issueDate}
+                    {record.data.fullNameEn || "—"} · تاريخ الإصدار{" "}
+                    {record.data.issueDate || "—"}
                   </p>
                   <small>
                     حُفظ في {new Date(record.savedAt).toLocaleString("ar-YE")}

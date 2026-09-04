@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useRef, useState } from "react";
 import JsBarcode from "jsbarcode";
 import {
   Download,
@@ -19,6 +18,7 @@ import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import bwipjs from "@bwip-js/browser";
 import { useLocation } from "wouter";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const officialTemplate = "/assets/official-good-conduct-template.png";
 const defaultPhoto = "/assets/training-photo.svg";
@@ -46,14 +46,19 @@ function toInputDate(value: string) {
 }
 
 function cleanEnglish(value: string) {
-  return value.replace(/[^\x20-\x7E]/g, " ").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function migrateData(saved: Partial<FormState>) {
   const merged = { ...initial, ...saved };
   const idDate = toInputDate(merged.idIssueDateEn || merged.idIssueDateAr);
   const expiryDate = toInputDate(merged.expiryEn || merged.expiryAr);
-  const passportExpiryDate = toInputDate(merged.passportEn || merged.passportAr);
+  const passportExpiryDate = toInputDate(
+    merged.passportEn || merged.passportAr
+  );
   return {
     ...merged,
     issueDate: toInputDate(merged.issueDate) || initial.issueDate,
@@ -75,6 +80,31 @@ const NATIONALITIES = [
   { ar: "الأردن", en: "Jordan" },
 ];
 
+function readStoredRecords(): Array<{
+  id: string;
+  savedAt: string;
+  data: FormState;
+  photo: string;
+}> {
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem("good-conduct-records") || "[]"
+    );
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      item =>
+        item &&
+        typeof item.id === "string" &&
+        typeof item.savedAt === "string" &&
+        item.data &&
+        typeof item.data === "object" &&
+        typeof item.photo === "string"
+    );
+  } catch {
+    return [];
+  }
+}
+
 function randomDigits(length: number) {
   const values = new Uint32Array(length);
   crypto.getRandomValues(values);
@@ -86,7 +116,12 @@ function englishInitials(name: string) {
     .trim()
     .split(/\s+/)
     .filter(Boolean)
-    .map(part => part.replace(/[^A-Za-z]/g, "").charAt(0).toUpperCase())
+    .map(part =>
+      part
+        .replace(/[^A-Za-z]/g, "")
+        .charAt(0)
+        .toUpperCase()
+    )
     .join("");
   return initials || "USR";
 }
@@ -246,7 +281,11 @@ function DatePairField({
     <div className="date-pair-field">
       <div className="date-pair-heading">
         <Label>{label}</Label>
-        <button type="button" className={`link-toggle${linked ? " active" : ""}`} onClick={onToggle}>
+        <button
+          type="button"
+          className={`link-toggle${linked ? " active" : ""}`}
+          onClick={onToggle}
+        >
           {linked ? <Link2 size={13} /> : <Unlink2 size={13} />}
           {linked ? "مرتبط" : "مستقل"}
         </button>
@@ -254,11 +293,23 @@ function DatePairField({
       <div className="date-pair-grid">
         <div className="field">
           <label>العربي</label>
-          <Input type="date" dir="rtl" lang="ar" value={toInputDate(arabicValue)} onChange={e => change("ar", e.target.value)} />
+          <Input
+            type="date"
+            dir="rtl"
+            lang="ar"
+            value={toInputDate(arabicValue)}
+            onChange={e => change("ar", e.target.value)}
+          />
         </div>
         <div className="field">
           <label>English</label>
-          <Input type="date" dir="ltr" lang="en" value={toInputDate(englishValue)} onChange={e => change("en", e.target.value)} />
+          <Input
+            type="date"
+            dir="ltr"
+            lang="en"
+            value={toInputDate(englishValue)}
+            onChange={e => change("en", e.target.value)}
+          />
         </div>
       </div>
     </div>
@@ -272,7 +323,9 @@ function NationalityField({
   data: FormState;
   onChange: (changes: Partial<FormState>) => void;
 }) {
-  const selected = NATIONALITIES.find(option => option.en === data.nationalityEn);
+  const selected = NATIONALITIES.find(
+    option => option.en === data.nationalityEn
+  );
   const isCustom = !selected;
   return (
     <div className="field nationality-field">
@@ -282,28 +335,55 @@ function NationalityField({
         value={isCustom ? "custom" : data.nationalityEn}
         onChange={e => {
           const option = NATIONALITIES.find(item => item.en === e.target.value);
-          if (option) onChange({ nationalityAr: option.ar, nationalityEn: option.en });
-          else if (e.target.value === "custom") onChange({ nationalityAr: "", nationalityEn: "" });
+          if (option)
+            onChange({ nationalityAr: option.ar, nationalityEn: option.en });
+          else if (e.target.value === "custom")
+            onChange({ nationalityAr: "", nationalityEn: "" });
         }}
       >
         {NATIONALITIES.map(option => (
-          <option key={option.en} value={option.en}>{option.en} / {option.ar}</option>
+          <option key={option.en} value={option.en}>
+            {option.en} / {option.ar}
+          </option>
         ))}
         <option value="custom">Custom / حر</option>
       </select>
       {isCustom && (
         <div className="custom-nationality-grid">
-          <Input dir="rtl" aria-label="الجنسية الحرة" value={data.nationalityAr} onChange={e => onChange({ nationalityAr: e.target.value })} placeholder="العربية" />
-          <Input dir="ltr" aria-label="Custom nationality" value={data.nationalityEn} onChange={e => onChange({ nationalityEn: e.target.value })} placeholder="English" />
+          <Input
+            dir="rtl"
+            aria-label="الجنسية الحرة"
+            value={data.nationalityAr}
+            onChange={e => onChange({ nationalityAr: e.target.value })}
+            placeholder="العربية"
+          />
+          <Input
+            dir="ltr"
+            aria-label="Custom nationality"
+            value={data.nationalityEn}
+            onChange={e => onChange({ nationalityEn: e.target.value })}
+            placeholder="English"
+          />
         </div>
       )}
     </div>
   );
 }
 
-function AutoButton({ onClick, label = "تلقائي" }: { onClick: () => void; label?: string }) {
+function AutoButton({
+  onClick,
+  label = "تلقائي",
+}: {
+  onClick: () => void;
+  label?: string;
+}) {
   return (
-    <Button type="button" variant="outline" className="auto-button" onClick={onClick}>
+    <Button
+      type="button"
+      variant="outline"
+      className="auto-button"
+      onClick={onClick}
+    >
       {label}
     </Button>
   );
@@ -367,30 +447,30 @@ export function DocumentPreview({
       ["اللقب", data.surnameAr],
       ["الاسم", data.fullNameAr],
     ],
-      [
-        ["Birth Place", data.birthPlaceEn],
-        ["BirthDate", formatDate(data.birthDate)],
-        ["تاريخ الميلاد", formatArabicDate(data.birthDate)],
-        ["محل الميلاد", data.birthPlaceAr],
-      ],
+    [
+      ["Birth Place", data.birthPlaceEn],
+      ["BirthDate", formatDate(data.birthDate)],
+      ["تاريخ الميلاد", formatArabicDate(data.birthDate)],
+      ["محل الميلاد", data.birthPlaceAr],
+    ],
     [
       ["Card Type", data.idTypeEn],
       ["ID Number", data.idNumberEn],
-        ["رقم الهوية", toArabicDigits(data.idNumberAr)],
+      ["رقم الهوية", toArabicDigits(data.idNumberAr)],
       ["نوع الهوية", data.idTypeAr],
     ],
-      [
-        ["ID Issue Date", formatDate(data.idIssueDateEn)],
-        ["Nationality", data.nationalityEn],
-        ["الجنسية", data.nationalityAr],
-        ["تاريخ إصدار الهوية", formatArabicDate(data.idIssueDateAr)],
-      ],
-      [
-        ["Occupation", data.occupationEn],
-        ["Passport Expiry Date", formatDate(data.passportEn)],
-        ["تاريخ انتهاء الجواز", formatArabicDate(data.passportAr)],
-        ["المهنة", data.occupationAr],
-      ],
+    [
+      ["ID Issue Date", formatDate(data.idIssueDateEn)],
+      ["Nationality", data.nationalityEn],
+      ["الجنسية", data.nationalityAr],
+      ["تاريخ إصدار الهوية", formatArabicDate(data.idIssueDateAr)],
+    ],
+    [
+      ["Occupation", data.occupationEn],
+      ["Passport Expiry Date", formatDate(data.passportEn)],
+      ["تاريخ انتهاء الجواز", formatArabicDate(data.passportAr)],
+      ["المهنة", data.occupationAr],
+    ],
     [
       ["ID Issue Place", data.idIssuePlaceEn],
       ["Department Requested", data.departmentEn],
@@ -510,7 +590,12 @@ export default function Home() {
   const [data, setData] = useState(initial);
   const [photo, setPhoto] = useState(defaultPhoto);
   const [generated, setGenerated] = useState(false);
-  const [linkedDates, setLinkedDates] = useState({ idIssue: true, expiry: true, passport: true });
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [linkedDates, setLinkedDates] = useState({
+    idIssue: true,
+    expiry: true,
+    passport: true,
+  });
   useEffect(() => {
     try {
       const saved = localStorage.getItem("good-conduct-form-data");
@@ -521,6 +606,18 @@ export default function Home() {
       /* keep defaults */
     }
   }, []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        localStorage.setItem("good-conduct-form-data", JSON.stringify(data));
+        localStorage.setItem("good-conduct-form-photo", photo);
+        setDraftSaved(true);
+      } catch {
+        setDraftSaved(false);
+      }
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [data, photo]);
   const update = (key: keyof FormState) => (value: string) =>
     setData(d => ({ ...d, [key]: value }));
   const fields = useMemo(
@@ -548,8 +645,17 @@ export default function Home() {
   );
   const onPhoto = (file?: File) => {
     if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("اختر ملف صورة صالحًا");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب ألا يتجاوز 5 ميجابايت");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setPhoto(String(reader.result));
+    reader.onerror = () => toast.error("تعذر قراءة الصورة");
     reader.readAsDataURL(file);
   };
   const generate = () => {
@@ -562,9 +668,7 @@ export default function Home() {
     }
     localStorage.setItem("good-conduct-form-data", JSON.stringify(data));
     localStorage.setItem("good-conduct-form-photo", photo);
-    const records = JSON.parse(
-      localStorage.getItem("good-conduct-records") || "[]"
-    );
+    const records = readStoredRecords();
     const record = {
       id: data.internalNo || `${data.issueNo}-${Date.now()}`,
       savedAt: new Date().toISOString(),
@@ -579,6 +683,7 @@ export default function Home() {
       ])
     );
     setGenerated(true);
+    setDraftSaved(true);
     toast.success("تم تحديث المعاينة بالبيانات");
     setLocation("/preview");
   };
@@ -638,7 +743,16 @@ export default function Home() {
                 onChange={update("referenceNo")}
                 dir="ltr"
               />
-              <AutoButton label="تلقائي للاثنين" onClick={() => setData(d => ({ ...d, referenceNo: generateReferenceNo(), issuanceNo: generateIssuanceNo() }))} />
+              <AutoButton
+                label="تلقائي للاثنين"
+                onClick={() =>
+                  setData(d => ({
+                    ...d,
+                    referenceNo: generateReferenceNo(),
+                    issuanceNo: generateIssuanceNo(),
+                  }))
+                }
+              />
             </div>
             <div className="field-with-action">
               <Field
@@ -647,7 +761,16 @@ export default function Home() {
                 onChange={update("issuanceNo")}
                 dir="ltr"
               />
-              <AutoButton label="تلقائي للاثنين" onClick={() => setData(d => ({ ...d, referenceNo: generateReferenceNo(), issuanceNo: generateIssuanceNo() }))} />
+              <AutoButton
+                label="تلقائي للاثنين"
+                onClick={() =>
+                  setData(d => ({
+                    ...d,
+                    referenceNo: generateReferenceNo(),
+                    issuanceNo: generateIssuanceNo(),
+                  }))
+                }
+              />
             </div>
             <div className="field-with-action">
               <Field
@@ -656,7 +779,14 @@ export default function Home() {
                 onChange={update("internalNo")}
                 dir="ltr"
               />
-              <AutoButton onClick={() => setData(d => ({ ...d, internalNo: generateInternalNo(d.fullNameEn) }))} />
+              <AutoButton
+                onClick={() =>
+                  setData(d => ({
+                    ...d,
+                    internalNo: generateInternalNo(d.fullNameEn),
+                  }))
+                }
+              />
             </div>
             <DateField
               label="تاريخ الإصدار / Issue Date"
@@ -673,7 +803,8 @@ export default function Home() {
             <div className="test-payload">
               <span>Barcode</span>
               <code>
-                ISSUE NO: {data.issueNo} | REFERENCE NO: {data.referenceNo} | ISSUANCE NO: {data.issuanceNo}
+                ISSUE NO: {data.issueNo} | REFERENCE NO: {data.referenceNo} |
+                ISSUANCE NO: {data.issuanceNo}
               </code>
               <b>يتحدث تلقائيًا</b>
             </div>
@@ -706,24 +837,45 @@ export default function Home() {
               arabicValue={data.passportAr}
               englishValue={data.passportEn}
               linked={linkedDates.passport}
-              onToggle={() => setLinkedDates(d => ({ ...d, passport: !d.passport }))}
-              onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "passportAr" : "passportEn"]: value }))}
+              onToggle={() =>
+                setLinkedDates(d => ({ ...d, passport: !d.passport }))
+              }
+              onChange={(side, value) =>
+                setData(d => ({
+                  ...d,
+                  [side === "ar" ? "passportAr" : "passportEn"]: value,
+                }))
+              }
             />
             <DatePairField
               label="تاريخ إصدار الهوية / ID Issue Date"
               arabicValue={data.idIssueDateAr}
               englishValue={data.idIssueDateEn}
               linked={linkedDates.idIssue}
-              onToggle={() => setLinkedDates(d => ({ ...d, idIssue: !d.idIssue }))}
-              onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "idIssueDateAr" : "idIssueDateEn"]: value }))}
+              onToggle={() =>
+                setLinkedDates(d => ({ ...d, idIssue: !d.idIssue }))
+              }
+              onChange={(side, value) =>
+                setData(d => ({
+                  ...d,
+                  [side === "ar" ? "idIssueDateAr" : "idIssueDateEn"]: value,
+                }))
+              }
             />
             <DatePairField
               label="تاريخ انتهاء الوثيقة / Document Expiry Date"
               arabicValue={data.expiryAr}
               englishValue={data.expiryEn}
               linked={linkedDates.expiry}
-              onToggle={() => setLinkedDates(d => ({ ...d, expiry: !d.expiry }))}
-              onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "expiryAr" : "expiryEn"]: value }))}
+              onToggle={() =>
+                setLinkedDates(d => ({ ...d, expiry: !d.expiry }))
+              }
+              onChange={(side, value) =>
+                setData(d => ({
+                  ...d,
+                  [side === "ar" ? "expiryAr" : "expiryEn"]: value,
+                }))
+              }
             />
           </div>
           <label className="upload-zone">
@@ -779,7 +931,12 @@ export default function Home() {
           </div>
           <div className="preview-actions">
             <span className={generated ? "status ready" : "status"}>
-              <i /> {generated ? "تم التحديث" : "بيانات تجريبية"}
+              <i />{" "}
+              {generated
+                ? "تم التحديث"
+                : draftSaved
+                  ? "المسودة محفوظة"
+                  : "بيانات تجريبية"}
             </span>
             <Button
               variant="outline"
