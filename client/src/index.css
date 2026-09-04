@@ -2280,7 +2280,7 @@
   color: #222;
 }
 .code-details .passport-number {
-  color: #ae8227;
+  color: inherit !important;
   font-weight: 800;
 }
 
