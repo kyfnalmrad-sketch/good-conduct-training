@@ -2261,6 +2261,25 @@
   overflow-wrap: anywhere;
 }
 
+/* تكبير بسيط للعلامة المائية وتحريكها ١ سم باتجاه الصورة الرسمية على A4. */
+.document .doc-watermark-wrap {
+  left: calc(50% - 10mm);
+  width: 24mm;
+  transform: translateX(-50%);
+}
+.document .doc-watermark {
+  width: 24mm;
+  height: 36mm;
+  min-width: 24mm;
+  min-height: 36mm;
+  max-width: 24mm;
+  max-height: 36mm;
+}
+.document .doc-watermark-wrap span {
+  width: 50mm;
+  max-width: 50mm;
+}
+
 /* Final signature and barcode alignment refinement. */
 .document .photo-stack .linear-barcode {
   flex: 0 0 auto;
