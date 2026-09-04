@@ -917,12 +917,21 @@
 /* Approved type scale: labels bold, values regular, and document print as its own page. */
 .doc-cell span,
 .doc-cell.arabic span {
+  width: 100%;
   font-size: 14px;
+  line-height: 1.15;
   font-weight: 800;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .doc-cell b {
-  font-size: 14px;
-  font-weight: 400;
+  width: 100%;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 800;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .doc-meta small {
   font-size: 16px;
