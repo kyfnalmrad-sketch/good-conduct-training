@@ -2107,7 +2107,7 @@
    The 10mm shift is expressed in physical units so resizing the preview does
    not move them unpredictably. */
 .document .photo-stack {
-  top: 40mm;
+  top: 38mm;
   width: 40mm;
   height: auto;
   overflow: visible;
