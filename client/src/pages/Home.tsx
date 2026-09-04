@@ -1113,7 +1113,9 @@ export function DocumentPreview({
               {cleanEnglish(data.fullNameEn)}
             </span>
             <div className="code-details code-details-en" dir="ltr">
-              <span>Passport No. {cleanEnglish(data.passportNoEn)}</span>
+              <span className="passport-number">
+                Passport No. {cleanEnglish(data.passportNoEn)}
+              </span>
               <span>Birth Place: {cleanEnglish(data.birthPlaceEn)}</span>
             </div>
           </div>
@@ -1134,7 +1136,9 @@ export function DocumentPreview({
             </div>
             <span>{data.fullNameAr || data.fullNameEn}</span>
             <div className="code-details code-details-ar" dir="rtl">
-              <span>رقم الجواز: {data.passportNoAr}</span>
+              <span className="passport-number">
+                رقم الجواز: {data.passportNoAr}
+              </span>
               <span>مكان الميلاد: {data.birthPlaceAr}</span>
             </div>
           </div>

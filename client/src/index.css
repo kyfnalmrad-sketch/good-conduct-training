@@ -2279,6 +2279,10 @@
   max-width: 34mm;
   color: #222;
 }
+.code-details .passport-number {
+  color: #ae8227;
+  font-weight: 800;
+}
 
 /* تكبير بسيط للعلامة المائية وتحريكها ١ سم باتجاه الصورة الرسمية على A4. */
 .document .doc-watermark-wrap {
