@@ -1,7 +1,7 @@
 import { ArrowRight, Download, FilePenLine, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { DocumentPreview, initial, type FormState } from "./Home";
+import { DocumentPreview, initial, migrateData, type FormState } from "./Home";
 import { useEffect, useState } from "react";
 
 const savedDataKey = "good-conduct-form-data";
@@ -16,7 +16,7 @@ export default function Preview() {
     try {
       const storedData = localStorage.getItem(savedDataKey);
       const storedPhoto = localStorage.getItem(savedPhotoKey);
-      if (storedData) setData({ ...initial, ...JSON.parse(storedData) });
+      if (storedData) setData(migrateData(JSON.parse(storedData)));
       if (storedPhoto) setPhoto(storedPhoto);
     } catch {
       // Keep the training defaults if saved data is unavailable.

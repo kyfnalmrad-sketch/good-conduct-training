@@ -21,6 +21,77 @@ import { useLocation } from "wouter";
 const officialTemplate = "/assets/official-good-conduct-template.png";
 const defaultPhoto = "/assets/training-photo.svg";
 
+function formatDate(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split("-");
+    return `${day}/${month}/${year}`;
+  }
+  return value;
+}
+
+function toInputDate(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  return match ? `${match[3]}-${match[2]}-${match[1]}` : "";
+}
+
+function cleanEnglish(value: string) {
+  return value.replace(/[^\x20-\x7E]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+export function migrateData(saved: Partial<FormState>) {
+  const merged = { ...initial, ...saved };
+  const idDate = toInputDate(merged.idIssueDateEn || merged.idIssueDateAr);
+  const expiryDate = toInputDate(merged.expiryEn || merged.expiryAr);
+  return {
+    ...merged,
+    issueDate: toInputDate(merged.issueDate) || initial.issueDate,
+    idIssueDateAr: idDate || initial.idIssueDateAr,
+    idIssueDateEn: idDate || initial.idIssueDateEn,
+    expiryAr: expiryDate || initial.expiryAr,
+    expiryEn: expiryDate || initial.expiryEn,
+  };
+}
+
+const NATIONALITIES = [
+  { ar: "اليمن", en: "Yemen" },
+  { ar: "السعودية", en: "Saudi Arabia" },
+  { ar: "عُمان", en: "Oman" },
+  { ar: "الإمارات العربية المتحدة", en: "United Arab Emirates" },
+  { ar: "مصر", en: "Egypt" },
+  { ar: "الأردن", en: "Jordan" },
+];
+
+function randomDigits(length: number) {
+  const values = new Uint32Array(length);
+  crypto.getRandomValues(values);
+  return Array.from(values, value => String(value % 10)).join("");
+}
+
+function englishInitials(name: string) {
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(part => part.replace(/[^A-Za-z]/g, "").charAt(0).toUpperCase())
+    .join("");
+  return initials || "USR";
+}
+
+function generateInternalNo(name: string) {
+  return `${englishInitials(name)}-${randomDigits(5)}`;
+}
+
+function generateReferenceNo() {
+  const stamp = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  return `REF-${stamp}-${randomDigits(6)}`;
+}
+
+function generateIssuanceNo() {
+  const stamp = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  return `ISS-${stamp}-${randomDigits(4)}`;
+}
+
 export type FormState = {
   issueNo: string;
   referenceNo: string;
@@ -61,7 +132,7 @@ export const initial: FormState = {
   referenceNo: "20260903-1811",
   internalNo: "INT-00020059",
   issuanceNo: "20260904-7318",
-  issueDate: "11/12/2025",
+  issueDate: "2025-12-11",
   fullNameAr: "جميل جبر أحمد",
   fullNameEn: "Jameel Jabr Ahmed",
   surnameAr: "الرملي",
@@ -79,14 +150,14 @@ export const initial: FormState = {
   nationalityEn: "Yemen",
   occupationAr: "منسوب مبيعات",
   occupationEn: "Sales Representative",
-  idIssueDateAr: "01/03/2023",
-  idIssueDateEn: "01/03/2023",
+  idIssueDateAr: "2023-03-01",
+  idIssueDateEn: "2023-03-01",
   idIssuePlaceAr: "معين",
   idIssuePlaceEn: "Ma'in",
   departmentAr: "سفارة عمان",
   departmentEn: "Embassy of Oman",
-  expiryAr: "11/03/2026",
-  expiryEn: "11/03/2026",
+  expiryAr: "2026-03-11",
+  expiryEn: "2026-03-11",
   notesAr:
     "تم التحقق من سجلاتنا، ولم يتم العثور على أي سوابق جنائية بحق المذكور.",
   notesEn:
@@ -107,8 +178,90 @@ function Field({
   return (
     <div className="field">
       <Label>{label}</Label>
-      <Input dir={dir} value={value} onChange={e => onChange(e.target.value)} />
+      <Input
+        dir={dir}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        onBlur={e => onChange(e.currentTarget.value.trim())}
+      />
     </div>
+  );
+}
+
+function DateField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="field">
+      <Label>{label}</Label>
+      <Input
+        type="date"
+        dir="ltr"
+        value={toInputDate(value)}
+        onChange={e => onChange(e.target.value)}
+      />
+    </div>
+  );
+}
+
+function LinkedDateField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return <DateField label={label} value={value} onChange={onChange} />;
+}
+
+function NationalityField({
+  data,
+  onChange,
+}: {
+  data: FormState;
+  onChange: (changes: Partial<FormState>) => void;
+}) {
+  const selected = NATIONALITIES.find(option => option.en === data.nationalityEn);
+  const isCustom = !selected;
+  return (
+    <div className="field nationality-field">
+      <Label>الجنسية / Nationality</Label>
+      <select
+        dir="ltr"
+        value={isCustom ? "custom" : data.nationalityEn}
+        onChange={e => {
+          const option = NATIONALITIES.find(item => item.en === e.target.value);
+          if (option) onChange({ nationalityAr: option.ar, nationalityEn: option.en });
+        }}
+      >
+        {NATIONALITIES.map(option => (
+          <option key={option.en} value={option.en}>{option.en} / {option.ar}</option>
+        ))}
+        <option value="custom">Custom / حر</option>
+      </select>
+      {isCustom && (
+        <div className="custom-nationality-grid">
+          <Input dir="rtl" aria-label="الجنسية الحرة" value={data.nationalityAr} onChange={e => onChange({ nationalityAr: e.target.value })} placeholder="العربية" />
+          <Input dir="ltr" aria-label="Custom nationality" value={data.nationalityEn} onChange={e => onChange({ nationalityEn: e.target.value })} placeholder="English" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AutoButton({ onClick, label = "تلقائي" }: { onClick: () => void; label?: string }) {
+  return (
+    <Button type="button" variant="outline" className="auto-button" onClick={onClick}>
+      {label}
+    </Button>
   );
 }
 function AdvancedBarcode({
@@ -136,6 +289,7 @@ function AdvancedBarcode({
     <canvas
       ref={ref}
       className={className}
+      data-barcode-value={value}
       aria-label={bcid === "pdf417" ? "باركود PDF417" : "باركود Aztec"}
     />
   );
@@ -171,8 +325,8 @@ export function DocumentPreview({
     ],
     [
       ["Birth Place", data.birthPlaceEn],
-      ["BirthDate", data.birthDate],
-      ["تاريخ الميلاد", data.birthDate],
+      ["BirthDate", formatDate(data.birthDate)],
+      ["تاريخ الميلاد", formatDate(data.birthDate)],
       ["محل الميلاد", data.birthPlaceAr],
     ],
     [
@@ -189,8 +343,8 @@ export function DocumentPreview({
     ],
     [
       ["Occupation", data.occupationEn],
-      ["ID Issue Date", data.idIssueDateEn],
-      ["تاريخ إصدار الهوية", data.idIssueDateAr],
+      ["ID Issue Date", formatDate(data.idIssueDateEn)],
+      ["تاريخ إصدار الهوية", formatDate(data.idIssueDateAr)],
       ["المهنة", data.occupationAr],
     ],
     [
@@ -200,16 +354,19 @@ export function DocumentPreview({
       ["الجهة الطالبة", data.departmentAr],
     ],
   ];
-  const payload = JSON.stringify({
-    nameAr: data.fullNameAr,
-    nameEn: data.fullNameEn,
-    surnameAr: data.surnameAr,
-    surnameEn: data.surnameEn,
-    birthDate: data.birthDate,
-    idNumber: data.idNumberAr,
-    nationality: data.nationalityAr,
-    occupation: data.occupationAr,
-  });
+  const qrPayload = [
+    `NAME: ${cleanEnglish(data.fullNameEn)}`,
+    `SURNAME: ${cleanEnglish(data.surnameEn)}`,
+    `BIRTH DATE: ${formatDate(data.birthDate)}`,
+    `ID NUMBER: ${data.idNumberEn}`,
+    `NATIONALITY: ${cleanEnglish(data.nationalityEn)}`,
+    `OCCUPATION: ${cleanEnglish(data.occupationEn)}`,
+  ].join("\n");
+  const barcodePayload = [
+    `ISSUE NO: ${data.issueNo}`,
+    `REFERENCE NO: ${data.referenceNo}`,
+    `ISSUANCE NO: ${data.issuanceNo}`,
+  ].join("\n");
   return (
     <div className="document-wrap">
       <article className="document" id="print-document">
@@ -223,7 +380,7 @@ export function DocumentPreview({
           <div className="photo-stack">
             <img className="doc-photo" src={photo} alt="الصورة الشخصية" />
             <AdvancedBarcode
-              value={`${data.issueNo}|${data.referenceNo}|${data.issuanceNo}`}
+              value={barcodePayload}
               bcid="pdf417"
               className="linear-barcode"
             />
@@ -239,12 +396,12 @@ export function DocumentPreview({
             </div>
             <div>
               <small>Issue Date | تاريخ الإصدار</small>
-              <b>{data.issueDate}</b>
+              <b>{formatDate(data.issueDate)}</b>
             </div>
           </div>
           <div className="qr-box">
-            <div className="personal-code">
-              <QRCodeSVG value={payload} size={112} level="H" includeMargin />
+            <div className="personal-code" data-qr-value={qrPayload}>
+              <QRCodeSVG value={qrPayload} size={112} level="H" includeMargin />
               <img src="/assets/yemen-emblem.png" alt="" />
             </div>
             <span>{data.fullNameAr || data.fullNameEn}</span>
@@ -282,13 +439,13 @@ export function DocumentPreview({
               Any erasure, alteration, or amendment to the information provided
               in this certificate renders it null and void.
             </p>
-            <p>Date of expired {data.expiryEn}</p>
+            <p>Date of expired {formatDate(data.expiryEn)}</p>
           </div>
           <div dir="rtl">
             <p>
               أي محو أو تعديل أو شطب في هذه البيانات يعتبر هذه الوثيقة لاغية
             </p>
-            <p>تاريخ الانتهاء {data.expiryAr}</p>
+            <p>تاريخ الانتهاء {formatDate(data.expiryAr)}</p>
           </div>
         </div>
         <div className="doc-signatures">
@@ -313,7 +470,7 @@ export default function Home() {
     try {
       const saved = localStorage.getItem("good-conduct-form-data");
       const savedPhoto = localStorage.getItem("good-conduct-form-photo");
-      if (saved) setData({ ...initial, ...JSON.parse(saved) });
+      if (saved) setData(migrateData(JSON.parse(saved)));
       if (savedPhoto) setPhoto(savedPhoto);
     } catch {
       /* keep defaults */
@@ -337,18 +494,12 @@ export default function Home() {
         ["idNumberEn", "ID Number", "ltr"],
         ["passportAr", "جواز السفر", "rtl"],
         ["passportEn", "Passport", "ltr"],
-        ["nationalityAr", "الجنسية", "rtl"],
-        ["nationalityEn", "Nationality", "ltr"],
         ["occupationAr", "المهنة", "rtl"],
         ["occupationEn", "Occupation", "ltr"],
-        ["idIssueDateAr", "تاريخ إصدار الهوية", "ltr"],
-        ["idIssueDateEn", "ID Issue Date", "ltr"],
         ["idIssuePlaceAr", "جهة إصدار الهوية", "rtl"],
         ["idIssuePlaceEn", "ID Issue Place", "ltr"],
         ["departmentAr", "الجهة الطالبة", "rtl"],
         ["departmentEn", "Department Requested", "ltr"],
-        ["expiryAr", "تاريخ الانتهاء", "ltr"],
-        ["expiryEn", "Expiry Date", "ltr"],
       ] as const,
     []
   );
@@ -437,29 +588,37 @@ export default function Home() {
               onChange={update("issueNo")}
               dir="ltr"
             />
-            <Field
-              label="الرقم المرجعي / Reference No."
-              value={data.referenceNo}
-              onChange={update("referenceNo")}
-              dir="ltr"
-            />
-            <Field
-              label="رقم الإصدار / Issuance No."
-              value={data.issuanceNo}
-              onChange={update("issuanceNo")}
-              dir="ltr"
-            />
-            <Field
-              label="الرقم الداخلي / Internal No."
-              value={data.internalNo}
-              onChange={update("internalNo")}
-              dir="ltr"
-            />
-            <Field
+            <div className="field-with-action">
+              <Field
+                label="الرقم المرجعي / Reference No."
+                value={data.referenceNo}
+                onChange={update("referenceNo")}
+                dir="ltr"
+              />
+              <AutoButton label="تلقائي للاثنين" onClick={() => setData(d => ({ ...d, referenceNo: generateReferenceNo(), issuanceNo: generateIssuanceNo() }))} />
+            </div>
+            <div className="field-with-action">
+              <Field
+                label="رقم الإصدار / Issuance No."
+                value={data.issuanceNo}
+                onChange={update("issuanceNo")}
+                dir="ltr"
+              />
+              <AutoButton label="تلقائي للاثنين" onClick={() => setData(d => ({ ...d, referenceNo: generateReferenceNo(), issuanceNo: generateIssuanceNo() }))} />
+            </div>
+            <div className="field-with-action">
+              <Field
+                label="الرقم الداخلي / Internal No."
+                value={data.internalNo}
+                onChange={update("internalNo")}
+                dir="ltr"
+              />
+              <AutoButton onClick={() => setData(d => ({ ...d, internalNo: generateInternalNo(d.fullNameEn) }))} />
+            </div>
+            <DateField
               label="تاريخ الإصدار / Issue Date"
               value={data.issueDate}
               onChange={update("issueDate")}
-              dir="ltr"
             />
           </div>
           <div className="symbol-tester">
@@ -471,7 +630,7 @@ export default function Home() {
             <div className="test-payload">
               <span>Barcode</span>
               <code>
-                {data.issueNo} · {data.referenceNo} · {data.issuanceNo}
+                ISSUE NO: {data.issueNo} | REFERENCE NO: {data.referenceNo} | ISSUANCE NO: {data.issuanceNo}
               </code>
               <b>يتحدث تلقائيًا</b>
             </div>
@@ -495,6 +654,20 @@ export default function Home() {
                 dir={dir}
               />
             ))}
+            <NationalityField
+              data={data}
+              onChange={changes => setData(d => ({ ...d, ...changes }))}
+            />
+            <LinkedDateField
+              label="تاريخ إصدار الهوية / ID Issue Date"
+              value={data.idIssueDateEn}
+              onChange={value => setData(d => ({ ...d, idIssueDateAr: value, idIssueDateEn: value }))}
+            />
+            <LinkedDateField
+              label="تاريخ انتهاء الوثيقة / Document Expiry Date"
+              value={data.expiryEn}
+              onChange={value => setData(d => ({ ...d, expiryAr: value, expiryEn: value }))}
+            />
           </div>
           <label className="upload-zone">
             <ImagePlus size={18} />
