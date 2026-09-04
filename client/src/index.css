@@ -1827,3 +1827,292 @@
     print-color-adjust: exact;
   }
 }
+
+
+/* Current document alignment: 4 × 6 portrait photos stay clipped inside their frames. */
+.doc-photo {
+  width: 40mm;
+  height: 60mm;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  object-position: center;
+  overflow: hidden;
+}
+
+/* The uploaded transparent portrait is also used as a centered watermark. */
+.doc-watermark {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 47%;
+  width: 40mm;
+  height: 60mm;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.12;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Keep metadata in the marked area below the certificate title. */
+.doc-meta {
+  position: relative;
+  z-index: 2;
+  top: 26%;
+  grid-template-columns: 1fr 1fr;
+}
+.doc-meta > div:nth-child(3) {
+  grid-column: auto;
+  justify-self: stretch;
+}
+
+/* Issuance number belongs at the lower-right edge of the sheet. */
+.doc-issuance-footer {
+  position: absolute;
+  z-index: 4;
+  right: 1.5%;
+  bottom: 1.35%;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  color: #222;
+  direction: rtl;
+  font-family: Arial, "Noto Sans Arabic", sans-serif;
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.doc-issuance-footer span {
+  font-weight: 700;
+}
+.doc-issuance-footer b {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+@media print {
+  .doc-watermark {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+
+/* Latest placement refinement: official portrait high and close to the left page edge. */
+.document > .doc-top {
+  position: relative;
+}
+.document .photo-stack {
+  position: absolute;
+  z-index: 3;
+  left: 3.4%;
+  top: 17.2%;
+  width: 40mm;
+}
+
+/* Smaller 2 × 3 cm watermark, centered and lifted above the table center. */
+.document .doc-watermark {
+  left: 50%;
+  top: 42%;
+  width: 20mm;
+  height: 30mm;
+  opacity: 0.12;
+}
+
+
+/* Clean top block: portrait, issue metadata, and QR occupy separate bounded areas. */
+.document > .doc-top {
+  position: static;
+  display: block;
+  min-height: 0;
+}
+.document .photo-stack {
+  position: absolute;
+  z-index: 3;
+  left: 3.4%;
+  top: 17.2%;
+  width: 40mm;
+}
+.document .doc-meta {
+  position: absolute;
+  z-index: 3;
+  left: 29%;
+  top: 24%;
+  width: 40%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4%;
+  padding: 0;
+}
+.document .qr-box {
+  position: absolute;
+  z-index: 3;
+  right: 3.4%;
+  top: 17.2%;
+  width: 15%;
+}
+
+
+/* Preserve the official header area in normal flow while portraits stay positioned. */
+.document > .doc-top {
+  height: 31%;
+  min-height: 31%;
+}
+
+
+/* Staged placement update: raise the official portrait by 2 cm and hug the left edge. */
+.document .photo-stack {
+  left: 1.2%;
+  top: 10.5%;
+  width: 40mm;
+  gap: 2px;
+}
+.document .photo-stack .linear-barcode {
+  display: block;
+  width: 40mm;
+  max-width: 40mm;
+  height: 9mm;
+  margin-top: 1mm;
+}
+.doc-photo-name {
+  display: block;
+  width: 40mm;
+  color: #1f5fae;
+  font: 700 9px/1.1 Arial, sans-serif;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Slightly larger watermark, raised by 2 cm, with its internal number beneath it. */
+.document .doc-watermark-wrap {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 35.3%;
+  width: 24mm;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
+}
+.document .doc-watermark {
+  position: static;
+  width: 24mm;
+  height: 36mm;
+  transform: none;
+  opacity: 0.12;
+  object-fit: cover;
+}
+.doc-watermark-wrap span {
+  color: #1f5fae;
+  font: 700 8px/1.1 Arial, sans-serif;
+  white-space: nowrap;
+  margin-top: 1mm;
+}
+
+/* Keep the issue date on one line and move it 0.2 cm toward the square QR. */
+.document .doc-meta > div {
+  min-width: 0;
+}
+.document .doc-meta > div:nth-child(2) {
+  transform: translateX(2mm);
+}
+.document .doc-meta small {
+  display: block;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 1.1;
+}
+.document .doc-meta b {
+  display: block;
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+
+.document .doc-meta > div:first-child {
+  transform: translateX(-2mm);
+}
+
+
+/* Final adjustment: lift the watermark substantially toward the upper center. */
+.document .doc-watermark-wrap {
+  top: 28%;
+}
+
+/* Return the data table to its natural flow, then lift it by 2 cm visually. */
+.document .doc-table {
+  position: relative;
+  top: -20mm;
+}
+
+/* Official photo: remove the frame and lower it by 0.5 cm on an A4 sheet. */
+.document .photo-stack {
+  top: 12.2%;
+}
+.document .photo-stack .doc-photo {
+  border: 0;
+  outline: 0;
+}
+
+
+/* Ensure the barcode under the official portrait is always visible and not clipped. */
+.document .photo-stack {
+  overflow: visible;
+  z-index: 5;
+}
+.document .photo-stack .linear-barcode {
+  display: block !important;
+  position: relative;
+  z-index: 6;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 40mm !important;
+  max-width: 40mm !important;
+  height: 9mm !important;
+  min-height: 9mm;
+  margin: 1mm 0 0;
+  overflow: visible;
+}
+.document .doc-photo-name {
+  position: relative;
+  z-index: 6;
+  display: block;
+  visibility: visible;
+  margin-top: 1mm;
+}
+
+/* Lift the closing statement with the data table and preserve their spacing. */
+.document .doc-statement {
+  position: relative;
+  top: -20mm;
+  margin-top: 0.8%;
+}
+
+
+/* Approved alignment: the barcode follows the portrait width exactly. */
+.document .photo-stack .linear-barcode {
+  width: 40mm !important;
+  max-width: 40mm !important;
+  min-width: 40mm;
+  height: 9mm !important;
+  margin-inline: 0;
+}
+
+/* Enlarge the watermark and lift it by 1.5 cm without touching the data table. */
+.document .doc-watermark-wrap {
+  top: 23%;
+  width: 30mm;
+}
+.document .doc-watermark {
+  width: 30mm;
+  height: 45mm;
+}
+.doc-watermark-wrap span {
+  font-size: 9px;
+  margin-top: 1.5mm;
+}

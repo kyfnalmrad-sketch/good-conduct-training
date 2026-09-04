@@ -70,16 +70,77 @@ function makeTransparentPhoto(file: File): Promise<string> {
         if (!context) return reject(new Error("canvas-unavailable"));
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
         const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
-        const { data, width, height } = pixels;
-        const isNearWhite = (index: number) =>
-          data[index] > 232 && data[index + 1] > 232 && data[index + 2] > 232;
+	        const { data, width, height } = pixels;
+	        const edgeColors = [
+	          [data[0], data[1], data[2]],
+	          [data[(width - 1) * 4], data[(width - 1) * 4 + 1], data[(width - 1) * 4 + 2]],
+	          [
+	            data[Math.floor(width / 2) * 4],
+
+	            data[Math.floor(width / 2) * 4 + 1],
+
+	            data[Math.floor(width / 2) * 4 + 2],
+
+	          ],
+
+	          [
+	            data[(Math.floor(height / 2) * width) * 4],
+
+	            data[(Math.floor(height / 2) * width) * 4 + 1],
+
+
+	            data[(Math.floor(height / 2) * width) * 4 + 2],
+
+
+	          ],
+
+	          [
+	            data[(Math.floor(height / 2) * width + width - 1) * 4],
+
+	            data[(Math.floor(height / 2) * width + width - 1) * 4 + 1],
+
+
+	            data[(Math.floor(height / 2) * width + width - 1) * 4 + 2],
+
+
+	          ],
+	          [
+	            data[(height - 1) * width * 4],
+	            data[(height - 1) * width * 4 + 1],
+
+            data[(height - 1) * width * 4 + 2],
+	          ],
+
+	          [
+	            data[((height - 1) * width + width - 1) * 4],
+
+	            data[((height - 1) * width + width - 1) * 4 + 1],
+
+
+	            data[((height - 1) * width + width - 1) * 4 + 2],
+
+
+	          ],
+
+	        ];
+	        const isNearWhite = (index: number) =>
+	          data[index] > 226 && data[index + 1] > 226 && data[index + 2] > 226;
+	        const matchesEdgeBackground = (index: number) =>
+	          edgeColors.some(([red, green, blue]) => {
+	            const distance = Math.hypot(
+	              data[index] - red,
+	              data[index + 1] - green,
+	              data[index + 2] - blue
+	            );
+	            return distance < 58;
+	          });
         const visited = new Uint8Array(width * height);
         const queue: number[] = [];
         const add = (x: number, y: number) => {
           const position = y * width + x;
           if (visited[position]) return;
           const index = position * 4;
-          if (!isNearWhite(index)) return;
+	          if (!isNearWhite(index) && !matchesEdgeBackground(index)) return;
           visited[position] = 1;
           queue.push(position);
         };
@@ -95,7 +156,10 @@ function makeTransparentPhoto(file: File): Promise<string> {
           const position = queue[cursor];
           const x = position % width;
           const y = Math.floor(position / width);
-          data[position * 4 + 3] = 0;
+	          // Remove the connected paper/background pixels completely. PNG keeps
+	          // the alpha channel so the same processed photo can be used as a
+	          // genuine watermark without a white rectangle.
+	          data[position * 4 + 3] = 0;
           if (x > 0) add(x - 1, y);
           if (x + 1 < width) add(x + 1, y);
           if (y > 0) add(x, y - 1);
@@ -1009,33 +1073,34 @@ export function DocumentPreview({
   return (
     <div className="document-wrap">
       <article className="document" id="print-document">
-        <img
-          className="word-template-bg"
-          src={officialTemplate}
-          alt=""
-          aria-hidden="true"
-        />
-        <div className="doc-top">
-          <div className="photo-stack">
+	        <img
+	          className="word-template-bg"
+	          src={officialTemplate}
+	          alt=""
+	          aria-hidden="true"
+	        />
+	        {photo !== defaultPhoto && (
+	          <div className="doc-watermark-wrap" aria-hidden="true">
+	            <img className="doc-watermark" src={photo} alt="" />
+	            <span>{data.internalNo}</span>
+	          </div>
+	        )}
+	        <div className="doc-top">
+	          <div className="photo-stack">
             <img className="doc-photo" src={photo} alt="الصورة الشخصية" />
-            <AdvancedBarcode
-              value={barcodePayload}
-              bcid="pdf417"
-              className="linear-barcode"
-            />
+            <Barcode value={data.issueNo} />
+	            <span className="doc-photo-name" dir="ltr">
+	              {cleanEnglish(data.fullNameEn)}
+	            </span>
           </div>
           <div className="doc-meta">
-            <div>
-              <small>No. | رقم القيد</small>
-              <b>{data.issueNo}</b>
-            </div>
-            <div>
-              <small>Issue No. | رقم الإصدار</small>
-              <b>{data.issuanceNo}</b>
-            </div>
-            <div>
-              <small>Issue Date | تاريخ الإصدار</small>
-              <b>{formatDate(data.issueDate)}</b>
+	            <div>
+	              <small>No. | رقم القيد</small>
+	              <b>{data.issueNo}</b>
+	            </div>
+	            <div>
+	              <small>Issue Date | تاريخ الإصدار</small>
+	              <b>{formatDate(data.issueDate)}</b>
             </div>
           </div>
           <div className="qr-box">
@@ -1091,15 +1156,19 @@ export function DocumentPreview({
             <p>تاريخ الانتهاء {formatDate(data.expiryAr)}</p>
           </div>
         </div>
-        <div className="doc-signatures">
+	        <div className="doc-signatures">
           <div className="office-signature">
             <b dir="rtl">مدير الجنائية والبحث م/عدن</b>
           </div>
           <div className="office-signature">
             <b dir="rtl">الحاسب الآلي م/عدن</b>
-          </div>
-        </div>
-      </article>
+	          </div>
+	        </div>
+	        <div className="doc-issuance-footer" dir="rtl">
+	          <span>رقم إصدار الوثيقة</span>
+	          <b dir="ltr">{data.issuanceNo}</b>
+	        </div>
+	      </article>
     </div>
   );
 }
