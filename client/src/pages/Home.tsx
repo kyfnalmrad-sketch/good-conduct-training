@@ -24,6 +24,7 @@ import * as XLSX from "xlsx";
 
 const officialTemplate = "/assets/official-good-conduct-template.png";
 const defaultPhoto = "/assets/training-photo.svg";
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
 function formatDate(value: string) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -1406,7 +1407,7 @@ export default function Home() {
       toast.error("اختر ملف صورة صالحًا");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_PHOTO_BYTES) {
       toast.error("حجم الصورة يجب ألا يتجاوز 5 ميجابايت");
       return;
     }
@@ -1452,6 +1453,7 @@ export default function Home() {
     localStorage.removeItem("good-conduct-form-data");
     localStorage.removeItem("good-conduct-form-photo");
     setGenerated(false);
+    setDraftSaved(false);
     toast.info("تمت استعادة البيانات التجريبية");
   };
   return (
@@ -1728,6 +1730,7 @@ export default function Home() {
             <input
               type="file"
               accept="image/*"
+              aria-label="رفع صورة شخصية"
               onChange={e => onPhoto(e.target.files?.[0])}
             />
           </label>

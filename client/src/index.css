@@ -2103,16 +2103,61 @@
   margin-inline: 0;
 }
 
-/* Enlarge the watermark and lift it by 1.5 cm without touching the data table. */
+/* Local preview adjustment: keep both visual elements fixed on the A4 sheet.
+   The 10mm shift is expressed in physical units so resizing the preview does
+   not move them unpredictably. */
+.document .photo-stack {
+  top: 40mm;
+  width: 40mm;
+  height: auto;
+  overflow: visible;
+}
+/* Align the QR block with the fixed 4 × 6 photo area. */
+.document .qr-box {
+  top: 46mm;
+}
+/* Fixed crop: preserve the photo box at 4 × 6 cm, remove any frame, and
+   crop excess content without stretching the image. */
+.document .photo-stack .doc-photo {
+  display: block;
+  width: 40mm;
+  height: 60mm;
+  min-width: 40mm;
+  min-height: 60mm;
+  max-width: 40mm;
+  max-height: 60mm;
+  border: 0;
+  outline: 0;
+  border-radius: 0;
+  object-fit: cover;
+  object-position: center;
+  overflow: hidden;
+}
+/* Smaller, orderly watermark crop with its reference number directly below. */
 .document .doc-watermark-wrap {
-  top: 23%;
-  width: 30mm;
+  top: 83mm;
+  width: 20mm;
 }
 .document .doc-watermark {
-  width: 30mm;
-  height: 45mm;
+  display: block;
+  width: 20mm;
+  height: 30mm;
+  min-width: 20mm;
+  min-height: 30mm;
+  max-width: 20mm;
+  max-height: 30mm;
+  border: 0;
+  outline: 0;
+  border-radius: 0;
+  object-fit: cover;
+  object-position: center;
+  overflow: hidden;
 }
 .doc-watermark-wrap span {
-  font-size: 9px;
-  margin-top: 1.5mm;
+  max-width: 20mm;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 7px;
+  line-height: 1;
+  margin-top: 1mm;
 }
