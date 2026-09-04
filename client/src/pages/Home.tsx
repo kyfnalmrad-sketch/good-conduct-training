@@ -990,17 +990,21 @@ export function DocumentPreview({
           <div dir="rtl">{data.notesAr}</div>
         </div>
         <div className="doc-notes">
-          <div>
-            <p>
+          <div className="doc-note-copy doc-note-copy-en">
+            <p className="doc-note-text">
               Any erasure, alteration, or amendment to the information provided
               in this certificate renders it null and void.
             </p>
-            <p>Date of expired {formatDate(data.expiryEn)}</p>
           </div>
-          <div dir="rtl">
-            <p>
+          <div className="doc-note-copy doc-note-copy-ar" dir="rtl">
+            <p className="doc-note-text">
               أي محو أو تعديل أو شطب في هذه البيانات يعتبر هذه الوثيقة لاغية
             </p>
+          </div>
+          <div className="doc-expiry doc-expiry-en">
+            <p>Date of expired {formatDate(data.expiryEn)}</p>
+          </div>
+          <div className="doc-expiry doc-expiry-ar" dir="rtl">
             <p>تاريخ الانتهاء {formatDate(data.expiryAr)}</p>
           </div>
         </div>

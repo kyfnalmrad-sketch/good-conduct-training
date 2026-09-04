@@ -1494,6 +1494,123 @@
   height: clamp(88px, 11vw, 112px);
 }
 
+/* User-requested footer spacing refinement: keep the statement close to the table,
+   lift the bilingual red notice, and balance the two office labels. */
+.doc-statement {
+  margin-top: 0.8%;
+}
+.doc-notes {
+  bottom: 15.4%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6%;
+  padding-top: 0;
+}
+.doc-notes > div {
+  min-width: 0;
+}
+.doc-notes > div:first-child {
+  text-align: left;
+}
+.doc-notes > div:last-child {
+  text-align: right;
+}
+.doc-notes > div:last-child p:first-child {
+  text-align: center;
+  text-wrap: balance;
+}
+.doc-notes p:nth-child(2) {
+  display: block;
+  margin-top: 4px;
+  white-space: nowrap;
+  text-align: center;
+}
+.doc-signatures {
+  left: 9%;
+  right: 9%;
+  bottom: 9.9%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20%;
+  align-items: end;
+  padding: 0;
+}
+.office-signature {
+  width: 100%;
+}
+
+/* Keep the red notes apart from the blue expiry row: Arabic on the left,
+   English opposite it, with both dates on their own aligned line. */
+.doc-notes {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 8%;
+  row-gap: 3px;
+  align-items: start;
+}
+.doc-note-copy-ar {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left !important;
+}
+.doc-note-copy-en {
+  grid-column: 2;
+  grid-row: 1;
+  text-align: right !important;
+}
+.doc-expiry-ar {
+  grid-column: 1;
+  grid-row: 2;
+  text-align: left !important;
+}
+.doc-expiry-en {
+  grid-column: 2;
+  grid-row: 2;
+  text-align: right !important;
+}
+.doc-note-text {
+  margin: 0 !important;
+  text-align: inherit !important;
+  text-wrap: balance;
+}
+.doc-expiry p {
+  margin: 2px 0 0 !important;
+  color: #1f5fae !important;
+  font-size: 12px !important;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Final requested arrangement: notes on the original sides, dates together
+   on the next line, with the Arabic notice slightly nearer the right edge. */
+.doc-note-copy-en {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left !important;
+}
+.doc-note-copy-ar {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  width: 104%;
+  text-align: right !important;
+  transform: translateX(2%);
+}
+.doc-expiry-en {
+  grid-column: 1;
+  grid-row: 2;
+  text-align: center !important;
+}
+.doc-expiry-ar {
+  grid-column: 2;
+  grid-row: 2;
+  text-align: center !important;
+}
+.doc-note-text {
+  margin: 0 !important;
+  text-wrap: balance;
+}
+
 .records-page {
   min-height: 100vh;
   background: #eef0ed;
