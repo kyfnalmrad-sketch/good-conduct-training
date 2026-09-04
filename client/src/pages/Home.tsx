@@ -3,6 +3,8 @@ import JsBarcode from "jsbarcode";
 import {
   Download,
   FileCheck2,
+  Link2,
+  Unlink2,
   ClipboardList,
   ImagePlus,
   RotateCcw,
@@ -29,6 +31,14 @@ function formatDate(value: string) {
   return value;
 }
 
+function toArabicDigits(value: string) {
+  return value.replace(/[0-9]/g, digit => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]);
+}
+
+function formatArabicDate(value: string) {
+  return toArabicDigits(formatDate(value));
+}
+
 function toInputDate(value: string) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
@@ -43,6 +53,7 @@ export function migrateData(saved: Partial<FormState>) {
   const merged = { ...initial, ...saved };
   const idDate = toInputDate(merged.idIssueDateEn || merged.idIssueDateAr);
   const expiryDate = toInputDate(merged.expiryEn || merged.expiryAr);
+  const passportExpiryDate = toInputDate(merged.passportEn || merged.passportAr);
   return {
     ...merged,
     issueDate: toInputDate(merged.issueDate) || initial.issueDate,
@@ -50,6 +61,8 @@ export function migrateData(saved: Partial<FormState>) {
     idIssueDateEn: idDate || initial.idIssueDateEn,
     expiryAr: expiryDate || initial.expiryAr,
     expiryEn: expiryDate || initial.expiryEn,
+    passportAr: passportExpiryDate || initial.passportAr,
+    passportEn: passportExpiryDate || initial.passportEn,
   };
 }
 
@@ -144,8 +157,8 @@ export const initial: FormState = {
   idTypeEn: "ID Card",
   idNumberAr: "10878313",
   idNumberEn: "10878313",
-  passportAr: "جواز سفر",
-  passportEn: "Passport",
+  passportAr: "2026-03-11",
+  passportEn: "2026-03-11",
   nationalityAr: "اليمن",
   nationalityEn: "Yemen",
   occupationAr: "منسوب مبيعات",
@@ -210,16 +223,46 @@ function DateField({
   );
 }
 
-function LinkedDateField({
+function DatePairField({
   label,
-  value,
+  arabicValue,
+  englishValue,
+  linked,
+  onToggle,
   onChange,
 }: {
   label: string;
-  value: string;
-  onChange: (v: string) => void;
+  arabicValue: string;
+  englishValue: string;
+  linked: boolean;
+  onToggle: () => void;
+  onChange: (side: "ar" | "en", value: string) => void;
 }) {
-  return <DateField label={label} value={value} onChange={onChange} />;
+  const change = (side: "ar" | "en", value: string) => {
+    onChange(side, value);
+    if (linked) onChange(side === "ar" ? "en" : "ar", value);
+  };
+  return (
+    <div className="date-pair-field">
+      <div className="date-pair-heading">
+        <Label>{label}</Label>
+        <button type="button" className={`link-toggle${linked ? " active" : ""}`} onClick={onToggle}>
+          {linked ? <Link2 size={13} /> : <Unlink2 size={13} />}
+          {linked ? "مرتبط" : "مستقل"}
+        </button>
+      </div>
+      <div className="date-pair-grid">
+        <div className="field">
+          <label>العربي</label>
+          <Input type="date" dir="rtl" lang="ar" value={toInputDate(arabicValue)} onChange={e => change("ar", e.target.value)} />
+        </div>
+        <div className="field">
+          <label>English</label>
+          <Input type="date" dir="ltr" lang="en" value={toInputDate(englishValue)} onChange={e => change("en", e.target.value)} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function NationalityField({
@@ -240,6 +283,7 @@ function NationalityField({
         onChange={e => {
           const option = NATIONALITIES.find(item => item.en === e.target.value);
           if (option) onChange({ nationalityAr: option.ar, nationalityEn: option.en });
+          else if (e.target.value === "custom") onChange({ nationalityAr: "", nationalityEn: "" });
         }}
       >
         {NATIONALITIES.map(option => (
@@ -323,30 +367,30 @@ export function DocumentPreview({
       ["اللقب", data.surnameAr],
       ["الاسم", data.fullNameAr],
     ],
-    [
-      ["Birth Place", data.birthPlaceEn],
-      ["BirthDate", formatDate(data.birthDate)],
-      ["تاريخ الميلاد", formatDate(data.birthDate)],
-      ["محل الميلاد", data.birthPlaceAr],
-    ],
+      [
+        ["Birth Place", data.birthPlaceEn],
+        ["BirthDate", formatDate(data.birthDate)],
+        ["تاريخ الميلاد", formatArabicDate(data.birthDate)],
+        ["محل الميلاد", data.birthPlaceAr],
+      ],
     [
       ["Card Type", data.idTypeEn],
       ["ID Number", data.idNumberEn],
-      ["رقم الهوية", data.idNumberAr],
+        ["رقم الهوية", toArabicDigits(data.idNumberAr)],
       ["نوع الهوية", data.idTypeAr],
     ],
-    [
-      ["Passport", data.passportEn],
-      ["Nationality", data.nationalityEn],
-      ["الجنسية", data.nationalityAr],
-      ["جواز سفر", data.passportAr],
-    ],
-    [
-      ["Occupation", data.occupationEn],
-      ["ID Issue Date", formatDate(data.idIssueDateEn)],
-      ["تاريخ إصدار الهوية", formatDate(data.idIssueDateAr)],
-      ["المهنة", data.occupationAr],
-    ],
+      [
+        ["Passport Expiry Date", formatDate(data.passportEn)],
+        ["Nationality", data.nationalityEn],
+        ["الجنسية", data.nationalityAr],
+        ["تاريخ انتهاء الجواز", formatArabicDate(data.passportAr)],
+      ],
+      [
+        ["Occupation", data.occupationEn],
+        ["ID Issue Date", formatDate(data.idIssueDateEn)],
+        ["تاريخ إصدار الهوية", formatArabicDate(data.idIssueDateAr)],
+        ["المهنة", data.occupationAr],
+      ],
     [
       ["ID Issue Place", data.idIssuePlaceEn],
       ["Department Requested", data.departmentEn],
@@ -466,6 +510,7 @@ export default function Home() {
   const [data, setData] = useState(initial);
   const [photo, setPhoto] = useState(defaultPhoto);
   const [generated, setGenerated] = useState(false);
+  const [linkedDates, setLinkedDates] = useState({ idIssue: true, expiry: true, passport: true });
   useEffect(() => {
     try {
       const saved = localStorage.getItem("good-conduct-form-data");
@@ -490,10 +535,8 @@ export default function Home() {
         ["birthDate", "تاريخ الميلاد / Birth Date", "ltr"],
         ["idTypeAr", "نوع الهوية", "rtl"],
         ["idTypeEn", "ID Type", "ltr"],
-        ["idNumberAr", "رقم الهوية", "ltr"],
+        ["idNumberAr", "رقم الهوية", "rtl"],
         ["idNumberEn", "ID Number", "ltr"],
-        ["passportAr", "جواز السفر", "rtl"],
-        ["passportEn", "Passport", "ltr"],
         ["occupationAr", "المهنة", "rtl"],
         ["occupationEn", "Occupation", "ltr"],
         ["idIssuePlaceAr", "جهة إصدار الهوية", "rtl"],
@@ -658,15 +701,29 @@ export default function Home() {
               data={data}
               onChange={changes => setData(d => ({ ...d, ...changes }))}
             />
-            <LinkedDateField
+            <DatePairField
               label="تاريخ إصدار الهوية / ID Issue Date"
-              value={data.idIssueDateEn}
-              onChange={value => setData(d => ({ ...d, idIssueDateAr: value, idIssueDateEn: value }))}
+              arabicValue={data.idIssueDateAr}
+              englishValue={data.idIssueDateEn}
+              linked={linkedDates.idIssue}
+              onToggle={() => setLinkedDates(d => ({ ...d, idIssue: !d.idIssue }))}
+              onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "idIssueDateAr" : "idIssueDateEn"]: value }))}
             />
-            <LinkedDateField
+            <DatePairField
+              label="تاريخ انتهاء الهوية / الجواز / Passport Expiry Date"
+              arabicValue={data.passportAr}
+              englishValue={data.passportEn}
+              linked={linkedDates.passport}
+              onToggle={() => setLinkedDates(d => ({ ...d, passport: !d.passport }))}
+              onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "passportAr" : "passportEn"]: value }))}
+            />
+            <DatePairField
               label="تاريخ انتهاء الوثيقة / Document Expiry Date"
-              value={data.expiryEn}
-              onChange={value => setData(d => ({ ...d, expiryAr: value, expiryEn: value }))}
+              arabicValue={data.expiryAr}
+              englishValue={data.expiryEn}
+              linked={linkedDates.expiry}
+              onToggle={() => setLinkedDates(d => ({ ...d, expiry: !d.expiry }))}
+              onChange={(side, value) => setData(d => ({ ...d, [side === "ar" ? "expiryAr" : "expiryEn"]: value }))}
             />
           </div>
           <label className="upload-zone">
