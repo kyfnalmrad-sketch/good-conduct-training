@@ -334,6 +334,10 @@ export const initial: FormState = {
   notesEn:
     "OUR RECORDS HAVE BEEN VERIFIED AND NO CRIMINAL RECORDS HAVE BEEN FOUND AGAINST THE AFOREMENTIONED",
 };
+const FIXED_CLOSING_TEXT = {
+  notesAr: initial.notesAr,
+  notesEn: initial.notesEn,
+};
 
 const EXCEL_FIELD_ALIASES: Record<keyof FormState, string[]> = {
   issueNo: [],
@@ -538,10 +542,8 @@ function excelRowToForm(row: Record<string, unknown>) {
   return result;
 }
 
-function replaceDateYear(value: string, sourceDate: string) {
-  const target = toInputDate(value);
-  const source = toInputDate(sourceDate);
-  return target && source ? `${source.slice(0, 4)}${target.slice(4)}` : value;
+function linkedExpiryDate(issueDate: string) {
+  return addYears(issueDate, 1) || issueDate;
 }
 
 const EXCEL_TEMPLATE_ROW = {
@@ -1050,6 +1052,9 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [data, setData] = useState(initial);
   const [photo, setPhoto] = useState(defaultPhoto);
+  const [closingTextMode, setClosingTextMode] = useState<"fixed" | "custom">(
+    "fixed"
+  );
   const [generated, setGenerated] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   const [documentYearLinked, setDocumentYearLinked] = useState(true);
@@ -1063,8 +1068,13 @@ export default function Home() {
     try {
       const saved = localStorage.getItem("good-conduct-form-data");
       const savedPhoto = localStorage.getItem("good-conduct-form-photo");
+      const savedClosingTextMode = localStorage.getItem(
+        "good-conduct-closing-text-mode"
+      );
       if (saved) setData(migrateData(JSON.parse(saved)));
       if (savedPhoto) setPhoto(savedPhoto);
+      if (savedClosingTextMode === "custom" || savedClosingTextMode === "fixed")
+        setClosingTextMode(savedClosingTextMode);
     } catch {
       /* keep defaults */
     }
@@ -1081,6 +1091,9 @@ export default function Home() {
     }, 450);
     return () => window.clearTimeout(timer);
   }, [data, photo]);
+  useEffect(() => {
+    localStorage.setItem("good-conduct-closing-text-mode", closingTextMode);
+  }, [closingTextMode]);
   const update = (key: keyof FormState) => (value: string) =>
     setData(d => ({ ...d, [key]: value }));
   const fields = useMemo(
@@ -1144,12 +1157,24 @@ export default function Home() {
         String(imported.surnameEn || imported.surnameAr || data.surnameEn),
         readStoredRecords()
       );
-      let next = migrateData({ ...data, ...imported, ...identifiers });
+      const closingText =
+        closingTextMode === "fixed"
+          ? FIXED_CLOSING_TEXT
+          : {
+              notesAr: imported.notesAr || data.notesAr,
+              notesEn: imported.notesEn || data.notesEn,
+            };
+      let next = migrateData({
+        ...data,
+        ...imported,
+        ...closingText,
+        ...identifiers,
+      });
       if (documentYearLinked) {
         next = {
           ...next,
-          expiryAr: replaceDateYear(next.expiryAr, next.issueDate),
-          expiryEn: replaceDateYear(next.expiryEn, next.issueDate),
+          expiryAr: linkedExpiryDate(next.issueDate),
+          expiryEn: linkedExpiryDate(next.issueDate),
         };
       }
       setData(next);
@@ -1186,8 +1211,8 @@ export default function Home() {
         ? {
             ...d,
             issueDate: value,
-            expiryAr: replaceDateYear(d.expiryAr, value),
-            expiryEn: replaceDateYear(d.expiryEn, value),
+            expiryAr: linkedExpiryDate(value),
+            expiryEn: linkedExpiryDate(value),
           }
         : { ...d, issueDate: value }
     );
@@ -1199,12 +1224,12 @@ export default function Home() {
         [side === "ar" ? "expiryAr" : "expiryEn"]: value,
       };
       if (!documentYearLinked) return next;
-      const issueDate = replaceDateYear(d.issueDate, value);
+      const issueDate = addYears(value, -1) || d.issueDate;
       return {
         ...next,
         issueDate,
-        expiryAr: replaceDateYear(next.expiryAr, issueDate),
-        expiryEn: replaceDateYear(next.expiryEn, issueDate),
+        expiryAr: linkedExpiryDate(issueDate),
+        expiryEn: linkedExpiryDate(issueDate),
       };
     });
   };
@@ -1214,8 +1239,8 @@ export default function Home() {
       if (nextLinked)
         setData(d => ({
           ...d,
-          expiryAr: replaceDateYear(d.expiryAr, d.issueDate),
-          expiryEn: replaceDateYear(d.expiryEn, d.issueDate),
+          expiryAr: linkedExpiryDate(d.issueDate),
+          expiryEn: linkedExpiryDate(d.issueDate),
         }));
       return nextLinked;
     });
@@ -1555,19 +1580,34 @@ export default function Home() {
             <span>03</span>
             <div>
               <h3>النصوص الختامية</h3>
-              <p>الملاحظة أسفل الجدول</p>
+              <p>ثابتة لا تتغير مع Excel أو حرة قابلة للتحرير</p>
             </div>
+          </div>
+          <div className="closing-text-choice">
+            <label htmlFor="closing-text-mode">نوع الجملة الخاتمية</label>
+            <select
+              id="closing-text-mode"
+              value={closingTextMode}
+              onChange={e =>
+                setClosingTextMode(e.target.value as "fixed" | "custom")
+              }
+            >
+              <option value="fixed">جملة ثابتة معتمدة</option>
+              <option value="custom">جملة حرة قابلة للتحرير</option>
+            </select>
           </div>
           <div className="stack">
             <Textarea
               aria-label="الملاحظة العربية"
               dir="rtl"
               value={data.notesAr}
+              readOnly={closingTextMode === "fixed"}
               onChange={e => setData(d => ({ ...d, notesAr: e.target.value }))}
             />
             <Textarea
               aria-label="English note"
               value={data.notesEn}
+              readOnly={closingTextMode === "fixed"}
               onChange={e => setData(d => ({ ...d, notesEn: e.target.value }))}
             />
           </div>
