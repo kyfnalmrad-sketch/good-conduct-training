@@ -717,8 +717,22 @@ const EXCEL_TEMPLATE_ROW = {
 
 function downloadExcelTemplate() {
   const sheet = XLSX.utils.json_to_sheet([EXCEL_TEMPLATE_ROW]);
+  sheet["!cols"] = Object.keys(EXCEL_TEMPLATE_ROW).map(() => ({ wch: 22 }));
+  const instructions = XLSX.utils.aoa_to_sheet([
+    ["تعليمات تعبئة قالب حسن السيرة والسلوك"],
+    ["اكتب بيانات شخص واحد فقط في الصف الثاني من ورقة Good Conduct."],
+    ["تواريخ Excel: استخدم DD/MM/YYYY أو YYYY-MM-DD."],
+    ["الأرقام النظامية (رقم القيد والمرجع والداخلي والإصدار) ينشئها النظام تلقائيًا ولا تُستورد من Excel."],
+    ["الصورة تُرفع من داخل النظام وليست داخل ملف Excel."],
+    ["مقاس الصورة الموصى به: 400 × 600 بكسل بنسبة 2:3، JPG أو PNG، وبحد أقصى 5MB."],
+    ["تُستخدم الصورة نفسها للعلامة المائية، ويزيل النظام الخلفية البيضاء من نسخة العلامة المائية فقط."],
+    ["مقاس الصورة داخل الوثيقة: 40 × 60mm. مقاس العلامة المائية: 24 × 36mm تقريبًا."],
+    ["لا تغيّر أسماء أعمدة ورقة Good Conduct حتى يتم الاستيراد بشكل صحيح."],
+  ]);
+  instructions["!cols"] = [{ wch: 120 }];
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, sheet, "Good Conduct");
+  XLSX.utils.book_append_sheet(workbook, instructions, "Instructions");
   XLSX.writeFile(workbook, "Good Conduct Data Template.xlsx");
 }
 
