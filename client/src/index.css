@@ -2260,6 +2260,25 @@
   text-overflow: clip;
   overflow-wrap: anywhere;
 }
+.code-details {
+  display: grid;
+  gap: 1mm;
+  width: 50mm;
+  max-width: 50mm;
+  margin-top: 1mm;
+  font: 700 7px/1.15 Arial, sans-serif;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.code-details-en {
+  color: #1f5fae;
+}
+.code-details-ar {
+  width: 34mm;
+  max-width: 34mm;
+  color: #222;
+}
 
 /* تكبير بسيط للعلامة المائية وتحريكها ١ سم باتجاه الصورة الرسمية على A4. */
 .document .doc-watermark-wrap {

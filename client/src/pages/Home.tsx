@@ -410,6 +410,8 @@ export type FormState = {
   idTypeEn: string;
   idNumberAr: string;
   idNumberEn: string;
+  passportNoAr: string;
+  passportNoEn: string;
   passportAr: string;
   passportEn: string;
   nationalityAr: string;
@@ -445,6 +447,8 @@ export const initial: FormState = {
   idTypeEn: "ID Card",
   idNumberAr: "10878313",
   idNumberEn: "10878313",
+  passportNoAr: "P0000000",
+  passportNoEn: "P0000000",
   passportAr: "2026-03-11",
   passportEn: "2026-03-11",
   nationalityAr: "اليمن",
@@ -518,6 +522,8 @@ const EXCEL_FIELD_ALIASES: Record<keyof FormState, string[]> = {
     "id number",
     "رقم الهوية بالانجليزي",
   ],
+  passportNoAr: ["passportNoAr", "passport number ar", "رقم الجواز العربي", "رقم الجواز"],
+  passportNoEn: ["passportNoEn", "passport number en", "passport number", "رقم الجواز بالانجليزي"],
   passportAr: [
     "passportAr",
     "passport ar",
@@ -1103,9 +1109,13 @@ export function DocumentPreview({
 	          <div className="photo-stack">
             <img className="doc-photo" src={photo} alt="الصورة الشخصية" />
             <Barcode value={data.issueNo} />
-	            <span className="doc-photo-name" dir="ltr">
-	              {cleanEnglish(data.fullNameEn)}
-	            </span>
+            <span className="doc-photo-name" dir="ltr">
+              {cleanEnglish(data.fullNameEn)}
+            </span>
+            <div className="code-details code-details-en" dir="ltr">
+              <span>Passport No. {cleanEnglish(data.passportNoEn)}</span>
+              <span>Birth Place: {cleanEnglish(data.birthPlaceEn)}</span>
+            </div>
           </div>
           <div className="doc-meta">
 	            <div>
@@ -1123,6 +1133,10 @@ export function DocumentPreview({
               <img src="/assets/yemen-emblem.png" alt="" />
             </div>
             <span>{data.fullNameAr || data.fullNameEn}</span>
+            <div className="code-details code-details-ar" dir="rtl">
+              <span>رقم الجواز: {data.passportNoAr}</span>
+              <span>مكان الميلاد: {data.birthPlaceAr}</span>
+            </div>
           </div>
         </div>
         <div className="doc-table" aria-label="جدول البيانات ثنائي اللغة">
@@ -1724,6 +1738,19 @@ export default function Home() {
                 setData(d => ({
                   ...d,
                   [side === "ar" ? "passportAr" : "passportEn"]: value,
+                }))
+              }
+            />
+            <TextPairField
+              label="رقم الجواز / Passport Number"
+              arabicValue={data.passportNoAr}
+              englishValue={data.passportNoEn}
+              linked={true}
+              onToggle={() => undefined}
+              onChange={(side, value) =>
+                setData(d => ({
+                  ...d,
+                  [side === "ar" ? "passportNoAr" : "passportNoEn"]: value,
                 }))
               }
             />
