@@ -1523,7 +1523,7 @@ export default function Home() {
               />
             ))}
             <BilingualChoiceField
-              label="الجهة التي سيُقدَّم إليها / Destination Authority"
+              label="الجهة التي سيُقدَّم إليها / Department Requested"
               field="department"
               options={COUNTRIES}
               arabicValue={data.departmentAr}
