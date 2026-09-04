@@ -10,6 +10,7 @@ import {
   RotateCcw,
   ShieldCheck,
   Sparkles,
+  Eraser,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1137,7 +1138,7 @@ export function DocumentPreview({
             <span>{data.fullNameAr || data.fullNameEn}</span>
             <div className="code-details code-details-ar" dir="rtl">
               <span className="passport-number">
-                رقم الجواز: {data.idNumberAr}
+                رقم الجواز: {toArabicDigits(data.idNumberAr)}
               </span>
               <span>مكان الميلاد: {data.birthPlaceAr}</span>
             </div>
@@ -1486,6 +1487,13 @@ export default function Home() {
     }
   };
   const transferToRecords = () => {
+    if (
+      !data.issueNo.trim() ||
+      !(data.fullNameAr.trim() || data.fullNameEn.trim())
+    ) {
+      toast.error("أدخل رقم القيد واسم صاحب الطلب أولًا");
+      return;
+    }
     const records = readStoredRecords();
     const record = {
       id: data.internalNo || `${data.issueNo}-${Date.now()}`,
@@ -1502,6 +1510,20 @@ export default function Home() {
       ])
     );
     toast.success("تم ترحيل الوثيقة إلى السجلات");
+  };
+  const clearData = () => {
+    const cleared = Object.fromEntries(
+      Object.keys(initial).map(key => [key, ""])
+    ) as FormState;
+    setData(cleared);
+    setPhoto(defaultPhoto);
+    setWatermarkPhoto(defaultPhoto);
+    setGenerated(false);
+    setDraftSaved(false);
+    localStorage.removeItem("good-conduct-form-data");
+    localStorage.removeItem("good-conduct-form-photo");
+    localStorage.removeItem("good-conduct-watermark-photo");
+    toast.info("تم مسح بيانات النموذج");
   };
   const generate = () => {
     if (
@@ -1920,7 +1942,10 @@ export default function Home() {
             <FileCheck2 size={17} /> تحديث المعاينة
           </Button>
           <Button variant="outline" onClick={transferToRecords}>
-            <ClipboardList size={16} /> ترحيل للسجلات
+            <ClipboardList size={16} /> ترحيل وحفظ بالسجلات
+          </Button>
+          <Button variant="outline" onClick={clearData}>
+            <Eraser size={16} /> مسح البيانات
           </Button>
           <Button variant="outline" onClick={reset}>
             <RotateCcw size={16} /> إعادة ضبط
