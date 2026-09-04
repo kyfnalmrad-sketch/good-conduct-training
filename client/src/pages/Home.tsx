@@ -1026,6 +1026,7 @@ function Barcode({ value }: { value: string }) {
         height: 10,
         includetext: false,
         padding: 0,
+        barcolor: "C19A45",
       });
     }
   }, [value]);
