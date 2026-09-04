@@ -26,6 +26,14 @@ import * as XLSX from "xlsx";
 const officialTemplate = "/assets/official-good-conduct-template.png";
 const defaultPhoto = "/assets/training-photo.svg";
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const DOCUMENT_TYPE_OPTIONS = [
+  { ar: "جواز سفر", en: "Passport" },
+  { ar: "بطاقة شخصية", en: "ID Card" },
+];
+
+function isIdentityDocument(type: string) {
+  return /(^|\s)id(\s|$)/i.test(type) || type.includes("هوية");
+}
 
 function formatDate(value: string) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -444,8 +452,8 @@ export const initial: FormState = {
   birthPlaceAr: "السعودية، جدة",
   birthPlaceEn: "Jeddah, Saudi Arabia",
   birthDate: "16/02/1995",
-  idTypeAr: "بطاقة شخصية",
-  idTypeEn: "ID Card",
+  idTypeAr: "جواز سفر",
+  idTypeEn: "Passport",
   idNumberAr: "10878313",
   idNumberEn: "10878313",
   passportNoAr: "P0000000",
@@ -1040,6 +1048,22 @@ export function DocumentPreview({
   watermarkPhoto?: string;
   showWatermark?: boolean;
 }) {
+  const identityDocument =
+    isIdentityDocument(data.idTypeEn) || isIdentityDocument(data.idTypeAr);
+  const numberLabelEn = identityDocument ? "ID Number" : "Passport No.";
+  const numberLabelAr = identityDocument ? "رقم الهوية" : "رقم الجواز";
+  const issueDateLabelEn = identityDocument
+    ? "ID Issue Date"
+    : "Passport Issue Date";
+  const issueDateLabelAr = identityDocument
+    ? "تاريخ إصدار الهوية"
+    : "تاريخ إصدار الجواز";
+  const expiryLabelEn = identityDocument
+    ? "ID Expiry Date"
+    : "Passport Expiry Date";
+  const expiryLabelAr = identityDocument
+    ? "تاريخ انتهاء الهوية"
+    : "تاريخ انتهاء الجواز";
   const rows = [
     [
       ["Full Name", data.fullNameEn],
@@ -1051,19 +1075,19 @@ export function DocumentPreview({
       ["Birth Place", data.birthPlaceEn],
       ["BirthDate", formatDate(data.birthDate)],
       ["تاريخ الميلاد", formatArabicDate(data.birthDate)],
-      ["محل الميلاد", data.birthPlaceAr],
+      ["مكان الميلاد", data.birthPlaceAr],
     ],
     [
-      ["Card Type", data.idTypeEn],
-      ["ID Number", data.idNumberEn],
-      ["رقم الهوية", toArabicDigits(data.idNumberAr)],
-      ["نوع الهوية", data.idTypeAr],
+      ["Document Type", data.idTypeEn],
+      [numberLabelEn, data.idNumberEn],
+      [numberLabelAr, toArabicDigits(data.idNumberAr)],
+      ["نوع الوثيقة", data.idTypeAr],
     ],
     [
-      ["ID Issue Date", formatDate(data.idIssueDateEn)],
-      ["Passport Expiry Date", formatDate(data.passportEn)],
-      ["تاريخ انتهاء الهوية", formatArabicDate(data.passportAr)],
-      ["تاريخ إصدار الهوية", formatArabicDate(data.idIssueDateAr)],
+      [issueDateLabelEn, formatDate(data.idIssueDateEn)],
+      [expiryLabelEn, formatDate(data.passportEn)],
+      [expiryLabelAr, formatArabicDate(data.passportAr)],
+      [issueDateLabelAr, formatArabicDate(data.idIssueDateAr)],
     ],
     [
       ["Occupation", data.occupationEn],
@@ -1072,9 +1096,9 @@ export function DocumentPreview({
       ["المهنة", data.occupationAr],
     ],
     [
-      ["ID Issue Place", data.idIssuePlaceEn],
+      ["Issuing Authority", data.idIssuePlaceEn],
       ["Department Requested", data.departmentEn],
-      ["جهة إصدار الهوية", data.idIssuePlaceAr],
+      ["جهة الإصدار", data.idIssuePlaceAr],
       ["الجهة الطالبة", data.departmentAr],
     ],
   ];
@@ -1319,7 +1343,7 @@ export default function Home() {
         ["fullNameEn", "Full Name", "ltr"],
         ["surnameAr", "اللقب", "rtl"],
         ["surnameEn", "Surname", "ltr"],
-        ["birthPlaceAr", "محل الميلاد", "rtl"],
+        ["birthPlaceAr", "مكان الميلاد", "rtl"],
         ["birthPlaceEn", "Birth Place", "ltr"],
         ["birthDate", "تاريخ الميلاد / Birth Date", "ltr"],
         ["idTypeAr", "نوع الهوية", "rtl"],
@@ -1328,8 +1352,8 @@ export default function Home() {
         ["idNumberEn", "ID Number", "ltr"],
         ["occupationAr", "المهنة", "rtl"],
         ["occupationEn", "Occupation", "ltr"],
-        ["idIssuePlaceAr", "جهة إصدار الهوية", "rtl"],
-        ["idIssuePlaceEn", "ID Issue Place", "ltr"],
+        ["idIssuePlaceAr", "جهة الإصدار", "rtl"],
+        ["idIssuePlaceEn", "Issuing Authority", "ltr"],
       ] as const,
     []
   );
@@ -1753,7 +1777,11 @@ export default function Home() {
               onChange={update("birthDate")}
             />
             <DatePairField
-              label="تاريخ انتهاء الهوية / الجواز / Passport Expiry Date"
+              label={
+                isIdentityDocument(data.idTypeEn)
+                  ? "تاريخ انتهاء الهوية / ID Expiry Date"
+                  : "تاريخ انتهاء الجواز / Passport Expiry Date"
+              }
               arabicValue={data.passportAr}
               englishValue={data.passportEn}
               linked={linkedDates.passport}
@@ -1767,30 +1795,31 @@ export default function Home() {
                 }))
               }
             />
+            <div className="field document-type-field">
+              <Label>نوع الوثيقة / Document Type</Label>
+              <select
+                value={data.idTypeEn}
+                onChange={e => {
+                  const option = DOCUMENT_TYPE_OPTIONS.find(
+                    item => item.en === e.target.value
+                  );
+                  if (option)
+                    setData(d => ({
+                      ...d,
+                      idTypeAr: option.ar,
+                      idTypeEn: option.en,
+                    }));
+                }}
+              >
+                {DOCUMENT_TYPE_OPTIONS.map(option => (
+                  <option key={option.en} value={option.en}>
+                    {option.ar} / {option.en}
+                  </option>
+                ))}
+              </select>
+            </div>
             <TextPairField
-              label="رقم الجواز / Passport Number"
-              arabicValue={data.passportNoAr}
-              englishValue={data.passportNoEn}
-              linked={true}
-              onToggle={() => undefined}
-              onChange={(side, value) =>
-                setData(d => ({
-                  ...d,
-                  [side === "ar" ? "passportNoAr" : "passportNoEn"]: value,
-                }))
-              }
-            />
-            {fields.slice(7, 9).map(([key, label, dir]) => (
-              <Field
-                key={key}
-                label={label}
-                value={data[key]}
-                onChange={update(key)}
-                dir={dir}
-              />
-            ))}
-            <TextPairField
-              label="رقم الهوية / ID Number"
+              label={isIdentityDocument(data.idTypeEn) ? "رقم الهوية / ID Number" : "رقم الجواز / Passport No."}
               arabicValue={data.idNumberAr}
               englishValue={data.idNumberEn}
               linked={idNumberLinked}
