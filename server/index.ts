@@ -8,6 +8,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const SESSION_COOKIE = "good_conduct_access";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX_ATTEMPTS = 5;
+
+type LoginAttemptState = {
+  count: number;
+  firstAttemptAt: number;
+  lastBlockedLogAt?: number;
+};
+
+const failedLoginAttempts = new Map<string, LoginAttemptState>();
 
 function getSessionSecret() {
   return process.env.SITE_SESSION_SECRET || "local-development-session-secret";
@@ -55,6 +65,74 @@ function passwordsMatch(input: string) {
   return left.length === right.length && crypto.timingSafeEqual(left, right);
 }
 
+function getClientKey(req: Request) {
+  const normalizedIp = req.ip || "unknown";
+  return crypto
+    .createHash("sha256")
+    .update(`${getSessionSecret()}:${normalizedIp}`)
+    .digest("hex")
+    .slice(0, 16);
+}
+
+function logSecurityEvent(
+  event: "login_failed" | "login_blocked" | "login_success" | "login_config_missing",
+  req: Request,
+  details: Record<string, string | number>,
+) {
+  console.warn(
+    JSON.stringify({
+      event,
+      at: new Date().toISOString(),
+      ipHash: getClientKey(req),
+      ...details,
+    }),
+  );
+}
+
+function getLoginState(req: Request) {
+  const key = getClientKey(req);
+  const current = failedLoginAttempts.get(key);
+  const now = Date.now();
+
+  if (!current || now - current.firstAttemptAt >= LOGIN_WINDOW_MS) {
+    failedLoginAttempts.delete(key);
+    return { key, now, state: undefined as LoginAttemptState | undefined };
+  }
+
+  return { key, now, state: current };
+}
+
+function isLoginBlocked(req: Request) {
+  const { state, now } = getLoginState(req);
+  if (!state || state.count < LOGIN_MAX_ATTEMPTS) return false;
+
+  if (!state.lastBlockedLogAt || now - state.lastBlockedLogAt >= 60_000) {
+    state.lastBlockedLogAt = now;
+    logSecurityEvent("login_blocked", req, {
+      attempts: state.count,
+      retryAfterSeconds: Math.ceil((state.firstAttemptAt + LOGIN_WINDOW_MS - now) / 1000),
+    });
+  }
+
+  return true;
+}
+
+function recordFailedLogin(req: Request, reason: "invalid_password" | "missing_password") {
+  const { key, now, state } = getLoginState(req);
+  const nextState = state || { count: 0, firstAttemptAt: now };
+  nextState.count += 1;
+  failedLoginAttempts.set(key, nextState);
+
+  logSecurityEvent("login_failed", req, {
+    reason,
+    attempt: nextState.count,
+  });
+}
+
+function clearFailedLogins(req: Request) {
+  failedLoginAttempts.delete(getClientKey(req));
+}
+
 function setSessionCookie(res: Response) {
   const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
   res.setHeader(
@@ -90,6 +168,7 @@ async function startServer() {
   const staticPath = path.resolve(__dirname, "public");
 
   app.disable("x-powered-by");
+  app.set("trust proxy", 1);
   app.use(express.json({ limit: "16kb" }));
 
   app.get("/api/session", (req, res) => {
@@ -97,17 +176,31 @@ async function startServer() {
   });
 
   app.post("/api/login", (req, res) => {
+    if (isLoginBlocked(req)) {
+      const { state, now } = getLoginState(req);
+      const retryAfterSeconds = state
+        ? Math.max(1, Math.ceil((state.firstAttemptAt + LOGIN_WINDOW_MS - now) / 1000))
+        : 60;
+      res.setHeader("Retry-After", String(retryAfterSeconds));
+      res.status(429).json({ message: "تم إيقاف المحاولات مؤقتًا. حاول بعد قليل" });
+      return;
+    }
+
     if (!process.env.SITE_PASSWORD) {
+      logSecurityEvent("login_config_missing", req, {});
       res.status(503).json({ message: "لم يتم إعداد كلمة المرور على الخادم بعد" });
       return;
     }
 
     const password = typeof req.body?.password === "string" ? req.body.password : "";
     if (!passwordsMatch(password)) {
+      recordFailedLogin(req, password ? "invalid_password" : "missing_password");
       res.status(401).json({ message: "كلمة المرور غير صحيحة" });
       return;
     }
 
+    clearFailedLogins(req);
+    logSecurityEvent("login_success", req, {});
     setSessionCookie(res);
     res.json({ authenticated: true });
   });
