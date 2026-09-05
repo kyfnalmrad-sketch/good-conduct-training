@@ -686,21 +686,24 @@ function linkedExpiryDate(issueDate: string) {
 }
 
 const EXCEL_TEMPLATE_ROW = {
+  issueDate: "11/12/2025",
   fullNameAr: "جميل جبر أحمد",
   fullNameEn: "Jameel Jabr Ahmed",
   surnameAr: "الرملي",
   surnameEn: "Al Ramli",
+  birthDate: "16/02/1995",
   birthPlaceAr: "السعودية، جدة",
   birthPlaceEn: "Jeddah, Saudi Arabia",
-  birthDate: "16/02/1995",
+  nationalityAr: "اليمن",
+  nationalityEn: "Yemen",
   idTypeAr: "جواز سفر",
   idTypeEn: "Passport",
   idNumberAr: "10878313",
   idNumberEn: "10878313",
+  passportNoAr: "P0000000",
+  passportNoEn: "P0000000",
   passportAr: "11/03/2026",
   passportEn: "11/03/2026",
-  nationalityAr: "اليمن",
-  nationalityEn: "Yemen",
   occupationAr: "منسوب مبيعات",
   occupationEn: "Sales Representative",
   idIssueDateAr: "01/03/2023",
@@ -709,12 +712,44 @@ const EXCEL_TEMPLATE_ROW = {
   idIssuePlaceEn: "Ma'in",
   departmentAr: "سفارة عمان",
   departmentEn: "Embassy of Oman",
-  issueDate: "11/12/2025",
   expiryAr: "11/03/2026",
   expiryEn: "11/03/2026",
   notesAr: "تم التحقق من سجلاتنا.",
   notesEn: "OUR RECORDS HAVE BEEN VERIFIED.",
 };
+
+const EXCEL_FIELD_GUIDE = [
+  ["issueDate", "تاريخ الإصدار", "Issue Date"],
+  ["fullNameAr", "الاسم الكامل", "Full Name"],
+  ["fullNameEn", "الاسم بالإنجليزي", "Full Name (English)"],
+  ["surnameAr", "اللقب", "Surname"],
+  ["surnameEn", "اللقب بالإنجليزي", "Surname (English)"],
+  ["birthDate", "تاريخ الميلاد", "Birth Date"],
+  ["birthPlaceAr", "مكان الميلاد", "Birth Place"],
+  ["birthPlaceEn", "مكان الميلاد بالإنجليزي", "Birth Place (English)"],
+  ["nationalityAr", "الجنسية", "Nationality"],
+  ["nationalityEn", "الجنسية بالإنجليزي", "Nationality (English)"],
+  ["idTypeAr", "نوع الهوية", "ID Type"],
+  ["idTypeEn", "نوع الهوية بالإنجليزي", "ID Type (English)"],
+  ["idNumberAr", "رقم الهوية", "ID Number"],
+  ["idNumberEn", "رقم الهوية بالإنجليزي", "ID Number (English)"],
+  ["passportNoAr", "رقم الجواز", "Passport Number"],
+  ["passportNoEn", "رقم الجواز بالإنجليزي", "Passport Number (English)"],
+  ["passportAr", "تاريخ انتهاء الجواز", "Passport Expiry"],
+  ["passportEn", "تاريخ انتهاء الجواز بالإنجليزي", "Passport Expiry (English)"],
+  ["occupationAr", "المهنة", "Occupation"],
+  ["occupationEn", "المهنة بالإنجليزي", "Occupation (English)"],
+  ["idIssueDateAr", "تاريخ إصدار الهوية", "ID Issue Date"],
+  ["idIssueDateEn", "تاريخ إصدار الهوية بالإنجليزي", "ID Issue Date (English)"],
+  ["idIssuePlaceAr", "جهة إصدار الهوية", "ID Issue Place"],
+  ["idIssuePlaceEn", "جهة إصدار الهوية بالإنجليزي", "ID Issue Place (English)"],
+  ["departmentAr", "الجهة التي سيُقدَّم إليها", "Department Requested"],
+  ["departmentEn", "الجهة التي سيُقدَّم إليها بالإنجليزي", "Department Requested (English)"],
+  ["expiryAr", "تاريخ انتهاء الوثيقة", "Document Expiry"],
+  ["expiryEn", "تاريخ انتهاء الوثيقة بالإنجليزي", "Document Expiry (English)"],
+  ["notesAr", "الملاحظة", "Notes"],
+  ["notesEn", "الملاحظة بالإنجليزي", "Notes (English)"],
+] as const;
 
 function downloadExcelTemplate() {
   const sheet = XLSX.utils.json_to_sheet([EXCEL_TEMPLATE_ROW]);
@@ -731,9 +766,16 @@ function downloadExcelTemplate() {
     ["لا تغيّر أسماء أعمدة ورقة Good Conduct حتى يتم الاستيراد بشكل صحيح."],
   ]);
   instructions["!cols"] = [{ wch: 120 }];
+  const guide = XLSX.utils.aoa_to_sheet([
+    ["اسم الحقل الداخلي", "التسمية العربية", "التسمية الإنجليزية", "ملاحظة"],
+    ...EXCEL_FIELD_GUIDE.map(([key, ar, en]) => [key, ar, en, "بيانات مستخدم قابلة للاستيراد"]),
+    ["issueNo / referenceNo / internalNo / issuanceNo", "أرقام النظام", "System identifiers", "لا تعبئها؛ ينشئها النظام بعد الاستيراد"],
+  ]);
+  guide["!cols"] = [{ wch: 34 }, { wch: 32 }, { wch: 34 }, { wch: 42 }];
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, sheet, "Good Conduct");
   XLSX.utils.book_append_sheet(workbook, instructions, "Instructions");
+  XLSX.utils.book_append_sheet(workbook, guide, "Field Guide");
   XLSX.writeFile(workbook, "Good Conduct Data Template.xlsx");
 }
 
