@@ -1,10 +1,14 @@
 services:
   - type: web
     name: good-conduct-training
-    runtime: static
+    runtime: node
+    plan: free
     buildCommand: pnpm install --frozen-lockfile && pnpm run build
-    staticPublishPath: ./dist/public
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SITE_PASSWORD
+        sync: false
+      - key: SITE_SESSION_SECRET
+        generateValue: true
