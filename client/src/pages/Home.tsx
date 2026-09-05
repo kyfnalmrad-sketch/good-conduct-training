@@ -22,7 +22,7 @@ import { useLocation } from "wouter";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 
-const officialTemplate = "/assets/official-good-conduct-template.png";
+const officialTemplate = "/assets/official-good-conduct-template-light.png";
 const defaultPhoto = "/assets/training-photo.svg";
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const DOCUMENT_TYPE_OPTIONS = [
@@ -1135,9 +1135,8 @@ export function DocumentPreview({
 	          </div>
 	        )}
 	        <div className="doc-top">
-	          <div className="photo-stack">
+          <div className="photo-stack">
             <img className="doc-photo" src={photo} alt="الصورة الشخصية" />
-            <Barcode value={barcodePayload} />
             <span className="doc-photo-name" dir="ltr">
               {cleanEnglish(data.fullNameEn)}
             </span>
@@ -1147,6 +1146,7 @@ export function DocumentPreview({
               </span>
               <span>Birth Place: {cleanEnglish(data.birthPlaceEn)}</span>
             </div>
+            <Barcode value={barcodePayload} />
           </div>
           <div className="doc-meta">
 	            <div>
