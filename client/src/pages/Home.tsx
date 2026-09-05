@@ -1,5 +1,6 @@
 import {
   Download,
+  BarChart3,
   FileCheck2,
   FileSpreadsheet,
   Link2,
@@ -913,6 +914,8 @@ function BilingualChoiceField({
   arabicValue,
   englishValue,
   options,
+  linked,
+  onToggle,
   onChange,
 }: {
   label: string;
@@ -920,6 +923,8 @@ function BilingualChoiceField({
   arabicValue: string;
   englishValue: string;
   options: Array<{ ar: string; en: string }>;
+  linked: boolean;
+  onToggle: () => void;
   onChange: (changes: Partial<FormState>) => void;
 }) {
   const listId = `options-${label.replace(/[^a-z]/gi, "-")}`;
@@ -934,9 +939,14 @@ function BilingualChoiceField({
       | "departmentAr"
       | "departmentEn";
     if (option) {
-      onChange({
+      onChange(linked ? {
         [`${field}Ar`]: option.ar,
         [`${field}En`]: option.en,
+      } : { [key]: value });
+    } else if (linked) {
+      onChange({
+        [`${field}Ar`]: value,
+        [`${field}En`]: value,
       });
     } else {
       onChange({ [key]: value });
@@ -944,9 +954,13 @@ function BilingualChoiceField({
   };
   return (
     <div className="field bilingual-choice-field">
-      <Label>
-        {label} <span>اختر أو اكتب</span>
-      </Label>
+      <div className="date-pair-heading">
+        <Label>{label} <span>اختر أو اكتب</span></Label>
+        <button type="button" className={`link-toggle${linked ? " active" : ""}`} onClick={onToggle} aria-pressed={linked}>
+          {linked ? <Link2 size={13} /> : <Unlink2 size={13} />}
+          {linked ? "مرتبط" : "مستقل"}
+        </button>
+      </div>
       <div className="custom-nationality-grid">
         <Input
           list={listId}
@@ -967,9 +981,10 @@ function BilingualChoiceField({
       </div>
       <datalist id={listId}>
         {options.map(option => (
-          <option key={`${option.en}-${option.ar}`} value={option.en}>
-            {option.ar}
-          </option>
+          <>
+            <option key={`${option.en}-${option.ar}-en`} value={option.en}>{option.ar}</option>
+            <option key={`${option.en}-${option.ar}-ar`} value={option.ar}>{option.en}</option>
+          </>
         ))}
       </datalist>
       {selected && (
@@ -1257,6 +1272,8 @@ export default function Home() {
     expiry: true,
     passport: true,
   });
+  const [departmentLinked, setDepartmentLinked] = useState(true);
+  const [nationalityLinked, setNationalityLinked] = useState(true);
   useEffect(() => {
     try {
       const saved = localStorage.getItem("good-conduct-form-data");
@@ -1642,7 +1659,6 @@ export default function Home() {
               value={data.issueNo}
               onChange={update("issueNo")}
               dir="ltr"
-              readOnly
             />
             <div className="field-with-action">
               <Field
@@ -1849,6 +1865,8 @@ export default function Home() {
               options={destinationOptions}
               arabicValue={data.departmentAr}
               englishValue={data.departmentEn}
+              linked={departmentLinked}
+              onToggle={() => setDepartmentLinked(linked => !linked)}
               onChange={changes => setData(d => ({ ...d, ...changes }))}
             />
             <DatePairField
@@ -1872,6 +1890,8 @@ export default function Home() {
               options={NATIONALITIES}
               arabicValue={data.nationalityAr}
               englishValue={data.nationalityEn}
+              linked={nationalityLinked}
+              onToggle={() => setNationalityLinked(linked => !linked)}
               onChange={changes => setData(d => ({ ...d, ...changes }))}
             />
             <DatePairField
@@ -1976,6 +1996,9 @@ export default function Home() {
           </Button>
           <Button variant="outline" onClick={() => setLocation("/records")}>
             <ClipboardList size={16} /> السجلات
+          </Button>
+          <Button variant="outline" onClick={() => setLocation("/operations")}>
+            <BarChart3 size={16} /> العمليات
           </Button>
         </div>
       </aside>
