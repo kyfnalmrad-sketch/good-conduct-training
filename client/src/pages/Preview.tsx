@@ -13,14 +13,13 @@ import { useEffect, useState } from "react";
 const savedDataKey = "good-conduct-form-data";
 const savedPhotoKey = "good-conduct-form-photo";
 const savedWatermarkPhotoKey = "good-conduct-watermark-photo";
+const defaultWatermarkPhoto = "/assets/training-photo-watermark-duotone.svg";
 
 export default function Preview() {
   const [, setLocation] = useLocation();
   const [data, setData] = useState<FormState>(initial);
   const [photo, setPhoto] = useState("/assets/training-photo.svg");
-  const [watermarkPhoto, setWatermarkPhoto] = useState(
-    "/assets/training-photo.svg"
-  );
+  const [watermarkPhoto, setWatermarkPhoto] = useState(defaultWatermarkPhoto);
   const [showWatermark, setShowWatermark] = useState(true);
 
   useEffect(() => {

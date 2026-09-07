@@ -26,6 +26,7 @@ import * as XLSX from "xlsx";
 
 const officialTemplate = "/assets/official-good-conduct-template-light.png";
 const defaultPhoto = "/assets/training-photo.svg";
+const defaultWatermarkPhoto = "/assets/training-photo-watermark-duotone.svg";
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const DOCUMENT_TYPE_OPTIONS = [
   { ar: "جواز سفر", en: "Passport" },
@@ -1127,11 +1128,11 @@ function Barcode({ value }: { value: string }) {
         .toSVG({
           bcid: "pdf417",
           text: value || "TRAINING",
-          scale: 2,
+          scale: 3,
           height: 10,
           includetext: false,
           padding: 0,
-          barcolor: "8A641F",
+          barcolor: "B8860B",
         })
         .replace("<svg ", '<svg preserveAspectRatio="none" ');
     } catch {
@@ -1333,7 +1334,7 @@ export default function Home() {
   const [data, setData] = useState(initial);
   const [photo, setPhoto] = useState(defaultPhoto);
   const [originalPhoto, setOriginalPhoto] = useState(defaultPhoto);
-  const [watermarkPhoto, setWatermarkPhoto] = useState(defaultPhoto);
+  const [watermarkPhoto, setWatermarkPhoto] = useState(defaultWatermarkPhoto);
   const [removePhotoBackground, setRemovePhotoBackground] = useState(false);
   const [showWatermark, setShowWatermark] = useState(true);
   const [closingTextMode, setClosingTextMode] = useState<"fixed" | "custom">(
@@ -1643,7 +1644,7 @@ export default function Home() {
     setData(cleared);
     setPhoto(defaultPhoto);
     setOriginalPhoto(defaultPhoto);
-    setWatermarkPhoto(defaultPhoto);
+    setWatermarkPhoto(defaultWatermarkPhoto);
     setGenerated(false);
     setDraftSaved(false);
     localStorage.removeItem("good-conduct-form-data");
@@ -1686,7 +1687,7 @@ export default function Home() {
     setData(initial);
     setPhoto(defaultPhoto);
     setOriginalPhoto(defaultPhoto);
-    setWatermarkPhoto(defaultPhoto);
+    setWatermarkPhoto(defaultWatermarkPhoto);
     setRemovePhotoBackground(false);
     localStorage.removeItem("good-conduct-form-data");
     localStorage.removeItem("good-conduct-form-photo");

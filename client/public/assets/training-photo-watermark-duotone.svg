@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 300" role="img" aria-label="Duotone training photo watermark">
+  <g fill="#B8860B">
+    <circle cx="120" cy="115" r="57"/>
+    <path d="M79 206c13-25 27-38 41-38s28 13 41 38l-20 27H99z"/>
+    <path d="M103 148q17 12 34 0" fill="none" stroke="#B8860B" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g fill="#2F5262">
+    <path d="M63 105c2-55 111-72 116 2-20-18-40-24-65-21-16 2-33 9-51 19z"/>
+    <circle cx="99" cy="120" r="5"/>
+    <circle cx="141" cy="120" r="5"/>
+    <rect y="210" width="240" height="90"/>
+  </g>
+</svg>
