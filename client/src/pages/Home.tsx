@@ -1123,15 +1123,17 @@ function AdvancedBarcode({
 function Barcode({ value }: { value: string }) {
   const svg = useMemo(() => {
     try {
-      return bwipjs.toSVG({
-        bcid: "code128",
-        text: value || "TRAINING",
-        scale: 2,
-        height: 10,
-        includetext: false,
-        padding: 0,
-        barcolor: "C19A45",
-      });
+      return bwipjs
+        .toSVG({
+          bcid: "pdf417",
+          text: value || "TRAINING",
+          scale: 2,
+          height: 10,
+          includetext: false,
+          padding: 0,
+          barcolor: "8A641F",
+        })
+        .replace("<svg ", '<svg preserveAspectRatio="none" ');
     } catch {
       return "";
     }
