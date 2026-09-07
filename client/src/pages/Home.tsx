@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   Download,
   BarChart3,
   FileCheck2,
@@ -474,6 +475,43 @@ export const initial: FormState = {
 const FIXED_CLOSING_TEXT = {
   notesAr: initial.notesAr,
   notesEn: initial.notesEn,
+};
+
+const FORM_REVIEW_LABELS: Record<keyof FormState, string> = {
+  issueNo: "رقم القيد / Issue No.",
+  referenceNo: "الرقم المرجعي / Reference No.",
+  internalNo: "الرقم الداخلي / Internal No.",
+  issuanceNo: "رقم الإصدار / Issuance No.",
+  issueDate: "تاريخ الإصدار / Issue Date",
+  fullNameAr: "الاسم الكامل",
+  fullNameEn: "Full Name",
+  surnameAr: "اللقب",
+  surnameEn: "Surname",
+  birthPlaceAr: "مكان الميلاد",
+  birthPlaceEn: "Birth Place",
+  birthDate: "تاريخ الميلاد / Birth Date",
+  idTypeAr: "نوع الهوية",
+  idTypeEn: "ID Type",
+  idNumberAr: "رقم الهوية",
+  idNumberEn: "ID Number",
+  passportNoAr: "رقم الجواز",
+  passportNoEn: "Passport Number",
+  passportAr: "انتهاء الجواز",
+  passportEn: "Passport Expiry",
+  nationalityAr: "الجنسية",
+  nationalityEn: "Nationality",
+  occupationAr: "المهنة",
+  occupationEn: "Occupation",
+  idIssueDateAr: "تاريخ إصدار الهوية",
+  idIssueDateEn: "ID Issue Date",
+  idIssuePlaceAr: "جهة الإصدار",
+  idIssuePlaceEn: "Issuing Authority",
+  departmentAr: "الجهة التي سيُقدَّم إليها / Department Requested",
+  departmentEn: "Department Requested",
+  expiryAr: "تاريخ انتهاء الوثيقة",
+  expiryEn: "Document Expiry",
+  notesAr: "الملاحظة العربية",
+  notesEn: "English note",
 };
 
 const EXCEL_FIELD_ALIASES: Record<keyof FormState, string[]> = {
@@ -1316,6 +1354,8 @@ export default function Home() {
   });
   const [departmentLinked, setDepartmentLinked] = useState(true);
   const [nationalityLinked, setNationalityLinked] = useState(true);
+  const [inputView, setInputView] = useState<"guided" | "full">("guided");
+  const [editorStep, setEditorStep] = useState<1 | 2 | 3>(1);
   useEffect(() => {
     try {
       const saved = localStorage.getItem("good-conduct-form-data");
@@ -1662,7 +1702,7 @@ export default function Home() {
     toast.info("تمت استعادة البيانات التجريبية");
   };
   return (
-    <main className="app-shell editor-page">
+    <main className={`app-shell editor-page input-view-${inputView} guided-step-${editorStep}`}>
       <aside className="control-panel">
         <div className="brand">
           <div className="brand-mark">
@@ -1687,7 +1727,16 @@ export default function Home() {
             المتغيرة فقط داخل نفس التصميم.
           </p>
         </div>
-        <section className="form-section">
+        <div className="input-mode-switch" role="tablist" aria-label="طريقة الإدخال">
+          <button type="button" className={inputView === "guided" ? "active" : ""} onClick={() => setInputView("guided")}>إصدار جديد</button>
+          <button type="button" className={inputView === "full" ? "active" : ""} onClick={() => setInputView("full")}>الإدخال الكامل</button>
+        </div>
+        {inputView === "guided" && <div className="guided-steps" aria-label="خطوات الإدخال">
+          <span className={editorStep >= 1 ? "active" : ""}>01 <b>بيانات الإصدار</b></span><i />
+          <span className={editorStep >= 2 ? "active" : ""}>02 <b>بيانات صاحب الطلب</b></span><i />
+          <span className={editorStep >= 3 ? "active" : ""}>03 <b>المراجعة</b></span>
+        </div>}
+        <section className="form-section" data-step="1">
           <div className="section-heading">
             <span>01</span>
             <div>
@@ -1821,7 +1870,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section className="form-section">
+        <section className="form-section" data-step="2">
           <div className="section-heading">
             <span>02</span>
             <div>
@@ -1986,7 +2035,7 @@ export default function Home() {
             </span>
           </label>
         </section>
-        <section className="form-section">
+        <section className="form-section" data-step="2">
           <div className="section-heading">
             <span>03</span>
             <div>
@@ -2023,6 +2072,22 @@ export default function Home() {
             />
           </div>
         </section>
+        <section className="guided-review-panel" data-step="3">
+          <div className="section-heading"><span>03</span><div><h3>مراجعة بيانات الإدخال</h3><p>راجع الحقول كاملة قبل الانتقال إلى الإدخال الكامل</p></div></div>
+          <div className="guided-review-grid full-review-grid">
+            {(Object.keys(initial) as Array<keyof FormState>).map(key => (
+              <div key={key}>
+                <small>{FORM_REVIEW_LABELS[key]}</small>
+                <strong dir={key.endsWith("En") || ["issueNo", "referenceNo", "internalNo", "issuanceNo", "issueDate", "birthDate"].includes(key) ? "ltr" : "rtl"}>{data[key] || "—"}</strong>
+              </div>
+            ))}
+          </div>
+          <button type="button" className="review-to-full" onClick={() => setInputView("full")}>فتح الإدخال الكامل <ArrowLeft size={15} /></button>
+        </section>
+        {inputView === "guided" && <div className="guided-navigation">
+          <Button variant="outline" type="button" disabled={editorStep === 1} onClick={() => setEditorStep(step => (step - 1) as 1 | 2 | 3)}>الخطوة السابقة</Button>
+          {editorStep < 3 ? <Button type="button" onClick={() => setEditorStep(step => (step + 1) as 1 | 2 | 3)}>الخطوة التالية <ArrowLeft size={15} /></Button> : <Button type="button" onClick={() => setInputView("full")}>مراجعة كل الحقول <ArrowLeft size={15} /></Button>}
+        </div>}
         <div className="actions">
           <Button onClick={generate}>
             <FileCheck2 size={17} /> تحديث المعاينة
