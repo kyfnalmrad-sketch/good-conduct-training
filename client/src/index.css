@@ -2528,5 +2528,25 @@
 /* User review: Arabic closing statement only; English statement remains unchanged. */
 .document .doc-statement > div[dir="rtl"]{font-size:14px;font-weight:700}
 /* PDF-safe under-photo barcode: inline SVG survives print rasterization. */
-.document .photo-stack .linear-barcode{display:block;overflow:hidden;background:#fff}
-.document .photo-stack .linear-barcode svg{display:block;width:100%;height:100%}
+.document .photo-stack .linear-barcode {
+  display: block;
+  box-sizing: border-box;
+  width: 40mm !important;
+  min-width: 40mm;
+  max-width: 40mm !important;
+  height: 12mm !important;
+  min-height: 12mm;
+  max-height: 12mm;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+}
+.document .photo-stack .linear-barcode svg {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+}
