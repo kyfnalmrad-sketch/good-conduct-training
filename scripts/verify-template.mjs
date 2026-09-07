@@ -8,7 +8,7 @@ for (const sheet of requiredSheets) {
 }
 const rows = XLSX.utils.sheet_to_json(workbook.Sheets["Good Conduct"], { header: 1 });
 const headers = rows[0].map(String);
-const forbidden = ["issueNo", "referenceNo", "internalNo", "issuanceNo"];
+const forbidden = ["issueNo", "referenceNo", "internalNo", "issuanceNo", "passportNoAr", "passportNoEn"];
 for (const key of forbidden) {
   if (headers.includes(key)) throw new Error(`System identifier leaked into import sheet: ${key}`);
 }

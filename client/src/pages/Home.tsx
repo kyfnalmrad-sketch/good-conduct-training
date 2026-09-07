@@ -738,8 +738,6 @@ const EXCEL_TEMPLATE_ROW = {
   idTypeEn: "Passport",
   idNumberAr: "10878313",
   idNumberEn: "10878313",
-  passportNoAr: "P0000000",
-  passportNoEn: "P0000000",
   passportAr: "11/03/2026",
   passportEn: "11/03/2026",
   occupationAr: "منسوب مبيعات",
@@ -771,8 +769,6 @@ const EXCEL_FIELD_GUIDE = [
   ["idTypeEn", "نوع الهوية بالإنجليزي", "ID Type (English)"],
   ["idNumberAr", "رقم الهوية", "ID Number"],
   ["idNumberEn", "رقم الهوية بالإنجليزي", "ID Number (English)"],
-  ["passportNoAr", "رقم الجواز", "Passport Number"],
-  ["passportNoEn", "رقم الجواز بالإنجليزي", "Passport Number (English)"],
   ["passportAr", "تاريخ انتهاء الجواز", "Passport Expiry"],
   ["passportEn", "تاريخ انتهاء الجواز بالإنجليزي", "Passport Expiry (English)"],
   ["occupationAr", "المهنة", "Occupation"],
@@ -1125,10 +1121,9 @@ function AdvancedBarcode({
   );
 }
 function Barcode({ value }: { value: string }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    if (ref.current) {
-      bwipjs.toCanvas(ref.current, {
+  const svg = useMemo(() => {
+    try {
+      return bwipjs.toSVG({
         bcid: "code128",
         text: value || "TRAINING",
         scale: 2,
@@ -1137,14 +1132,16 @@ function Barcode({ value }: { value: string }) {
         padding: 0,
         barcolor: "C19A45",
       });
+    } catch {
+      return "";
     }
   }, [value]);
   return (
-    <canvas
-      ref={ref}
+    <div
       className="linear-barcode"
       data-barcode-value={value}
       aria-label="باركود شريطي"
+      dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
 }
@@ -1177,7 +1174,7 @@ export function DocumentPreview({
       ["Card Type", data.idTypeEn],
       ["ID Card", data.idNumberEn],
       ["رقم الهوية", toArabicDigits(data.idNumberAr)],
-      ["Card Type", data.idTypeAr],
+      ["نوع الهوية", data.idTypeAr],
     ],
     [
       ["Date of Issue", formatDate(data.idIssueDateEn)],
@@ -1347,6 +1344,13 @@ export default function Home() {
   const [draftSaved, setDraftSaved] = useState(false);
   const [documentYearLinked, setDocumentYearLinked] = useState(true);
   const [idNumberLinked, setIdNumberLinked] = useState(true);
+  const [linkedTextFields, setLinkedTextFields] = useState({
+    fullName: true,
+    surname: true,
+    birthPlace: true,
+    occupation: true,
+    idIssuePlace: true,
+  });
   const [linkedDates, setLinkedDates] = useState({
     idIssue: true,
     expiry: true,
@@ -1443,27 +1447,6 @@ export default function Home() {
   );
   const update = (key: keyof FormState) => (value: string) =>
     setData(d => ({ ...d, [key]: value }));
-  const fields = useMemo(
-    () =>
-      [
-        ["fullNameAr", "الاسم الكامل", "rtl"],
-        ["fullNameEn", "Full Name", "ltr"],
-        ["surnameAr", "اللقب", "rtl"],
-        ["surnameEn", "Surname", "ltr"],
-        ["birthPlaceAr", "مكان الميلاد", "rtl"],
-        ["birthPlaceEn", "Birth Place", "ltr"],
-        ["birthDate", "تاريخ الميلاد / Birth Date", "ltr"],
-        ["idTypeAr", "نوع الهوية", "rtl"],
-        ["idTypeEn", "ID Type", "ltr"],
-        ["idNumberAr", "رقم الهوية", "rtl"],
-        ["idNumberEn", "ID Number", "ltr"],
-        ["occupationAr", "المهنة", "rtl"],
-        ["occupationEn", "Occupation", "ltr"],
-        ["idIssuePlaceAr", "جهة الإصدار", "rtl"],
-        ["idIssuePlaceEn", "Issuing Authority", "ltr"],
-      ] as const,
-    []
-  );
   const updateSystemIdentifiers = () => {
     setData(d => ({
       ...d,
@@ -1539,6 +1522,15 @@ export default function Home() {
         ? { ...d, idNumberAr: value, idNumberEn: value }
         : { ...d, [side === "ar" ? "idNumberAr" : "idNumberEn"]: value }
     );
+  };
+  const updateLinkedText = (
+    arKey: keyof FormState,
+    enKey: keyof FormState,
+    linked: boolean,
+  ) => (side: "ar" | "en", value: string) => {
+    setData(d => linked
+      ? { ...d, [arKey]: value, [enKey]: value }
+      : { ...d, [side === "ar" ? arKey : enKey]: value });
   };
   const toggleIdNumberLink = () => {
     setIdNumberLinked(linked => {
@@ -1879,15 +1871,9 @@ export default function Home() {
             </div>
           </div>
           <div className="form-grid">
-            {fields.slice(0, 6).map(([key, label, dir]) => (
-              <Field
-                key={key}
-                label={label}
-                value={data[key]}
-                onChange={update(key)}
-                dir={dir}
-              />
-            ))}
+            <TextPairField label="الاسم الكامل / Full Name" arabicValue={data.fullNameAr} englishValue={data.fullNameEn} linked={linkedTextFields.fullName} onToggle={() => setLinkedTextFields(d => ({ ...d, fullName: !d.fullName }))} onChange={updateLinkedText("fullNameAr", "fullNameEn", linkedTextFields.fullName)} />
+            <TextPairField label="اللقب / Surname" arabicValue={data.surnameAr} englishValue={data.surnameEn} linked={linkedTextFields.surname} onToggle={() => setLinkedTextFields(d => ({ ...d, surname: !d.surname }))} onChange={updateLinkedText("surnameAr", "surnameEn", linkedTextFields.surname)} />
+            <TextPairField label="مكان الميلاد / Birth Place" arabicValue={data.birthPlaceAr} englishValue={data.birthPlaceEn} linked={linkedTextFields.birthPlace} onToggle={() => setLinkedTextFields(d => ({ ...d, birthPlace: !d.birthPlace }))} onChange={updateLinkedText("birthPlaceAr", "birthPlaceEn", linkedTextFields.birthPlace)} />
             <DateField
               label="تاريخ الميلاد / Date of Birth"
               value={data.birthDate}
@@ -1941,15 +1927,8 @@ export default function Home() {
               onToggle={toggleIdNumberLink}
               onChange={updateIdNumber}
             />
-            {fields.slice(11).map(([key, label, dir]) => (
-              <Field
-                key={key}
-                label={label}
-                value={data[key]}
-                onChange={update(key)}
-                dir={dir}
-              />
-            ))}
+            <TextPairField label="المهنة / Occupation" arabicValue={data.occupationAr} englishValue={data.occupationEn} linked={linkedTextFields.occupation} onToggle={() => setLinkedTextFields(d => ({ ...d, occupation: !d.occupation }))} onChange={updateLinkedText("occupationAr", "occupationEn", linkedTextFields.occupation)} />
+            <TextPairField label="جهة الإصدار / Issuing Authority" arabicValue={data.idIssuePlaceAr} englishValue={data.idIssuePlaceEn} linked={linkedTextFields.idIssuePlace} onToggle={() => setLinkedTextFields(d => ({ ...d, idIssuePlace: !d.idIssuePlace }))} onChange={updateLinkedText("idIssuePlaceAr", "idIssuePlaceEn", linkedTextFields.idIssuePlace)} />
             <BilingualChoiceField
               label="الجهة التي سيُقدَّم إليها / Department Requested"
               field="department"
@@ -2075,7 +2054,7 @@ export default function Home() {
         <section className="guided-review-panel" data-step="3">
           <div className="section-heading"><span>03</span><div><h3>مراجعة بيانات الإدخال</h3><p>راجع الحقول كاملة قبل الانتقال إلى الإدخال الكامل</p></div></div>
           <div className="guided-review-grid full-review-grid">
-            {(Object.keys(initial) as Array<keyof FormState>).map(key => (
+            {(Object.keys(initial) as Array<keyof FormState>).filter(key => key !== "passportNoAr" && key !== "passportNoEn").map(key => (
               <div key={key}>
                 <small>{FORM_REVIEW_LABELS[key]}</small>
                 <strong dir={key.endsWith("En") || ["issueNo", "referenceNo", "internalNo", "issuanceNo", "issueDate", "birthDate"].includes(key) ? "ltr" : "rtl"}>{data[key] || "—"}</strong>
