@@ -1702,7 +1702,7 @@ export default function Home() {
     toast.info("تمت استعادة البيانات التجريبية");
   };
   return (
-    <main className={`app-shell editor-page input-view-${inputView} guided-step-${editorStep}`}>
+    <main className={`app-shell editor-page noor-editor-shell input-view-${inputView} guided-step-${editorStep}`}>
       <aside className="control-panel">
         <div className="brand">
           <div className="brand-mark">
