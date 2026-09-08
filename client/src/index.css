@@ -2496,7 +2496,8 @@
   min-height: 36mm;
   max-width: 24mm;
   max-height: 36mm;
-  opacity: 0.16;
+  opacity: 0.24;
+  filter: contrast(1.35) saturate(1.05);
 }
 .document .photo-stack .linear-barcode {
   width: 40mm !important;
