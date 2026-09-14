@@ -1238,12 +1238,11 @@ export function DocumentPreview({
     ],
   ];
   const qrPayload = [
+    `COUNTRY: ${cleanEnglish(data.nationalityEn)}`,
+    `RECRUITMENT DESTINATION: ${cleanEnglish(data.departmentEn)}`,
     `NAME: ${cleanEnglish(data.fullNameEn)}`,
-    `SURNAME: ${cleanEnglish(data.surnameEn)}`,
     `BIRTH DATE: ${formatDate(data.birthDate)}`,
-    `ID NUMBER: ${data.idNumberEn}`,
-    `NATIONALITY: ${cleanEnglish(data.nationalityEn)}`,
-    `OCCUPATION: ${cleanEnglish(data.occupationEn)}`,
+    `RECORD NO: ${data.issueNo}`,
   ].join("\n");
   const barcodePayload = [
     data.issueNo,
@@ -1361,17 +1360,24 @@ export function DocumentPreview({
         </div>
         <div className="doc-lower-header">
           <div className="doc-lower-left" dir="rtl">
-            <span className="doc-lower-date-label">التاريخ</span>
-            <b dir="ltr">{formatDate(data.issueDate)}</b>
+            <b className="doc-lower-date-line" dir="rtl">
+              تاريخ الطلب: <span dir="ltr">{formatDate(data.issueDate)}</span>
+            </b>
             <b className="doc-request-number" dir="ltr">
-              {data.referenceNo}
+              No. {data.issueNo}
             </b>
           </div>
           <div className="doc-lower-right">
-            <Barcode value={barcodePayload} />
+            <div className="doc-lower-qr" aria-label="رمز QR للوثيقة">
+              <QRCodeSVG value={qrPayload} size={86} level="H" includeMargin />
+            </div>
             <div className="doc-lower-identity">
-              <b>{data.issueNo}</b>
-              <span dir="rtl">{data.fullNameAr || data.fullNameEn}</span>
+              <b className="doc-lower-name" dir="rtl">
+                الاسم: {data.fullNameAr || data.fullNameEn}
+              </b>
+              <b className="doc-lower-record-number" dir="ltr">
+                الرقم: {data.issueNo}
+              </b>
             </div>
           </div>
         </div>

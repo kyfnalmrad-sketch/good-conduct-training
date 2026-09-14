@@ -2630,3 +2630,64 @@
     print-color-adjust: exact;
   }
 }
+
+/* Local review variant: square QR with readable text beside it. */
+.document .doc-lower-right {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.document .doc-lower-qr {
+  flex: 0 0 26mm;
+  width: 26mm;
+  height: 26mm;
+  display: grid;
+  place-items: center;
+  background: #fff;
+}
+.document .doc-lower-qr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.document .doc-lower-identity {
+  align-items: flex-end;
+  text-align: right;
+}
+.document .doc-lower-identity .doc-lower-record-number {
+  color: #c00000;
+}
+.document .doc-lower-left .doc-request-number {
+  color: #111;
+}
+
+/* Local review refinement: one-line request date and bold name only. */
+.document .doc-lower-date-line {
+  white-space: nowrap;
+}
+.document .doc-lower-date-line span {
+  font-weight: 800;
+}
+.document .doc-lower-identity .doc-lower-name {
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Align the request-date line with the bold name line. */
+.document .doc-lower-right {
+  align-items: flex-start;
+}
+.document .doc-lower-identity {
+  padding-top: 0;
+}
+
+/* Local review refinement: vertically center both lower-header groups. */
+.document .doc-lower-left,
+.document .doc-lower-right {
+  align-self: center;
+}
+
+/* Keep the identity text centered beside the square QR. */
+.document .doc-lower-identity {
+  align-self: center;
+}
