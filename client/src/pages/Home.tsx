@@ -82,77 +82,70 @@ function makeTransparentPhoto(file: File): Promise<string> {
         if (!context) return reject(new Error("canvas-unavailable"));
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
         const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
-	        const { data, width, height } = pixels;
-	        const edgeColors = [
-	          [data[0], data[1], data[2]],
-	          [data[(width - 1) * 4], data[(width - 1) * 4 + 1], data[(width - 1) * 4 + 2]],
-	          [
-	            data[Math.floor(width / 2) * 4],
+        const { data, width, height } = pixels;
+        const edgeColors = [
+          [data[0], data[1], data[2]],
+          [
+            data[(width - 1) * 4],
+            data[(width - 1) * 4 + 1],
+            data[(width - 1) * 4 + 2],
+          ],
+          [
+            data[Math.floor(width / 2) * 4],
 
-	            data[Math.floor(width / 2) * 4 + 1],
+            data[Math.floor(width / 2) * 4 + 1],
 
-	            data[Math.floor(width / 2) * 4 + 2],
+            data[Math.floor(width / 2) * 4 + 2],
+          ],
 
-	          ],
+          [
+            data[Math.floor(height / 2) * width * 4],
 
-	          [
-	            data[(Math.floor(height / 2) * width) * 4],
+            data[Math.floor(height / 2) * width * 4 + 1],
 
-	            data[(Math.floor(height / 2) * width) * 4 + 1],
+            data[Math.floor(height / 2) * width * 4 + 2],
+          ],
 
+          [
+            data[(Math.floor(height / 2) * width + width - 1) * 4],
 
-	            data[(Math.floor(height / 2) * width) * 4 + 2],
+            data[(Math.floor(height / 2) * width + width - 1) * 4 + 1],
 
-
-	          ],
-
-	          [
-	            data[(Math.floor(height / 2) * width + width - 1) * 4],
-
-	            data[(Math.floor(height / 2) * width + width - 1) * 4 + 1],
-
-
-	            data[(Math.floor(height / 2) * width + width - 1) * 4 + 2],
-
-
-	          ],
-	          [
-	            data[(height - 1) * width * 4],
-	            data[(height - 1) * width * 4 + 1],
+            data[(Math.floor(height / 2) * width + width - 1) * 4 + 2],
+          ],
+          [
+            data[(height - 1) * width * 4],
+            data[(height - 1) * width * 4 + 1],
 
             data[(height - 1) * width * 4 + 2],
-	          ],
+          ],
 
-	          [
-	            data[((height - 1) * width + width - 1) * 4],
+          [
+            data[((height - 1) * width + width - 1) * 4],
 
-	            data[((height - 1) * width + width - 1) * 4 + 1],
+            data[((height - 1) * width + width - 1) * 4 + 1],
 
-
-	            data[((height - 1) * width + width - 1) * 4 + 2],
-
-
-	          ],
-
-	        ];
-	        const isNearWhite = (index: number) =>
-	          data[index] > 226 && data[index + 1] > 226 && data[index + 2] > 226;
-	        const matchesEdgeBackground = (index: number) =>
-	          edgeColors.some(([red, green, blue]) => {
-	            const distance = Math.hypot(
-	              data[index] - red,
-	              data[index + 1] - green,
-	              data[index + 2] - blue
-	            );
-	            return distance < 58;
-	          });
+            data[((height - 1) * width + width - 1) * 4 + 2],
+          ],
+        ];
+        const isNearWhite = (index: number) =>
+          data[index] > 226 && data[index + 1] > 226 && data[index + 2] > 226;
+        const matchesEdgeBackground = (index: number) =>
+          edgeColors.some(([red, green, blue]) => {
+            const distance = Math.hypot(
+              data[index] - red,
+              data[index + 1] - green,
+              data[index + 2] - blue
+            );
+            return distance < 58;
+          });
         const visited = new Uint8Array(width * height);
         const queue: number[] = [];
         const add = (x: number, y: number) => {
           const position = y * width + x;
           if (visited[position]) return;
           const index = position * 4;
-	          if (!isNearWhite(index) && !matchesEdgeBackground(index)) return;
+          if (!isNearWhite(index) && !matchesEdgeBackground(index)) return;
           visited[position] = 1;
           queue.push(position);
         };
@@ -168,10 +161,10 @@ function makeTransparentPhoto(file: File): Promise<string> {
           const position = queue[cursor];
           const x = position % width;
           const y = Math.floor(position / width);
-	          // Remove the connected paper/background pixels completely. PNG keeps
-	          // the alpha channel so the same processed photo can be used as a
-	          // genuine watermark without a white rectangle.
-	          data[position * 4 + 3] = 0;
+          // Remove the connected paper/background pixels completely. PNG keeps
+          // the alpha channel so the same processed photo can be used as a
+          // genuine watermark without a white rectangle.
+          data[position * 4 + 3] = 0;
           if (x > 0) add(x - 1, y);
           if (x + 1 < width) add(x + 1, y);
           if (y > 0) add(x, y - 1);
@@ -337,18 +330,19 @@ function referenceInitials(fullName: string, surname: string) {
   const nameParts = cleanEnglish(`${surname} ${fullName}`)
     .split(/\s+/)
     .filter(Boolean);
-  const initials = nameParts
-    .map(part => part.charAt(0).toUpperCase())
-    .join("");
+  const initials = nameParts.map(part => part.charAt(0).toUpperCase()).join("");
   return initials || "USR";
 }
 
 function referenceCheckCode(seed: string) {
-  return Array.from(seed).reduce(
-    (total, character, index) =>
-      (total + character.charCodeAt(0) * (index + 1)) % 100,
-    0
-  ).toString().padStart(2, "0");
+  return Array.from(seed)
+    .reduce(
+      (total, character, index) =>
+        (total + character.charCodeAt(0) * (index + 1)) % 100,
+      0
+    )
+    .toString()
+    .padStart(2, "0");
 }
 
 function identifierValues(records: Array<{ data: FormState }>) {
@@ -436,42 +430,40 @@ export type FormState = {
 };
 
 export const initial: FormState = {
-  issueNo: "20059",
-  referenceNo: "REF-AJJAA-482731",
-  internalNo: "INT-AJJAA-739204",
-  issuanceNo: "20260904-7318",
-  issueDate: "2025-12-11",
-  fullNameAr: "جميل جبر أحمد",
-  fullNameEn: "Jameel Jabr Ahmed",
-  surnameAr: "الرملي",
-  surnameEn: "Al-Ramli",
-  birthPlaceAr: "السعودية، جدة",
-  birthPlaceEn: "Jeddah, Saudi Arabia",
-  birthDate: "16/02/1995",
+  issueNo: "99901",
+  referenceNo: "REF-DEMO-482731",
+  internalNo: "INT-DEMO-739204",
+  issuanceNo: "DEMO-20260915-7318",
+  issueDate: "2026-09-15",
+  fullNameAr: "سامي ناصر علي",
+  fullNameEn: "Sami Nasser Ali",
+  surnameAr: "الاختباري",
+  surnameEn: "Al-Ikhtibari",
+  birthPlaceAr: "اليمن، عدن",
+  birthPlaceEn: "Aden, Yemen",
+  birthDate: "15/09/1990",
   idTypeAr: "جواز سفر",
   idTypeEn: "Passport",
-  idNumberAr: "10878313",
-  idNumberEn: "10878313",
-  passportNoAr: "P0000000",
-  passportNoEn: "P0000000",
-  passportAr: "2026-03-11",
-  passportEn: "2026-03-11",
+  idNumberAr: "00000000",
+  idNumberEn: "00000000",
+  passportNoAr: "DEMO-0000",
+  passportNoEn: "DEMO-0000",
+  passportAr: "2030-09-15",
+  passportEn: "2030-09-15",
   nationalityAr: "اليمن",
   nationalityEn: "Yemen",
-  occupationAr: "منسوب مبيعات",
-  occupationEn: "Sales Representative",
-  idIssueDateAr: "2023-03-01",
-  idIssueDateEn: "2023-03-01",
-  idIssuePlaceAr: "معين",
-  idIssuePlaceEn: "Ma'in",
-  departmentAr: "سفارة عمان",
-  departmentEn: "Embassy of Oman",
-  expiryAr: "2026-03-11",
-  expiryEn: "2026-03-11",
-  notesAr:
-    "تم التحقق من سجلاتنا، ولم يتم العثور على أي سوابق جنائية بحق المذكور.",
-  notesEn:
-    "OUR RECORDS HAVE BEEN VERIFIED AND NO CRIMINAL RECORDS HAVE BEEN FOUND AGAINST THE AFOREMENTIONED",
+  occupationAr: "موظف تجريبي",
+  occupationEn: "Demo Employee",
+  idIssueDateAr: "2024-09-15",
+  idIssueDateEn: "2024-09-15",
+  idIssuePlaceAr: "عدن",
+  idIssuePlaceEn: "Aden",
+  departmentAr: "إدارة الاختبار والتدريب",
+  departmentEn: "Testing and Training Department",
+  expiryAr: "2030-09-15",
+  expiryEn: "2030-09-15",
+  notesAr: "بيانات وهمية لأغراض الاختبار فقط، وليست وثيقة رسمية.",
+  notesEn: "SAMPLE DATA FOR TESTING ONLY - NOT AN OFFICIAL DOCUMENT",
 };
 const FIXED_CLOSING_TEXT = {
   notesAr: initial.notesAr,
@@ -564,8 +556,18 @@ const EXCEL_FIELD_ALIASES: Record<keyof FormState, string[]> = {
     "id number",
     "رقم الهوية بالانجليزي",
   ],
-  passportNoAr: ["passportNoAr", "passport number ar", "رقم الجواز العربي", "رقم الجواز"],
-  passportNoEn: ["passportNoEn", "passport number en", "passport number", "رقم الجواز بالانجليزي"],
+  passportNoAr: [
+    "passportNoAr",
+    "passport number ar",
+    "رقم الجواز العربي",
+    "رقم الجواز",
+  ],
+  passportNoEn: [
+    "passportNoEn",
+    "passport number en",
+    "passport number",
+    "رقم الجواز بالانجليزي",
+  ],
   passportAr: [
     "passportAr",
     "passport ar",
@@ -725,34 +727,34 @@ function linkedExpiryDate(issueDate: string) {
 }
 
 const EXCEL_TEMPLATE_ROW = {
-  issueDate: "11/12/2025",
-  fullNameAr: "جميل جبر أحمد",
-  fullNameEn: "Jameel Jabr Ahmed",
-  surnameAr: "الرملي",
-  surnameEn: "Al Ramli",
-  birthDate: "16/02/1995",
-  birthPlaceAr: "السعودية، جدة",
-  birthPlaceEn: "Jeddah, Saudi Arabia",
+  issueDate: "15/09/2026",
+  fullNameAr: "سامي ناصر علي",
+  fullNameEn: "Sami Nasser Ali",
+  surnameAr: "الاختباري",
+  surnameEn: "Al Ikhtibari",
+  birthDate: "15/09/1990",
+  birthPlaceAr: "اليمن، عدن",
+  birthPlaceEn: "Aden, Yemen",
   nationalityAr: "اليمن",
   nationalityEn: "Yemen",
   idTypeAr: "جواز سفر",
   idTypeEn: "Passport",
-  idNumberAr: "10878313",
-  idNumberEn: "10878313",
-  passportAr: "11/03/2026",
-  passportEn: "11/03/2026",
-  occupationAr: "منسوب مبيعات",
-  occupationEn: "Sales Representative",
-  idIssueDateAr: "01/03/2023",
-  idIssueDateEn: "01/03/2023",
-  idIssuePlaceAr: "معين",
-  idIssuePlaceEn: "Ma'in",
-  departmentAr: "سفارة عمان",
-  departmentEn: "Embassy of Oman",
-  expiryAr: "11/03/2026",
-  expiryEn: "11/03/2026",
-  notesAr: "تم التحقق من سجلاتنا.",
-  notesEn: "OUR RECORDS HAVE BEEN VERIFIED.",
+  idNumberAr: "00000000",
+  idNumberEn: "00000000",
+  passportAr: "15/09/2030",
+  passportEn: "15/09/2030",
+  occupationAr: "موظف تجريبي",
+  occupationEn: "Demo Employee",
+  idIssueDateAr: "15/09/2024",
+  idIssueDateEn: "15/09/2024",
+  idIssuePlaceAr: "عدن",
+  idIssuePlaceEn: "Aden",
+  departmentAr: "إدارة الاختبار والتدريب",
+  departmentEn: "Testing and Training Department",
+  expiryAr: "15/09/2030",
+  expiryEn: "15/09/2030",
+  notesAr: "بيانات وهمية لأغراض الاختبار فقط.",
+  notesEn: "SAMPLE DATA FOR TESTING ONLY.",
 };
 
 const EXCEL_FIELD_GUIDE = [
@@ -779,7 +781,11 @@ const EXCEL_FIELD_GUIDE = [
   ["idIssuePlaceAr", "جهة إصدار الهوية", "ID Issue Place"],
   ["idIssuePlaceEn", "جهة إصدار الهوية بالإنجليزي", "ID Issue Place (English)"],
   ["departmentAr", "الجهة التي سيُقدَّم إليها", "Department Requested"],
-  ["departmentEn", "الجهة التي سيُقدَّم إليها بالإنجليزي", "Department Requested (English)"],
+  [
+    "departmentEn",
+    "الجهة التي سيُقدَّم إليها بالإنجليزي",
+    "Department Requested (English)",
+  ],
   ["expiryAr", "تاريخ انتهاء الوثيقة", "Document Expiry"],
   ["expiryEn", "تاريخ انتهاء الوثيقة بالإنجليزي", "Document Expiry (English)"],
   ["notesAr", "الملاحظة", "Notes"],
@@ -793,18 +799,36 @@ function downloadExcelTemplate() {
     ["تعليمات تعبئة قالب حسن السيرة والسلوك"],
     ["اكتب بيانات شخص واحد فقط في الصف الثاني من ورقة Good Conduct."],
     ["تواريخ Excel: استخدم DD/MM/YYYY أو YYYY-MM-DD."],
-    ["الأرقام النظامية (رقم القيد والمرجع والداخلي والإصدار) ينشئها النظام تلقائيًا ولا تُستورد من Excel."],
+    [
+      "الأرقام النظامية (رقم القيد والمرجع والداخلي والإصدار) ينشئها النظام تلقائيًا ولا تُستورد من Excel.",
+    ],
     ["الصورة تُرفع من داخل النظام وليست داخل ملف Excel."],
-    ["مقاس الصورة الموصى به: 400 × 600 بكسل بنسبة 2:3، JPG أو PNG، وبحد أقصى 5MB."],
-    ["تُستخدم الصورة نفسها للعلامة المائية، ويزيل النظام الخلفية البيضاء من نسخة العلامة المائية فقط."],
-    ["مقاس الصورة داخل الوثيقة: 40 × 60mm. مقاس العلامة المائية: 24 × 36mm تقريبًا."],
+    [
+      "مقاس الصورة الموصى به: 400 × 600 بكسل بنسبة 2:3، JPG أو PNG، وبحد أقصى 5MB.",
+    ],
+    [
+      "تُستخدم الصورة نفسها للعلامة المائية، ويزيل النظام الخلفية البيضاء من نسخة العلامة المائية فقط.",
+    ],
+    [
+      "مقاس الصورة داخل الوثيقة: 40 × 60mm. مقاس العلامة المائية: 24 × 36mm تقريبًا.",
+    ],
     ["لا تغيّر أسماء أعمدة ورقة Good Conduct حتى يتم الاستيراد بشكل صحيح."],
   ]);
   instructions["!cols"] = [{ wch: 120 }];
   const guide = XLSX.utils.aoa_to_sheet([
     ["اسم الحقل الداخلي", "التسمية العربية", "التسمية الإنجليزية", "ملاحظة"],
-    ...EXCEL_FIELD_GUIDE.map(([key, ar, en]) => [key, ar, en, "بيانات مستخدم قابلة للاستيراد"]),
-    ["issueNo / referenceNo / internalNo / issuanceNo", "أرقام النظام", "System identifiers", "لا تعبئها؛ ينشئها النظام بعد الاستيراد"],
+    ...EXCEL_FIELD_GUIDE.map(([key, ar, en]) => [
+      key,
+      ar,
+      en,
+      "بيانات مستخدم قابلة للاستيراد",
+    ]),
+    [
+      "issueNo / referenceNo / internalNo / issuanceNo",
+      "أرقام النظام",
+      "System identifiers",
+      "لا تعبئها؛ ينشئها النظام بعد الاستيراد",
+    ],
   ]);
   guide["!cols"] = [{ wch: 34 }, { wch: 32 }, { wch: 34 }, { wch: 42 }];
   const workbook = XLSX.utils.book_new();
@@ -1016,10 +1040,14 @@ function BilingualChoiceField({
       | "departmentAr"
       | "departmentEn";
     if (option) {
-      onChange(linked ? {
-        [`${field}Ar`]: option.ar,
-        [`${field}En`]: option.en,
-      } : { [key]: value });
+      onChange(
+        linked
+          ? {
+              [`${field}Ar`]: option.ar,
+              [`${field}En`]: option.en,
+            }
+          : { [key]: value }
+      );
     } else if (linked) {
       onChange({
         [`${field}Ar`]: value,
@@ -1032,8 +1060,15 @@ function BilingualChoiceField({
   return (
     <div className="field bilingual-choice-field">
       <div className="date-pair-heading">
-        <Label>{label} <span>اختر أو اكتب</span></Label>
-        <button type="button" className={`link-toggle${linked ? " active" : ""}`} onClick={onToggle} aria-pressed={linked}>
+        <Label>
+          {label} <span>اختر أو اكتب</span>
+        </Label>
+        <button
+          type="button"
+          className={`link-toggle${linked ? " active" : ""}`}
+          onClick={onToggle}
+          aria-pressed={linked}
+        >
           {linked ? <Link2 size={13} /> : <Unlink2 size={13} />}
           {linked ? "مرتبط" : "مستقل"}
         </button>
@@ -1059,8 +1094,12 @@ function BilingualChoiceField({
       <datalist id={listId}>
         {options.map(option => (
           <>
-            <option key={`${option.en}-${option.ar}-en`} value={option.en}>{option.ar}</option>
-            <option key={`${option.en}-${option.ar}-ar`} value={option.ar}>{option.en}</option>
+            <option key={`${option.en}-${option.ar}-en`} value={option.en}>
+              {option.ar}
+            </option>
+            <option key={`${option.en}-${option.ar}-ar`} value={option.ar}>
+              {option.en}
+            </option>
           </>
         ))}
       </datalist>
@@ -1217,19 +1256,19 @@ export function DocumentPreview({
   return (
     <div className="document-wrap">
       <article className="document" id="print-document">
-	        <img
-	          className="word-template-bg"
-	          src={officialTemplate}
-	          alt=""
-	          aria-hidden="true"
-	        />
+        <img
+          className="word-template-bg"
+          src={officialTemplate}
+          alt=""
+          aria-hidden="true"
+        />
         {showWatermark && watermarkPhoto && (
-	          <div className="doc-watermark-wrap" aria-hidden="true">
+          <div className="doc-watermark-wrap" aria-hidden="true">
             <img className="doc-watermark" src={watermarkPhoto} alt="" />
             <span>{data.referenceNo}</span>
-	          </div>
-	        )}
-	        <div className="doc-top">
+          </div>
+        )}
+        <div className="doc-top">
           <div className="photo-stack">
             <img className="doc-photo" src={photo} alt="الصورة الشخصية" />
             <span className="doc-photo-name" dir="ltr">
@@ -1244,13 +1283,13 @@ export function DocumentPreview({
             <Barcode value={barcodePayload} />
           </div>
           <div className="doc-meta">
-	            <div>
-	              <small>No. | رقم القيد</small>
-	              <b>{data.issueNo}</b>
-	            </div>
-	            <div>
-	              <small>Issue Date | تاريخ الإصدار</small>
-	              <b>{formatDate(data.issueDate)}</b>
+            <div>
+              <small>No. | رقم القيد</small>
+              <b>{data.issueNo}</b>
+            </div>
+            <div>
+              <small>Issue Date | تاريخ الإصدار</small>
+              <b>{formatDate(data.issueDate)}</b>
             </div>
           </div>
           <div className="qr-box">
@@ -1312,19 +1351,19 @@ export function DocumentPreview({
             <p>تاريخ الانتهاء {formatDate(data.expiryAr)}</p>
           </div>
         </div>
-	        <div className="doc-signatures">
+        <div className="doc-signatures">
           <div className="office-signature">
             <b dir="rtl">مدير الجنائية والبحث م/عدن</b>
           </div>
           <div className="office-signature">
             <b dir="rtl">الحاسب الآلي م/عدن</b>
-	          </div>
-	        </div>
-	        <div className="doc-issuance-footer" dir="rtl">
-	          <span>رقم إصدار الوثيقة</span>
-	          <b dir="ltr">{data.issuanceNo}</b>
-	        </div>
-	      </article>
+          </div>
+        </div>
+        <div className="doc-issuance-footer" dir="rtl">
+          <span>رقم إصدار الوثيقة</span>
+          <b dir="ltr">{data.issuanceNo}</b>
+        </div>
+      </article>
     </div>
   );
 }
@@ -1526,15 +1565,15 @@ export default function Home() {
         : { ...d, [side === "ar" ? "idNumberAr" : "idNumberEn"]: value }
     );
   };
-  const updateLinkedText = (
-    arKey: keyof FormState,
-    enKey: keyof FormState,
-    linked: boolean,
-  ) => (side: "ar" | "en", value: string) => {
-    setData(d => linked
-      ? { ...d, [arKey]: value, [enKey]: value }
-      : { ...d, [side === "ar" ? arKey : enKey]: value });
-  };
+  const updateLinkedText =
+    (arKey: keyof FormState, enKey: keyof FormState, linked: boolean) =>
+    (side: "ar" | "en", value: string) => {
+      setData(d =>
+        linked
+          ? { ...d, [arKey]: value, [enKey]: value }
+          : { ...d, [side === "ar" ? arKey : enKey]: value }
+      );
+    };
   const toggleIdNumberLink = () => {
     setIdNumberLinked(linked => {
       const nextLinked = !linked;
@@ -1697,7 +1736,9 @@ export default function Home() {
     toast.info("تمت استعادة البيانات التجريبية");
   };
   return (
-    <main className={`app-shell editor-page noor-editor-shell input-view-${inputView} guided-step-${editorStep}`}>
+    <main
+      className={`app-shell editor-page noor-editor-shell input-view-${inputView} guided-step-${editorStep}`}
+    >
       <aside className="control-panel">
         <div className="brand">
           <div className="brand-mark">
@@ -1722,15 +1763,41 @@ export default function Home() {
             المتغيرة فقط داخل نفس التصميم.
           </p>
         </div>
-        <div className="input-mode-switch" role="tablist" aria-label="طريقة الإدخال">
-          <button type="button" className={inputView === "guided" ? "active" : ""} onClick={() => setInputView("guided")}>إصدار جديد</button>
-          <button type="button" className={inputView === "full" ? "active" : ""} onClick={() => setInputView("full")}>الإدخال الكامل</button>
+        <div
+          className="input-mode-switch"
+          role="tablist"
+          aria-label="طريقة الإدخال"
+        >
+          <button
+            type="button"
+            className={inputView === "guided" ? "active" : ""}
+            onClick={() => setInputView("guided")}
+          >
+            إصدار جديد
+          </button>
+          <button
+            type="button"
+            className={inputView === "full" ? "active" : ""}
+            onClick={() => setInputView("full")}
+          >
+            الإدخال الكامل
+          </button>
         </div>
-        {inputView === "guided" && <div className="guided-steps" aria-label="خطوات الإدخال">
-          <span className={editorStep >= 1 ? "active" : ""}>01 <b>بيانات الإصدار</b></span><i />
-          <span className={editorStep >= 2 ? "active" : ""}>02 <b>بيانات صاحب الطلب</b></span><i />
-          <span className={editorStep >= 3 ? "active" : ""}>03 <b>المراجعة</b></span>
-        </div>}
+        {inputView === "guided" && (
+          <div className="guided-steps" aria-label="خطوات الإدخال">
+            <span className={editorStep >= 1 ? "active" : ""}>
+              01 <b>بيانات الإصدار</b>
+            </span>
+            <i />
+            <span className={editorStep >= 2 ? "active" : ""}>
+              02 <b>بيانات صاحب الطلب</b>
+            </span>
+            <i />
+            <span className={editorStep >= 3 ? "active" : ""}>
+              03 <b>المراجعة</b>
+            </span>
+          </div>
+        )}
         <section className="form-section" data-step="1">
           <div className="section-heading">
             <span>01</span>
@@ -1874,18 +1941,55 @@ export default function Home() {
             </div>
           </div>
           <div className="form-grid">
-            <TextPairField label="الاسم الكامل / Full Name" arabicValue={data.fullNameAr} englishValue={data.fullNameEn} linked={linkedTextFields.fullName} onToggle={() => setLinkedTextFields(d => ({ ...d, fullName: !d.fullName }))} onChange={updateLinkedText("fullNameAr", "fullNameEn", linkedTextFields.fullName)} />
-            <TextPairField label="اللقب / Surname" arabicValue={data.surnameAr} englishValue={data.surnameEn} linked={linkedTextFields.surname} onToggle={() => setLinkedTextFields(d => ({ ...d, surname: !d.surname }))} onChange={updateLinkedText("surnameAr", "surnameEn", linkedTextFields.surname)} />
-            <TextPairField label="مكان الميلاد / Birth Place" arabicValue={data.birthPlaceAr} englishValue={data.birthPlaceEn} linked={linkedTextFields.birthPlace} onToggle={() => setLinkedTextFields(d => ({ ...d, birthPlace: !d.birthPlace }))} onChange={updateLinkedText("birthPlaceAr", "birthPlaceEn", linkedTextFields.birthPlace)} />
+            <TextPairField
+              label="الاسم الكامل / Full Name"
+              arabicValue={data.fullNameAr}
+              englishValue={data.fullNameEn}
+              linked={linkedTextFields.fullName}
+              onToggle={() =>
+                setLinkedTextFields(d => ({ ...d, fullName: !d.fullName }))
+              }
+              onChange={updateLinkedText(
+                "fullNameAr",
+                "fullNameEn",
+                linkedTextFields.fullName
+              )}
+            />
+            <TextPairField
+              label="اللقب / Surname"
+              arabicValue={data.surnameAr}
+              englishValue={data.surnameEn}
+              linked={linkedTextFields.surname}
+              onToggle={() =>
+                setLinkedTextFields(d => ({ ...d, surname: !d.surname }))
+              }
+              onChange={updateLinkedText(
+                "surnameAr",
+                "surnameEn",
+                linkedTextFields.surname
+              )}
+            />
+            <TextPairField
+              label="مكان الميلاد / Birth Place"
+              arabicValue={data.birthPlaceAr}
+              englishValue={data.birthPlaceEn}
+              linked={linkedTextFields.birthPlace}
+              onToggle={() =>
+                setLinkedTextFields(d => ({ ...d, birthPlace: !d.birthPlace }))
+              }
+              onChange={updateLinkedText(
+                "birthPlaceAr",
+                "birthPlaceEn",
+                linkedTextFields.birthPlace
+              )}
+            />
             <DateField
               label="تاريخ الميلاد / Date of Birth"
               value={data.birthDate}
               onChange={update("birthDate")}
             />
             <DatePairField
-              label={
-                "تاريخ الانتهاء / Date of Expiry"
-              }
+              label={"تاريخ الانتهاء / Date of Expiry"}
               arabicValue={data.passportAr}
               englishValue={data.passportEn}
               linked={linkedDates.passport}
@@ -1899,7 +2003,7 @@ export default function Home() {
                 }))
               }
             />
-      <div className="field document-type-field">
+            <div className="field document-type-field">
               <Label>نوع الهوية / Card Type</Label>
               <select
                 value={data.idTypeEn}
@@ -1930,8 +2034,37 @@ export default function Home() {
               onToggle={toggleIdNumberLink}
               onChange={updateIdNumber}
             />
-            <TextPairField label="المهنة / Occupation" arabicValue={data.occupationAr} englishValue={data.occupationEn} linked={linkedTextFields.occupation} onToggle={() => setLinkedTextFields(d => ({ ...d, occupation: !d.occupation }))} onChange={updateLinkedText("occupationAr", "occupationEn", linkedTextFields.occupation)} />
-            <TextPairField label="جهة الإصدار / Issuing Authority" arabicValue={data.idIssuePlaceAr} englishValue={data.idIssuePlaceEn} linked={linkedTextFields.idIssuePlace} onToggle={() => setLinkedTextFields(d => ({ ...d, idIssuePlace: !d.idIssuePlace }))} onChange={updateLinkedText("idIssuePlaceAr", "idIssuePlaceEn", linkedTextFields.idIssuePlace)} />
+            <TextPairField
+              label="المهنة / Occupation"
+              arabicValue={data.occupationAr}
+              englishValue={data.occupationEn}
+              linked={linkedTextFields.occupation}
+              onToggle={() =>
+                setLinkedTextFields(d => ({ ...d, occupation: !d.occupation }))
+              }
+              onChange={updateLinkedText(
+                "occupationAr",
+                "occupationEn",
+                linkedTextFields.occupation
+              )}
+            />
+            <TextPairField
+              label="جهة الإصدار / Issuing Authority"
+              arabicValue={data.idIssuePlaceAr}
+              englishValue={data.idIssuePlaceEn}
+              linked={linkedTextFields.idIssuePlace}
+              onToggle={() =>
+                setLinkedTextFields(d => ({
+                  ...d,
+                  idIssuePlace: !d.idIssuePlace,
+                }))
+              }
+              onChange={updateLinkedText(
+                "idIssuePlaceAr",
+                "idIssuePlaceEn",
+                linkedTextFields.idIssuePlace
+              )}
+            />
             <BilingualChoiceField
               label="الجهة التي سيُقدَّم إليها / Department Requested"
               field="department"
@@ -2002,7 +2135,9 @@ export default function Home() {
             />
             <span>
               <strong>إزالة خلفية الصورة</strong>
-              <small>تؤثر على الصورة الشخصية فقط، ولا تغيّر العلامة المائية</small>
+              <small>
+                تؤثر على الصورة الشخصية فقط، ولا تغيّر العلامة المائية
+              </small>
             </span>
           </label>
           <label className="transparency-toggle">
@@ -2055,21 +2190,71 @@ export default function Home() {
           </div>
         </section>
         <section className="guided-review-panel" data-step="3">
-          <div className="section-heading"><span>03</span><div><h3>مراجعة بيانات الإدخال</h3><p>راجع الحقول كاملة قبل الانتقال إلى الإدخال الكامل</p></div></div>
-          <div className="guided-review-grid full-review-grid">
-            {(Object.keys(initial) as Array<keyof FormState>).filter(key => key !== "passportNoAr" && key !== "passportNoEn").map(key => (
-              <div key={key}>
-                <small>{FORM_REVIEW_LABELS[key]}</small>
-                <strong dir={key.endsWith("En") || ["issueNo", "referenceNo", "internalNo", "issuanceNo", "issueDate", "birthDate"].includes(key) ? "ltr" : "rtl"}>{data[key] || "—"}</strong>
-              </div>
-            ))}
+          <div className="section-heading">
+            <span>03</span>
+            <div>
+              <h3>مراجعة بيانات الإدخال</h3>
+              <p>راجع الحقول كاملة قبل الانتقال إلى الإدخال الكامل</p>
+            </div>
           </div>
-          <button type="button" className="review-to-full" onClick={() => setInputView("full")}>فتح الإدخال الكامل <ArrowLeft size={15} /></button>
+          <div className="guided-review-grid full-review-grid">
+            {(Object.keys(initial) as Array<keyof FormState>)
+              .filter(key => key !== "passportNoAr" && key !== "passportNoEn")
+              .map(key => (
+                <div key={key}>
+                  <small>{FORM_REVIEW_LABELS[key]}</small>
+                  <strong
+                    dir={
+                      key.endsWith("En") ||
+                      [
+                        "issueNo",
+                        "referenceNo",
+                        "internalNo",
+                        "issuanceNo",
+                        "issueDate",
+                        "birthDate",
+                      ].includes(key)
+                        ? "ltr"
+                        : "rtl"
+                    }
+                  >
+                    {data[key] || "—"}
+                  </strong>
+                </div>
+              ))}
+          </div>
+          <button
+            type="button"
+            className="review-to-full"
+            onClick={() => setInputView("full")}
+          >
+            فتح الإدخال الكامل <ArrowLeft size={15} />
+          </button>
         </section>
-        {inputView === "guided" && <div className="guided-navigation">
-          <Button variant="outline" type="button" disabled={editorStep === 1} onClick={() => setEditorStep(step => (step - 1) as 1 | 2 | 3)}>الخطوة السابقة</Button>
-          {editorStep < 3 ? <Button type="button" onClick={() => setEditorStep(step => (step + 1) as 1 | 2 | 3)}>الخطوة التالية <ArrowLeft size={15} /></Button> : <Button type="button" onClick={() => setInputView("full")}>مراجعة كل الحقول <ArrowLeft size={15} /></Button>}
-        </div>}
+        {inputView === "guided" && (
+          <div className="guided-navigation">
+            <Button
+              variant="outline"
+              type="button"
+              disabled={editorStep === 1}
+              onClick={() => setEditorStep(step => (step - 1) as 1 | 2 | 3)}
+            >
+              الخطوة السابقة
+            </Button>
+            {editorStep < 3 ? (
+              <Button
+                type="button"
+                onClick={() => setEditorStep(step => (step + 1) as 1 | 2 | 3)}
+              >
+                الخطوة التالية <ArrowLeft size={15} />
+              </Button>
+            ) : (
+              <Button type="button" onClick={() => setInputView("full")}>
+                مراجعة كل الحقول <ArrowLeft size={15} />
+              </Button>
+            )}
+          </div>
+        )}
         <div className="actions">
           <Button onClick={generate}>
             <FileCheck2 size={17} /> تحديث المعاينة
