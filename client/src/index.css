@@ -2691,3 +2691,18 @@
 .document .doc-lower-identity {
   align-self: center;
 }
+
+/* English marker for the lower QR code. */
+.document .doc-lower-qr {
+  height: auto;
+  min-height: 26mm;
+  grid-template-rows: 1fr auto;
+}
+.document .doc-lower-qr-label {
+  display: block;
+  margin-top: 1px;
+  color: #111;
+  font: 700 8px Arial, sans-serif;
+  line-height: 1;
+  text-align: center;
+}

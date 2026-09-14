@@ -1237,7 +1237,14 @@ export function DocumentPreview({
       ["الجهة التي سيُقدَّم إليها", data.departmentAr],
     ],
   ];
-  const qrPayload = [
+  const qrPayloadAr = [
+    `الدولة: ${data.nationalityAr}`,
+    `جهة الاستقدام: ${data.departmentAr}`,
+    `الاسم: ${data.fullNameAr}`,
+    `تاريخ الميلاد: ${formatArabicDate(data.birthDate)}`,
+    `رقم القيد: ${toArabicDigits(data.issueNo)}`,
+  ].join("\n");
+  const qrPayloadEn = [
     `COUNTRY: ${cleanEnglish(data.nationalityEn)}`,
     `RECRUITMENT DESTINATION: ${cleanEnglish(data.departmentEn)}`,
     `NAME: ${cleanEnglish(data.fullNameEn)}`,
@@ -1292,8 +1299,13 @@ export function DocumentPreview({
             </div>
           </div>
           <div className="qr-box">
-            <div className="personal-code" data-qr-value={qrPayload}>
-              <QRCodeSVG value={qrPayload} size={112} level="H" includeMargin />
+            <div className="personal-code" data-qr-value={qrPayloadAr}>
+              <QRCodeSVG
+                value={qrPayloadAr}
+                size={112}
+                level="H"
+                includeMargin
+              />
               <img src="/assets/yemen-emblem.png" alt="" />
             </div>
             <span>{data.fullNameAr || data.fullNameEn}</span>
@@ -1368,8 +1380,14 @@ export function DocumentPreview({
             </b>
           </div>
           <div className="doc-lower-right">
-            <div className="doc-lower-qr" aria-label="رمز QR للوثيقة">
-              <QRCodeSVG value={qrPayload} size={86} level="H" includeMargin />
+            <div className="doc-lower-qr" aria-label="English QR code">
+              <QRCodeSVG
+                value={qrPayloadEn}
+                size={86}
+                level="H"
+                includeMargin
+              />
+              <span className="doc-lower-qr-label">EN</span>
             </div>
             <div className="doc-lower-identity">
               <b className="doc-lower-name" dir="rtl">
