@@ -2551,3 +2551,82 @@
   margin: 0;
   padding: 0;
 }
+
+/* Lower document header: barcode and identity on the right, date/request on the left. */
+.document .doc-lower-header {
+  position: absolute;
+  z-index: 5;
+  left: 3.1%;
+  right: 3.1%;
+  bottom: 1.4%;
+  min-height: 10.5%;
+  border-top: 2px solid #111;
+  padding-top: 1.2%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 6%;
+  color: #111;
+  background: #fff;
+  font-family: Arial, "Noto Sans Arabic", sans-serif;
+}
+.document .doc-lower-left,
+.document .doc-lower-right {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.document .doc-lower-left {
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 3px;
+  text-align: center;
+  font-size: clamp(7px, 0.85vw, 10px);
+}
+.document .doc-lower-date-label {
+  font-weight: 800;
+}
+.document .doc-lower-left b {
+  font-size: clamp(8px, 0.95vw, 11px);
+}
+.document .doc-lower-left .doc-request-number {
+  margin-top: 3px;
+  letter-spacing: 0.2px;
+}
+.document .doc-lower-right {
+  direction: ltr;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.document .doc-lower-right .linear-barcode {
+  flex: 0 0 40mm;
+  width: 40mm !important;
+  height: 12mm !important;
+  max-width: 40mm !important;
+  max-height: 12mm;
+}
+.document .doc-lower-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: clamp(8px, 0.95vw, 11px);
+  line-height: 1.15;
+}
+.document .doc-lower-identity b {
+  font-size: clamp(9px, 1.1vw, 13px);
+}
+.document .doc-lower-identity span {
+  white-space: nowrap;
+  font-family: "Noto Naskh Arabic", Arial, sans-serif;
+  font-weight: 700;
+}
+.document .doc-issuance-footer {
+  display: none;
+}
+@media print {
+  .document .doc-lower-header {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

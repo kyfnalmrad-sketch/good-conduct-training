@@ -1359,9 +1359,21 @@ export function DocumentPreview({
             <b dir="rtl">الحاسب الآلي م/عدن</b>
           </div>
         </div>
-        <div className="doc-issuance-footer" dir="rtl">
-          <span>رقم إصدار الوثيقة</span>
-          <b dir="ltr">{data.issuanceNo}</b>
+        <div className="doc-lower-header">
+          <div className="doc-lower-left" dir="rtl">
+            <span className="doc-lower-date-label">التاريخ</span>
+            <b dir="ltr">{formatDate(data.issueDate)}</b>
+            <b className="doc-request-number" dir="ltr">
+              {data.referenceNo}
+            </b>
+          </div>
+          <div className="doc-lower-right">
+            <Barcode value={barcodePayload} />
+            <div className="doc-lower-identity">
+              <b>{data.issueNo}</b>
+              <span dir="rtl">{data.fullNameAr || data.fullNameEn}</span>
+            </div>
+          </div>
         </div>
       </article>
     </div>
