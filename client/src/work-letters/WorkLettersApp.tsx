@@ -72,9 +72,10 @@ export function LetterPreview({ data, language }: { data: WorkLetterData; langua
   const qr = codePayload(data, language);
   const barcode = useMemo(() => barcodeSvg(data), [data]);
   const english = language === "en";
-  return <article className={`work-letter-paper ${english ? "is-english" : "is-arabic"}`} dir={english ? "ltr" : "rtl"}>
-    <img className="official-letter-header" src={`/assets/official-work-letter/${company.id}-header.png`} alt="" />
-    {company.id === "astar" && <img className="official-letter-watermark" src="/assets/official-work-letter/astar-watermark.png" alt="" />}
+  const master = company.id === "master";
+  return <article className={`work-letter-paper ${master ? "is-master" : ""} ${english ? "is-english" : "is-arabic"}`} dir={english ? "ltr" : "rtl"}>
+    {master ? <img className="master-official-paper" src="/assets/official-work-letter/master-official-paper.png" alt="" /> : <img className="official-letter-header" src={`/assets/official-work-letter/${company.id}-header.png`} alt="" />}
+    {!master && company.id === "astar" && <img className="official-letter-watermark" src="/assets/official-work-letter/astar-watermark.png" alt="" />}
     <div className="official-letter-content">
       <div className="letter-meta"><div><span>{english ? "Internal No." : "الرقم الداخلي"}</span><b>{data.internalNo}</b></div><div><span>{english ? "Reference" : "المرجع"}</span><b>{data.reference}</b></div><div><span>{english ? "Date" : "التاريخ"}</span><b>{english ? dateForEnglish(data.issueDate) : arabicDate(data.issueDate)}</b></div></div>
       <div className="letter-main">
@@ -86,7 +87,7 @@ export function LetterPreview({ data, language }: { data: WorkLetterData; langua
     </div>
     <div className="letter-signature"><strong>{english ? "Human Resources Department" : "إدارة الموارد البشرية"}</strong><span>{english ? "Issued by:" : "صادر من:"}</span><b>{issuerName}</b></div>
     <div className="letter-barcode" dangerouslySetInnerHTML={{ __html: barcode }} />
-    <img className="official-letter-footer" src={`/assets/official-work-letter/${company.id}-footer.png`} alt="" />
+    {!master && <img className="official-letter-footer" src={`/assets/official-work-letter/${company.id}-footer.png`} alt="" />}
   </article>;
 }
 

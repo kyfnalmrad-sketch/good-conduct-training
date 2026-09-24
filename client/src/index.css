@@ -2737,6 +2737,15 @@
 .work-preview-heading { display: flex; justify-content: space-between; align-items: center; padding: 0 5px 12px; color: #34474d; font-size: 12px; font-weight: 700; }
 .work-preview-heading small { color: #7a8586; font: 10px ui-monospace, monospace; }
 .work-letter-paper { position: relative; width: min(100%, 794px); height: 1123px; min-height: 1123px; margin: 0 auto; padding: 0; overflow: hidden; background: #fff; box-shadow: 0 15px 35px #25384022; color: #171b1d; font-family: "Noto Naskh Arabic", "Noto Sans Arabic", Arial, sans-serif; }
+.master-official-paper { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.is-master .official-letter-content { top: 248px; right: 72px; bottom: 190px; left: 72px; }
+.is-master .letter-main { max-width: 650px; }
+.is-master .letter-main h1 { margin-top: 18px; margin-bottom: 70px; }
+.is-master .letter-copy { color: #17242d; }
+.is-master .letter-signature { bottom: 210px; }
+.is-master .letter-barcode { bottom: 206px; }
+.is-master.is-english .letter-copy { line-height: 2.05; }
+.is-master.is-arabic .letter-copy { line-height: 2; }
 .official-letter-header, .official-letter-footer { position: absolute; left: 0; width: 100%; height: auto; display: block; z-index: 3; pointer-events: none; }
 .official-letter-header { top: 0; }
 .official-letter-footer { bottom: 0; }
