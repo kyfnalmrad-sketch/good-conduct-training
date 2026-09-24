@@ -11,6 +11,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import WorkLettersApp from "./work-letters/WorkLettersApp";
+import WorkLettersPreview from "./work-letters/WorkLettersPreview";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
       <Route path={"/designs"} component={Designs} />
       <Route path={"/operations"} component={Operations} />
       <Route path={"/work-letters"} component={WorkLettersApp} />
+      <Route path={"/work-letters/preview"} component={WorkLettersPreview} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
