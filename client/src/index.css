@@ -2708,6 +2708,7 @@
 }
 /* Independent work-letters workspace */
 .work-letters-app { min-height: 100vh; display: grid; grid-template-columns: 260px minmax(0, 1fr); background: #e8e7e2; color: #26343b; }
+.work-letters-entry { border-color: #b28c35 !important; color: #7b5d1c !important; }
 .work-sidebar { background: #253840; color: #fff; padding: 28px 22px; display: flex; flex-direction: column; gap: 28px; }
 .work-brand, .work-storage-note { display: flex; align-items: center; gap: 11px; }
 .work-brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; background: #b28c35; color: #fff; font: 800 12px ui-monospace, monospace; }

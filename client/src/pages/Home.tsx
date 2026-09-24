@@ -3,6 +3,7 @@ import {
   Download,
   BarChart3,
   FileCheck2,
+  FileText,
   FileSpreadsheet,
   Link2,
   Unlink2,
@@ -2309,6 +2310,13 @@ export default function Home() {
           </Button>
           <Button variant="outline" onClick={() => setLocation("/operations")}>
             <BarChart3 size={16} /> العمليات
+          </Button>
+          <Button
+            variant="outline"
+            className="work-letters-entry"
+            onClick={() => setLocation("/work-letters")}
+          >
+            <FileText size={16} /> خطابات العمل
           </Button>
         </div>
       </aside>
