@@ -17,6 +17,7 @@ export type WorkLetterData = {
   issueDate: string;
   reference: string;
   internalNo: string;
+  issuerName: string;
 };
 
 const DB_NAME = "work-letters-independent-db";

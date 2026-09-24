@@ -2749,10 +2749,10 @@
 .letter-meta b { color: #243840; font-size: 11px; white-space: nowrap; }
 .letter-main { position: relative; max-width: 660px; margin: 0 auto; padding-top: 24px; }
 .letter-qr { position: absolute; top: 0; left: 0; padding: 3px; background: #fff; }
-.letter-main h1 { margin: 20px 0 84px; text-align: center; color: #111; font-size: 29px; line-height: 1.5; text-decoration: underline; text-underline-offset: 9px; text-decoration-thickness: 1.5px; }
+.letter-main h1 { margin: 20px 0 84px; text-align: center; color: #111; font-size: 29px; line-height: 1.5; text-decoration: none; }
 .letter-copy { margin: 0; font-size: 18px; line-height: 2.35; text-align: justify; }
-.letter-copy strong { color: #1b2b32; font-weight: 800; font-size: 1.04em; }
-.letter-closing { margin: 48px 0 0; text-align: center; font-size: 17px; line-height: 2; }
+.letter-copy strong { color: #1b2b32; font-weight: 800; font-size: inherit; }
+.letter-closing { margin: 48px 0 0; text-align: center; font-size: 18px; line-height: 2; }
 .letter-signature { position: absolute; z-index: 2; right: 112px; bottom: 214px; display: grid; gap: 8px; min-width: 205px; text-align: center; }
 .letter-signature strong { color: #111; font-size: 16px; }
 .letter-signature span { display: block; color: #666; font-size: 10px; }
@@ -2762,10 +2762,13 @@
 .letter-footer { display: none; }
 .is-english { direction: ltr; font-family: Arial, sans-serif; }
 .is-english .letter-header h2 { font-family: Arial, sans-serif; font-size: 19px; }
-.is-english .letter-main h1 { font-family: Arial, sans-serif; text-underline-offset: 8px; }
+.is-english .letter-main h1 { font-family: Arial, sans-serif; text-decoration: none; }
 .is-english .letter-copy, .is-english .letter-closing { font-family: Arial, sans-serif; }
 .is-english .letter-copy { text-align: left; line-height: 2.2; }
 .is-english .letter-signature { bottom: 152px; }
+.is-arabic { font-family: Arial, "Noto Sans Arabic", sans-serif; }
+.is-arabic .letter-copy { font-family: Arial, "Noto Sans Arabic", sans-serif; font-size: 20px; line-height: 2.05; }
+.is-arabic .letter-closing { font-family: Arial, "Noto Sans Arabic", sans-serif; font-size: 20px; }
 .work-records { margin-top: 24px; padding: 20px; }
 .work-records-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .work-records-title h2 { margin: 0; font: 700 19px "Noto Naskh Arabic", serif; }
