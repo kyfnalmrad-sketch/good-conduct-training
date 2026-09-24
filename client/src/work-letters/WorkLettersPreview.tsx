@@ -30,6 +30,8 @@ export default function WorkLettersPreview() {
     <header className="work-letter-preview-toolbar">
       <div><span>WORK-LETTERS</span><strong>{english ? "Official document preview" : "المعاينة الرسمية للخطاب"}</strong></div>
       <div className="work-letter-preview-actions">
+        <Button variant="outline" onClick={() => setLocation(`/work-letters/preview?company=astar&language=${language}`)}>{english ? "Astar" : "أستار"}</Button>
+        <Button variant="outline" onClick={() => setLocation(`/work-letters/preview?company=master&language=${language}`)}>{english ? "Master" : "ماستر"}</Button>
         <Button variant="outline" onClick={() => changeLanguage(language === "en" ? "ar" : "en")}>{english ? "العربية" : "English"}</Button>
         <Button variant="outline" onClick={() => setLocation(`/work-letters?company=${companyId}&language=${language}`)}><FilePenLine size={16} /> {english ? "Edit data" : "تعديل البيانات"}</Button>
         <Button onClick={() => window.print()}><Printer size={16} /> {english ? "Print / PDF" : "طباعة / PDF"}</Button>
