@@ -78,8 +78,8 @@ export function LetterPreview({ data, language }: { data: WorkLetterData; langua
   const barcode = useMemo(() => barcodeSvg(data), [data]);
   const english = language === "en";
   const officialPaper = company.id === "master" || company.id === "astar";
-  const optionalArabic = data.passportNo ? <> ورقم الجواز <strong>{data.passportNo}</strong></> : null;
-  const optionalEnglish = data.passportNo ? <>; passport number: <strong>{data.passportNo}</strong></> : null;
+  const optionalArabic = <>{data.passportNo ? <> ورقم الجواز <strong>{data.passportNo}</strong></> : null}{data.identityNo ? <> ورقم الهوية <strong>{data.identityNo}</strong></> : null}</>;
+  const optionalEnglish = <>{data.passportNo ? <>; passport number: <strong>{data.passportNo}</strong></> : null}{data.identityNo ? <>; identity number: <strong>{data.identityNo}</strong></> : null}</>;
   return <article className={`work-letter-paper ${officialPaper ? "is-official-paper" : ""} ${english ? "is-english" : "is-arabic"}`} dir={english ? "ltr" : "rtl"}>
     {officialPaper ? <img className="company-official-paper" src={`/assets/official-work-letter/${company.id}-official-paper.png`} alt="" /> : <img className="official-letter-header" src={`/assets/official-work-letter/${company.id}-header.png`} alt="" />}
     <div className="official-letter-content">
