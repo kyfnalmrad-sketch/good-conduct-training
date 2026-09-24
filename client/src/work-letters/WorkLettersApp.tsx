@@ -43,6 +43,17 @@ function salaryForEnglish(value: string) {
 }
 function codePayload(data: WorkLetterData, language: Language) {
   const company = companyFor(data.companyId);
+  if (language === "ar") {
+    return [
+      `الشركة: ${company.nameAr}`,
+      `المرجع: ${data.reference}`,
+      `الرقم الداخلي: ${data.internalNo}`,
+      `تاريخ الإصدار: ${arabicDate(data.issueDate)}`,
+      `اسم الموظف: ${data.employeeName}`,
+      `المسمى الوظيفي: ${data.jobTitle}`,
+      `الراتب: ${data.salary} دولار`,
+    ].join("\n");
+  }
   return JSON.stringify({ company: company.nameEn, reference: data.reference, internalNo: data.internalNo, issueDate: data.issueDate.split("/").reverse().join("-"), employeeName: data.employeeName, jobTitle: data.jobTitle, salary: data.salary, language });
 }
 function barcodeSvg(data: WorkLetterData) {
