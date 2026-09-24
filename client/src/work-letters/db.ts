@@ -11,6 +11,8 @@ export type WorkLetterData = {
   employeeName: string;
   jobTitle: string;
   salary: string;
+  passportNo?: string;
+  identityNo?: string;
   birthPlace: string;
   birthDate: string;
   joiningDate: string;
