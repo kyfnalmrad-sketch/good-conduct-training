@@ -2824,6 +2824,12 @@
 .letter-footer { display: none; }
 .letter-meta span, .letter-meta b { color: var(--letter-brand) !important; }
 .letter-meta b { direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: center; }
+.company-astar.is-arabic .official-letter-content,
+.company-master.is-arabic .official-letter-content,
+.company-astar.is-arabic .letter-signature,
+.company-master.is-arabic .letter-signature,
+.company-astar.is-arabic .letter-barcode,
+.company-master.is-arabic .letter-barcode { transform: translateY(-11px); }
 .letter-qr { left: 0; right: auto; width: auto; height: auto; padding: 3px; opacity: .95; border: 0; border-radius: 0; }
 .letter-qr svg { display: block; width: 100%; height: 100%; }
 .is-arabic .letter-qr { left: auto; right: 0; }

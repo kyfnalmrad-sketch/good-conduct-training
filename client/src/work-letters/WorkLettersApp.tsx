@@ -47,8 +47,8 @@ export const EN_INITIAL: WorkLetterData = { ...INITIAL, employeeName: "Mohammed 
 
 function companyFor(id: string) { return COMPANIES.find(company => company.id === id) ?? COMPANIES[0]; }
 function referencePrefix(company: Company, language: Language) {
-  const legalWords = language === "en" ? new Set(["company", "co", "foundation"]) : new Set(["شركة", "مؤسسة"]);
-  const source = language === "en" ? company.nameEn : company.nameAr;
+  const legalWords = new Set(["company", "co", "foundation"]);
+  const source = company.nameEn;
   return source.replace(/[،,().&\/]/g, " ").split(/\s+/).filter(word => word && !legalWords.has(word.toLowerCase())).map(word => word[0]).join("").toLocaleUpperCase();
 }
 function generatedReference(company: Company, language: Language, kind: "HR" | "INT") { return `${referencePrefix(company, language)}-${kind}-041-2026`; }
