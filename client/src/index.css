@@ -2842,6 +2842,21 @@
 .company-tawasul-engineering { --letter-brand: #168c88; }
 .company-hayat-education { --letter-brand: #e18a2d; }
 .company-arkan-finance { --letter-brand: #3b6e65; }
+.layout-b .letter-qr { left: 0; right: auto; }
+.layout-b .letter-barcode { left: auto; right: 56px; }
+.layout-b .letter-signature { right: auto; left: 112px; }
+.layout-c .official-letter-content { top: 270px; bottom: 230px; }
+.layout-c .letter-main { max-width: 620px; }
+.layout-c .letter-main h1 { margin-bottom: 62px; }
+.layout-c .letter-copy { font-size: 17px; line-height: 2; }
+.layout-c.is-arabic .official-letter-content { top: 245px; }
+.layout-c.is-arabic .letter-closing { margin-top: 12px; }
+.layout-c .letter-barcode { left: 56px; right: auto; transform: none; bottom: 270px; }
+.layout-c.is-english .letter-barcode { left: auto; right: 56px; }
+.layout-c .letter-signature { right: 72px; bottom: 225px; }
+.layout-c.is-english .letter-signature { right: auto; left: 72px; }
+.company-hayat-education .letter-copy, .company-arkan-finance .letter-copy { font-size: 16px; line-height: 1.9; }
+.company-hayat-education .letter-main h1, .company-arkan-finance .letter-main h1 { margin-bottom: 54px; }
 .is-english { direction: ltr; font-family: Georgia, "Times New Roman", serif; }
 .is-english .letter-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 19px; }
 .is-english .letter-main h1 { font-family: Georgia, "Times New Roman", serif; font-size: 29px; font-weight: 700; text-decoration: none; }
@@ -2852,6 +2867,11 @@
 .is-arabic .letter-main h1 { font-family: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif; font-size: 32px; font-weight: 700; }
 .is-arabic .letter-copy { font-family: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif; font-size: 20px; line-height: 2.05; }
 .is-arabic .letter-closing { font-family: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif; font-size: 20px; }
+.is-official-paper .letter-signature { bottom: 220px; }
+.is-official-paper.is-english .letter-signature { bottom: 220px; }
+.layout-c .letter-signature { bottom: 270px; }
+.layout-c .letter-barcode { bottom: 330px; }
+.layout-c .letter-closing { transform: translateY(-55px); }
 .work-records { margin-top: 24px; padding: 20px; }
 .work-records-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .work-records-title h2 { margin: 0; font: 700 19px "Noto Naskh Arabic", serif; }
@@ -2875,3 +2895,19 @@
 .work-letter-preview-stage .work-letter-paper { margin: 0 auto; }
 @media (max-width: 700px) { .work-letter-preview-page { padding: 14px 8px 28px; } .work-letter-preview-toolbar { align-items: flex-start; flex-direction: column; } .work-letter-preview-actions { width: 100%; } .work-letter-preview-stage { padding: 6px; overflow: auto; } }
 @media print { .work-letter-preview-page { padding: 0 !important; background: #fff !important; } .work-letter-preview-toolbar, .work-letter-preview-notice { display: none !important; } .work-letter-preview-stage { padding: 0 !important; background: #fff !important; box-shadow: none !important; } .work-letter-preview-stage .work-letter-paper { margin: 0 !important; } }
+
+@media print {
+  .layout-c .letter-barcode { bottom: 85mm !important; left: 15mm !important; right: auto !important; }
+  .layout-c.is-english .letter-barcode { left: auto !important; right: 15mm !important; }
+  .layout-c .letter-signature { bottom: 70mm !important; }
+  .layout-c .letter-closing { transform: translateY(-55px) !important; }
+}
+
+@media print {
+  .layout-c .letter-barcode { bottom: 110mm !important; }
+}
+
+@media print {
+  .layout-c .letter-closing { transform: none !important; }
+  .layout-c .letter-signature { bottom: 45mm !important; }
+}
