@@ -2732,7 +2732,9 @@
 .visible-company-language-controls strong { color: #253840; font-size: 12px; }
 .visible-company-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; }
 .visible-company-row span { color: #435258; font-size: 11px; line-height: 1.5; }
-.visible-company-row button { min-width: 72px; }
+.visible-company-row button { min-width: 72px; border: 1px solid #d5cec0; border-radius: 7px; padding: 8px 10px; color: #536166; background: #fff; cursor: pointer; font-size: 11px; }
+.visible-company-row button:hover { border-color: #b28c35; color: #765d20; }
+.visible-company-row button.active { border-color: #b28c35; color: #fff; background: #253840; }
 .work-eyebrow { color: #a47a25; font: 700 10px ui-monospace, monospace; letter-spacing: .1em; }
 .work-toolbar h1 { margin: 7px 0 0; color: #253840; font: 700 30px "Noto Naskh Arabic", serif; }
 .work-actions { display: flex; gap: 8px; flex-wrap: wrap; }
