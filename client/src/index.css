@@ -3026,6 +3026,11 @@
 .company-horizon-sanaa .letter-signature b { font-size: 10px; }
 .company-astar .letter-barcode,
 .company-horizon-sanaa .letter-barcode { bottom: 108px; }
+/* Place only the approval marks near the closing sentence. */
+.company-astar .letter-signature,
+.company-horizon-sanaa .letter-signature { top: 490px; bottom: auto; }
+.company-astar .letter-barcode,
+.company-horizon-sanaa .letter-barcode { top: 570px; bottom: auto; }
 @media print {
   .company-astar .letter-copy,
   .company-horizon-sanaa .letter-copy { font-size: 17px !important; line-height: 1.88 !important; }
@@ -3034,7 +3039,59 @@
   .company-astar .letter-closing,
   .company-horizon-sanaa .letter-closing { margin-top: 20px !important; font-size: 17px !important; line-height: 1.7 !important; }
   .company-astar .letter-signature,
-  .company-horizon-sanaa .letter-signature { bottom: 86px !important; gap: 8px !important; }
+  .company-horizon-sanaa .letter-signature { top: 490px !important; bottom: auto !important; gap: 8px !important; }
   .company-astar .letter-barcode,
-  .company-horizon-sanaa .letter-barcode { bottom: 70px !important; }
+  .company-horizon-sanaa .letter-barcode { top: 570px !important; bottom: auto !important; }
+}
+
+@media print {
+  /* Higher specificity keeps these two marks near the closing sentence. */
+  .work-letter-paper.is-official-paper.company-astar .letter-signature,
+  .work-letter-paper.is-official-paper.company-horizon-sanaa .letter-signature { top: 490px !important; bottom: auto !important; }
+  .work-letter-paper.is-official-paper.company-astar .letter-barcode,
+  .work-letter-paper.is-official-paper.company-horizon-sanaa .letter-barcode { top: 570px !important; bottom: auto !important; }
+}
+
+/* Global review pass: every official template uses an 18px body and bold variables. */
+.is-official-paper:not(.letter-format-2) .letter-copy { font-size: 18px !important; }
+.is-official-paper:not(.letter-format-2) .letter-copy strong { font-weight: 800 !important; }
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-copy { font-size: 18px !important; }
+  .is-official-paper:not(.letter-format-2) .letter-copy strong { font-weight: 800 !important; }
+}
+
+/* Final spacing pass: bring signatures closer to the closing line. */
+.is-official-paper:not(.letter-format-2) .letter-signature { transform: translateY(-24px); }
+
+/* Arkan and Hayat: reference/date beside the subject line, without the internal number. */
+.company-arkan-finance .letter-meta,
+.company-hayat-education .letter-meta { position: absolute; top: 78px; left: 92px; right: 92px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding: 0; z-index: 2; }
+.company-arkan-finance .letter-meta > div:first-child,
+.company-hayat-education .letter-meta > div:first-child { display: none; }
+.company-arkan-finance .letter-meta > div:nth-child(2),
+.company-hayat-education .letter-meta > div:nth-child(2) { grid-column: 1; }
+.company-arkan-finance .letter-meta > div:nth-child(3),
+.company-hayat-education .letter-meta > div:nth-child(3) { grid-column: 2; }
+.company-arkan-finance .letter-meta div,
+.company-hayat-education .letter-meta div { gap: 4px; }
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-signature { transform: translateY(-24px) !important; }
+  .company-arkan-finance .letter-meta,
+  .company-hayat-education .letter-meta { top: 78px !important; left: 24mm !important; right: 24mm !important; }
+}
+
+/* Per-template closing balance requested for the review pass. */
+@media print {
+  /* Astar + Horizon: a little more breathing room after the closing line. */
+  .work-letter-paper.is-official-paper.company-astar .letter-signature,
+  .work-letter-paper.is-official-paper.company-horizon-sanaa .letter-signature { top: 520px !important; bottom: auto !important; }
+
+  /* Master: bring the signature block slightly closer to the closing line. */
+  .work-letter-paper.is-official-paper.company-master .letter-signature { bottom: -20px !important; }
+
+  /* Arkan + Hayat: lower the full structure slightly, then tighten the signature gap. */
+  .work-letter-paper.is-official-paper.company-arkan-finance .official-letter-content,
+  .work-letter-paper.is-official-paper.company-hayat-education .official-letter-content { transform: translateY(-3mm) !important; }
+  .work-letter-paper.is-official-paper.company-arkan-finance .letter-signature,
+  .work-letter-paper.is-official-paper.company-hayat-education .letter-signature { bottom: -25px !important; }
 }
