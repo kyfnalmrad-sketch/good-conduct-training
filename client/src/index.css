@@ -2931,3 +2931,82 @@
 .letter-format-2 .format2-qr { float: right; margin: 0 0 12px 22px; padding: 3px; background: #fff; }
 .letter-format-2 .format2-qr svg { display: block; width: 86px; height: 86px; }
 @media print { .letter-format-2 .format2-qr { margin-left: 18px; } }
+
+@media print {
+  .layout-c:not(.letter-format-2) .letter-barcode { bottom: 45mm !important; left: 15mm !important; right: auto !important; }
+  .layout-c.is-english:not(.letter-format-2) .letter-barcode { left: auto !important; right: 15mm !important; }
+  .layout-c:not(.letter-format-2) .letter-signature { bottom: 35mm !important; }
+}
+
+/* Format 1 global restoration: keep verification elements below the letter body on every official template. */
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-barcode { bottom: 45mm !important; }
+  .is-official-paper:not(.letter-format-2) .letter-signature { bottom: 35mm !important; }
+}
+
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-barcode { bottom: 32mm !important; }
+}
+
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-barcode { bottom: 15mm !important; }
+  .is-official-paper:not(.letter-format-2) .letter-signature { bottom: 15mm !important; }
+}
+
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-barcode { bottom: 5mm !important; }
+  .is-official-paper:not(.letter-format-2) .letter-signature { bottom: 5mm !important; }
+}
+
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-barcode { bottom: -34px !important; }
+  .is-official-paper:not(.letter-format-2) .letter-signature { bottom: -34px !important; }
+}
+
+/* Format 1 approved baseline from e508333: raise the letter structure 3mm while keeping verification elements independent. */
+@media print {
+  .is-official-paper:not(.letter-format-2) .official-letter-content { transform: translateY(-3mm) !important; }
+  .is-official-paper:not(.letter-format-2) .letter-barcode { bottom: 52mm !important; }
+  .is-official-paper:not(.letter-format-2) .letter-signature { bottom: 53mm !important; }
+  .is-official-paper.is-english:not(.letter-format-2) .letter-signature { bottom: 38mm !important; }
+  .layout-c:not(.letter-format-2) .letter-barcode { bottom: 110mm !important; }
+  .layout-c:not(.letter-format-2) .letter-signature { bottom: 70mm !important; }
+}
+
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-barcode { bottom: -20px !important; }
+  .is-official-paper:not(.letter-format-2) .letter-signature { bottom: -20px !important; }
+}
+
+@media print {
+  .is-official-paper:not(.letter-format-2) .letter-signature,
+  .is-official-paper.is-english:not(.letter-format-2) .letter-signature { bottom: -60px !important; }
+  .is-official-paper:not(.letter-format-2) .letter-barcode { bottom: -20px !important; }
+}
+
+/* Company-specific Format 1 refinements for review. */
+@media print {
+  /* Arkan + Hayat: no PDF417; lower document metadata 2mm; lift HR block 1mm. */
+  .company-arkan-finance .letter-barcode,
+  .company-hayat-education .letter-barcode { display: none !important; }
+  .company-arkan-finance .letter-meta,
+  .company-hayat-education .letter-meta { transform: translateY(2mm); }
+  .company-arkan-finance .letter-signature,
+  .company-hayat-education .letter-signature { transform: translateY(-1mm); }
+
+  /* All other Format 1 templates retain the e508333 structure raised 3mm. */
+  .is-official-paper:not(.company-arkan-finance):not(.company-hayat-education) .official-letter-content { transform: translateY(-3mm) !important; }
+  .is-official-paper:not(.company-arkan-finance):not(.company-hayat-education) .letter-barcode { bottom: -45px !important; }
+  .is-official-paper:not(.company-arkan-finance):not(.company-hayat-education) .letter-signature { bottom: -60px !important; }
+}
+
+/* Final all-template Format 1 adjustment: +3mm lift and wider side separation. */
+@media print {
+  .is-official-paper:not(.letter-format-2) .official-letter-content { transform: translateY(-6mm) !important; }
+  .is-official-paper:not(.letter-format-2) .letter-barcode { left: 15mm !important; right: auto !important; bottom: -45px !important; }
+  .is-official-paper.is-english:not(.letter-format-2) .letter-barcode { left: auto !important; right: 15mm !important; }
+  .is-official-paper:not(.letter-format-2) .letter-signature { right: 15mm !important; left: auto !important; bottom: -60px !important; }
+  .is-official-paper.is-english:not(.letter-format-2) .letter-signature { right: auto !important; left: 15mm !important; bottom: -60px !important; }
+  .company-arkan-finance .letter-barcode,
+  .company-hayat-education .letter-barcode { display: none !important; }
+}
