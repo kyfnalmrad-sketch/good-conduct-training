@@ -2822,6 +2822,20 @@
 .company-yemen-colors-travel.is-english .letter-copy, .company-yemen-paths-logistics.is-english .letter-copy { font-size: 16px; line-height: 2.12; }
 .company-asas-sanaa.is-english .letter-copy, .company-rawafed-sanaa-agricultural.is-english .letter-copy { font-size: 17px; line-height: 2.08; }
 .letter-footer { display: none; }
+.letter-meta span, .letter-meta b { color: var(--letter-brand) !important; }
+.letter-meta b { direction: ltr; unicode-bidi: isolate; display: inline-block; text-align: center; }
+.letter-qr { left: 0; right: auto; width: auto; height: auto; padding: 3px; opacity: .95; border: 0; border-radius: 0; }
+.letter-qr svg { display: block; width: 100%; height: 100%; }
+.is-arabic .letter-qr { left: auto; right: 0; }
+.letter-barcode { left: 56px; bottom: 205px; width: 145px; height: 32px; opacity: 1; }
+.letter-signature { bottom: 220px; }
+.company-najm-tech-updated { --letter-brand: #2d6ca8; }
+.company-safa-pharma { --letter-brand: #1478ad; }
+.company-madar-media { --letter-brand: #8f285f; }
+.company-riyadah-agri { --letter-brand: #7a9940; }
+.company-tawasul-engineering { --letter-brand: #168c88; }
+.company-hayat-education { --letter-brand: #e18a2d; }
+.company-arkan-finance { --letter-brand: #3b6e65; }
 .is-english { direction: ltr; font-family: Georgia, "Times New Roman", serif; }
 .is-english .letter-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 19px; }
 .is-english .letter-main h1 { font-family: Georgia, "Times New Roman", serif; font-size: 29px; font-weight: 700; text-decoration: none; }
