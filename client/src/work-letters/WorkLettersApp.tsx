@@ -36,8 +36,12 @@ export function demoFor(companyId: string, language: Language): WorkLetterData {
   const base = language === "en" ? EN_INITIAL : INITIAL;
   return { ...base, companyId: company.id, reference: `${company.short}-HR-041-2026`, internalNo: `${company.short}-INT-041-2026` };
 }
-function arabicDate(value: string) { return value.replace(/[0-9]/g, digit => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]); }
+function arabicDate(value: string) { return value ? `${value.replace(/[0-9]/g, digit => "٠١٢٣٤٥٦٧٨٩"[Number(digit)])}م` : value; }
 function dateForEnglish(value: string) { const [day, month, year] = value.split("/"); return `${day} ${["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][Number(month) - 1]} ${year}`; }
+function salaryForArabic(value: string) {
+  const numeric = Number(value.replace(/,/g, ""));
+  return ` ${Number.isFinite(numeric) ? numeric.toLocaleString("en-US") : value} دولار أمريكي`;
+}
 function salaryForEnglish(value: string) {
   const numeric = Number(value.replace(/,/g, ""));
   if (numeric === 1500) return "USD 1,500 (one thousand five hundred US dollars)";
@@ -48,7 +52,7 @@ function codePayload(data: WorkLetterData, language: Language) {
     return [
       `اسم الموظف: ${data.employeeName}`,
       `المسمى الوظيفي: ${data.jobTitle}`,
-      `الراتب: ${data.salary} دولار`,
+      `الراتب الشهري:${salaryForArabic(data.salary)}`,
       `مكان الميلاد: ${data.birthPlace}`,
       `تاريخ الميلاد: ${arabicDate(data.birthDate)}`,
       `تاريخ الالتحاق: ${arabicDate(data.joiningDate)}`,
@@ -67,27 +71,33 @@ function codePayload(data: WorkLetterData, language: Language) {
     ...(data.identityNo ? [`Identity number: ${data.identityNo}`] : []),
   ].join("\n");
 }
-function barcodeSvg(data: WorkLetterData) {
-  try { return bwipjs.toSVG({ bcid: "pdf417", text: `${data.reference}|${data.internalNo}|${data.issueDate}`, scale: 2, columns: 5, rows: 8, includetext: false, paddingwidth: 2, paddingheight: 2 } as any); } catch { return ""; }
+function brandColor(companyId: string) { return companyId === "master" ? "17375e" : "8b3f35"; }
+function barcodeSvg(data: WorkLetterData, companyId: string) {
+  const payload = [
+    `Reference: ${data.reference}`,
+    `Internal number: ${data.internalNo}`,
+    `Issue date: ${data.issueDate}`,
+  ].join("\n");
+  try { return bwipjs.toSVG({ bcid: "pdf417", text: payload, barcolor: brandColor(companyId), scale: 2, columns: 5, rows: 8, includetext: false, paddingwidth: 2, paddingheight: 2 } as any); } catch { return ""; }
 }
 
 export function LetterPreview({ data, language }: { data: WorkLetterData; language: Language }) {
   const company = companyFor(data.companyId);
   const issuerName = data.issuerName || (language === "ar" ? "أحمد محمد، مدير الموارد البشرية" : "Ahmed Mohammed, Human Resources Manager");
   const qr = codePayload(data, language);
-  const barcode = useMemo(() => barcodeSvg(data), [data]);
+  const barcode = useMemo(() => barcodeSvg(data, company.id), [data, company.id]);
   const english = language === "en";
   const officialPaper = company.id === "master" || company.id === "astar";
   const optionalArabic = <>{data.passportNo ? <> ورقم الجواز <strong>{data.passportNo}</strong></> : null}{data.identityNo ? <> ورقم الهوية <strong>{data.identityNo}</strong></> : null}</>;
   const optionalEnglish = <>{data.passportNo ? <>; passport number: <strong>{data.passportNo}</strong></> : null}{data.identityNo ? <>; identity number: <strong>{data.identityNo}</strong></> : null}</>;
-  return <article className={`work-letter-paper ${officialPaper ? "is-official-paper" : ""} ${english ? "is-english" : "is-arabic"}`} dir={english ? "ltr" : "rtl"}>
+  return <article className={`work-letter-paper company-${company.id} ${officialPaper ? "is-official-paper" : ""} ${english ? "is-english" : "is-arabic"}`} dir={english ? "ltr" : "rtl"}>
     {officialPaper ? <img className="company-official-paper" src={`/assets/official-work-letter/${company.id}-official-paper.png`} alt="" /> : <img className="official-letter-header" src={`/assets/official-work-letter/${company.id}-header.png`} alt="" />}
     <div className="official-letter-content">
       <div className="letter-meta"><div><span>{english ? "Internal No." : "الرقم الداخلي"}</span><b>{data.internalNo}</b></div><div><span>{english ? "Reference" : "المرجع"}</span><b>{data.reference}</b></div><div><span>{english ? "Date" : "التاريخ"}</span><b>{english ? dateForEnglish(data.issueDate) : arabicDate(data.issueDate)}</b></div></div>
       <div className="letter-main">
-        <div className="letter-qr"><QRCodeSVG value={qr} size={92} level="M" fgColor="#203f5c" /></div>
+        <div className="letter-qr"><QRCodeSVG value={qr} size={92} level="M" fgColor={`#${brandColor(company.id)}`} /></div>
         <h1>{english ? "To Whom It May Concern" : "إلى من يهمه الأمر"}</h1>
-        {english ? <p className="letter-copy">{company.nameEn} presents its compliments. This is to certify that <strong>{data.employeeName}</strong> is employed by our company as <strong>{data.jobTitle}</strong>, with a monthly salary of <strong>{salaryForEnglish(data.salary)}</strong>. Place of birth: <strong>{data.birthPlace}</strong>; date of birth: <strong>{dateForEnglish(data.birthDate)}</strong>; date of joining: <strong>{dateForEnglish(data.joiningDate)}</strong>{optionalEnglish}.<br /><br />This certificate is issued at his request without any responsibility or obligation on the company.</p> : <p className="letter-copy">تهديكم <strong>{company.nameAr}</strong> أطيب تحياتها، ونفيدكم بأن الأخ <strong>{data.employeeName}</strong> يعمل لدى شركتنا بوظيفة <strong>{data.jobTitle}</strong>، ويتقاضى راتباً شهرياً قدره <strong>{data.salary}$</strong>. كما نود الإشارة إلى أن مكان ميلاده <strong>{data.birthPlace}</strong>، وتاريخ ميلاده <strong>{arabicDate(data.birthDate)}</strong>، وقد التحق بالعمل لدينا بتاريخ <strong>{arabicDate(data.joiningDate)}</strong>.{optionalArabic}<br /><br />وقد أُصدرت له هذه الإفادة بناءً على طلبه، دون أدنى مسؤولية أو التزام على الشركة تجاه أي طرف آخر.</p>}
+        {english ? <p className="letter-copy">{company.nameEn} presents its compliments. This is to certify that <strong>{data.employeeName}</strong> is employed by our company as <strong>{data.jobTitle}</strong>, with a monthly salary of <strong>{salaryForEnglish(data.salary)}</strong>. Place of birth: <strong>{data.birthPlace}</strong>; date of birth: <strong>{dateForEnglish(data.birthDate)}</strong>; date of joining: <strong>{dateForEnglish(data.joiningDate)}</strong>{optionalEnglish}.<br /><br />This certificate is issued at his request without any responsibility or obligation on the company.</p> : <p className="letter-copy">تهديكم <strong>{company.nameAr}</strong> أطيب تحياتها، ونفيدكم بأن الأخ <strong>{data.employeeName}</strong> يعمل لدى شركتنا بوظيفة <strong>{data.jobTitle}</strong>، ويتقاضى راتباً شهرياً قدره <strong>{salaryForArabic(data.salary)}</strong>. كما نود الإشارة إلى أن مكان ميلاده <strong>{data.birthPlace}</strong>، وتاريخ ميلاده <strong>{arabicDate(data.birthDate)}</strong>، وقد التحق بالعمل لدينا بتاريخ <strong>{arabicDate(data.joiningDate)}</strong>.{optionalArabic}<br /><br />وقد أُصدرت له هذه الإفادة بناءً على طلبه، دون أدنى مسؤولية أو التزام على الشركة تجاه أي طرف آخر.</p>}
         <p className="letter-closing">{english ? "Yours faithfully," : "وتفضلوا بقبول خالص الاحترام والتقدير،،،"}</p>
       </div>
     </div>

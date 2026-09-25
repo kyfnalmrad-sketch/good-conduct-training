@@ -2763,12 +2763,15 @@
 .official-letter-watermark { position: absolute; z-index: 0; top: 270px; left: 50%; width: 340px; height: auto; transform: translateX(-50%); opacity: .16; pointer-events: none; }
 .official-letter-content { position: absolute; z-index: 1; top: 244px; right: 56px; bottom: 190px; left: 56px; }
 .letter-topline, .letter-header, .letter-rule { display: none; }
-.letter-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding-bottom: 12px; border: 0; direction: ltr; font-family: Arial, sans-serif; opacity: .72; }
+.letter-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding-bottom: 12px; border: 0; direction: ltr; font-family: Arial, sans-serif; opacity: .92; }
 .letter-meta div { display: grid; gap: 5px; text-align: center; }
-.letter-meta span { color: #5f6a6c; font-size: 11px; font-weight: 600; }
-.letter-meta b { color: #172f3d; font-size: 13px; font-weight: 800; white-space: nowrap; letter-spacing: .01em; }
+.letter-meta span { color: var(--letter-brand); font-size: 11px; font-weight: 700; }
+.letter-meta b { color: var(--letter-brand); font-size: 13px; font-weight: 800; white-space: nowrap; letter-spacing: .01em; }
+.letter-meta div:nth-child(1) span, .letter-meta div:nth-child(1) b { color: #52708a; }
+.letter-meta div:nth-child(2) span, .letter-meta div:nth-child(2) b { color: #a47a25; }
+.letter-meta div:nth-child(3) span, .letter-meta div:nth-child(3) b { color: #5d7c6d; }
 .letter-main { position: relative; max-width: 660px; margin: 0 auto; padding-top: 24px; }
-.letter-qr { position: absolute; top: 0; left: 0; padding: 3px; background: #fff; }
+.letter-qr { position: absolute; top: 0; left: 0; padding: 3px; background: #fff; opacity: .9; }
 .letter-main h1 { margin: 20px 0 84px; text-align: center; color: #111; font-size: 31px; font-weight: 700; line-height: 1.35; letter-spacing: 0; text-decoration: none; }
 .letter-copy { margin: 0; font-size: 18px; line-height: 2.35; text-align: justify; }
 .letter-copy strong { color: #1b2b32; font-weight: 800; font-size: inherit; }
@@ -2778,8 +2781,12 @@
 .signature-issuer { display: grid; gap: 5px; padding-top: 7px; border-top: 1px solid #d5d8d6; }
 .letter-signature span { display: block; color: #666; font-size: 10px; }
 .letter-signature b { display: block; color: #333; font-size: 11px; font-weight: 500; }
-.letter-barcode { position: absolute; z-index: 2; left: 56px; bottom: 210px; width: 220px; height: 55px; overflow: hidden; background: #fff; }
+.letter-barcode { position: absolute; z-index: 2; left: 56px; bottom: 210px; width: 220px; height: 55px; overflow: hidden; background: #fff; opacity: .9; }
 .letter-barcode svg { width: 100%; height: 100%; }
+.company-astar { --letter-brand: #8b3f35; }
+.company-master { --letter-brand: #17375e; }
+.company-astar .letter-qr svg, .company-astar .letter-barcode svg { color: #8b3f35; }
+.company-master .letter-qr svg, .company-master .letter-barcode svg { color: #17375e; }
 .letter-footer { display: none; }
 .is-english { direction: ltr; font-family: Georgia, "Times New Roman", serif; }
 .is-english .letter-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 19px; }
