@@ -2785,8 +2785,34 @@
 .letter-barcode svg { width: 100%; height: 100%; }
 .company-astar { --letter-brand: #8b3f35; }
 .company-master { --letter-brand: #17375e; }
+.company-horizon-sanaa { --letter-brand: #0b567a; }
+.company-yemen-colors-travel { --letter-brand: #0e858d; }
+.company-asas-sanaa { --letter-brand: #a47a25; }
+.company-yemen-paths-logistics { --letter-brand: #176ba6; }
+.company-rawafed-sanaa-agricultural { --letter-brand: #3f6f56; }
+.company-al-hasani-exchange { --letter-brand: #123d6b; }
 .company-astar .letter-qr svg, .company-astar .letter-barcode svg { color: #8b3f35; }
 .company-master .letter-qr svg, .company-master .letter-barcode svg { color: #17375e; }
+.company-horizon-sanaa .letter-qr svg, .company-horizon-sanaa .letter-barcode svg { color: #0b567a; }
+.company-yemen-colors-travel .letter-qr svg, .company-yemen-colors-travel .letter-barcode svg { color: #0e858d; }
+.company-asas-sanaa .letter-qr svg, .company-asas-sanaa .letter-barcode svg { color: #a47a25; }
+.company-yemen-paths-logistics .letter-qr svg, .company-yemen-paths-logistics .letter-barcode svg { color: #176ba6; }
+.company-rawafed-sanaa-agricultural .letter-qr svg, .company-rawafed-sanaa-agricultural .letter-barcode svg { color: #3f6f56; }
+.company-al-hasani-exchange .letter-qr svg, .company-al-hasani-exchange .letter-barcode svg { color: #123d6b; }
+.company-horizon-sanaa .letter-copy { font-size: 18px; line-height: 2.02; }
+.company-yemen-colors-travel .letter-copy { font-size: 17px; line-height: 2.08; }
+.company-yemen-colors-travel .letter-main h1 { font-size: 30px; }
+.company-asas-sanaa .letter-copy { font-size: 18px; line-height: 2.12; }
+.company-asas-sanaa .letter-main h1 { font-size: 30px; }
+.company-yemen-paths-logistics .letter-copy { font-size: 17px; line-height: 2.08; }
+.company-yemen-paths-logistics .letter-main h1 { font-size: 30px; }
+.company-rawafed-sanaa-agricultural .letter-copy { font-size: 17px; line-height: 2.1; }
+.company-rawafed-sanaa-agricultural .letter-main h1 { font-size: 30px; }
+.company-al-hasani-exchange .letter-copy { font-size: 18px; line-height: 2.04; }
+.company-al-hasani-exchange .letter-main h1 { font-size: 30px; }
+.company-horizon-sanaa.is-english .letter-copy, .company-al-hasani-exchange.is-english .letter-copy { font-size: 17px; line-height: 2.05; }
+.company-yemen-colors-travel.is-english .letter-copy, .company-yemen-paths-logistics.is-english .letter-copy { font-size: 16px; line-height: 2.12; }
+.company-asas-sanaa.is-english .letter-copy, .company-rawafed-sanaa-agricultural.is-english .letter-copy { font-size: 17px; line-height: 2.08; }
 .letter-footer { display: none; }
 .is-english { direction: ltr; font-family: Georgia, "Times New Roman", serif; }
 .is-english .letter-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 19px; }

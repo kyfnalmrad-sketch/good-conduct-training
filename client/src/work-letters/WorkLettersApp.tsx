@@ -10,10 +10,16 @@ import { deleteWorkLetter, draftKey, listWorkLetters, saveWorkLetter, type WorkL
 
 export type Language = "ar" | "en";
 
-type Company = { id: string; nameAr: string; nameEn: string; short: string };
+type Company = { id: string; nameAr: string; nameEn: string; short: string; template?: string };
 const COMPANIES: Company[] = [
   { id: "astar", nameAr: "شركة أستار غاز يمن", nameEn: "Aster Gas Yemen Company", short: "ASTAR" },
   { id: "master", nameAr: "شركة ماستر بلاتينيوم لاستيراد الأجهزة والمستلزمات الطبية والإلكترونية", nameEn: "Master Platinum for Importing Medical and Electronic Equipment and Supplies", short: "MASTER" },
+  { id: "horizon-sanaa", nameAr: "شركة أفق صنعاء للحلول الذكية", nameEn: "Horizon Sana'a Smart Solutions", short: "HORIZON", template: "horizon-sanaa" },
+  { id: "yemen-colors-travel", nameAr: "شركة ألوان اليمن للسياحة والسفر", nameEn: "Yemen Colors Travel and Tourism Co.", short: "COLORS", template: "yemen-colors-travel" },
+  { id: "asas-sanaa", nameAr: "شركة أساس صنعاء للمقاولات والهندسة", nameEn: "Asas Sana'a Contracting & Engineering Co.", short: "ASAS", template: "asas-sanaa" },
+  { id: "yemen-paths-logistics", nameAr: "شركة مسارات اليمن للخدمات اللوجستية", nameEn: "Yemen Paths Logistics Co.", short: "PATHS", template: "yemen-paths-logistics" },
+  { id: "rawafed-sanaa-agricultural", nameAr: "شركة روافد صنعاء للتقنيات الزراعية", nameEn: "Rawafed Sana'a Agricultural Technologies Co.", short: "RAWAFED", template: "rawafed-sanaa-agricultural" },
+  { id: "al-hasani-exchange", nameAr: "شركة الحسني للصرافة", nameEn: "Al Hasani Exchange Company", short: "HASANI", template: "al-hasani-exchange" },
 ];
 
 export const INITIAL: WorkLetterData = {
@@ -71,7 +77,18 @@ function codePayload(data: WorkLetterData, language: Language) {
     ...(data.identityNo ? [`Identity number: ${data.identityNo}`] : []),
   ].join("\n");
 }
-function brandColor(companyId: string) { return companyId === "master" ? "17375e" : "8b3f35"; }
+function brandColor(companyId: string) {
+  return ({
+    astar: "8b3f35",
+    master: "17375e",
+    "horizon-sanaa": "0b567a",
+    "yemen-colors-travel": "0e858d",
+    "asas-sanaa": "a47a25",
+    "yemen-paths-logistics": "176ba6",
+    "rawafed-sanaa-agricultural": "3f6f56",
+    "al-hasani-exchange": "123d6b",
+  } as Record<string, string>)[companyId] ?? "203f5c";
+}
 function barcodeSvg(data: WorkLetterData, companyId: string) {
   const payload = [
     `Reference: ${data.reference}`,
@@ -87,11 +104,12 @@ export function LetterPreview({ data, language }: { data: WorkLetterData; langua
   const qr = codePayload(data, language);
   const barcode = useMemo(() => barcodeSvg(data, company.id), [data, company.id]);
   const english = language === "en";
-  const officialPaper = company.id === "master" || company.id === "astar";
+  const officialPaper = true;
+  const paperAsset = company.template ? `/assets/official-work-letter/templates/${company.template}.png` : `/assets/official-work-letter/${company.id}-official-paper.png`;
   const optionalArabic = <>{data.passportNo ? <> ورقم الجواز <strong>{data.passportNo}</strong></> : null}{data.identityNo ? <> ورقم الهوية <strong>{data.identityNo}</strong></> : null}</>;
   const optionalEnglish = <>{data.passportNo ? <>; passport number: <strong>{data.passportNo}</strong></> : null}{data.identityNo ? <>; identity number: <strong>{data.identityNo}</strong></> : null}</>;
   return <article className={`work-letter-paper company-${company.id} ${officialPaper ? "is-official-paper" : ""} ${english ? "is-english" : "is-arabic"}`} dir={english ? "ltr" : "rtl"}>
-    {officialPaper ? <img className="company-official-paper" src={`/assets/official-work-letter/${company.id}-official-paper.png`} alt="" /> : <img className="official-letter-header" src={`/assets/official-work-letter/${company.id}-header.png`} alt="" />}
+    <img className="company-official-paper" src={paperAsset} alt="" />
     <div className="official-letter-content">
       <div className="letter-meta"><div><span>{english ? "Internal No." : "الرقم الداخلي"}</span><b>{data.internalNo}</b></div><div><span>{english ? "Reference" : "المرجع"}</span><b>{data.reference}</b></div><div><span>{english ? "Date" : "التاريخ"}</span><b>{english ? dateForEnglish(data.issueDate) : arabicDate(data.issueDate)}</b></div></div>
       <div className="letter-main">
