@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { draftKey } from "./db";
-import { demoFor, LetterPreview, type Language } from "./WorkLettersApp";
+import { COMPANIES, demoFor, LetterPreview, type Language } from "./WorkLettersApp";
 import type { WorkLetterData } from "./db";
 
 export default function WorkLettersPreview() {
@@ -30,8 +30,7 @@ export default function WorkLettersPreview() {
     <header className="work-letter-preview-toolbar">
       <div><span>WORK-LETTERS</span><strong>{english ? "Official document preview" : "المعاينة الرسمية للخطاب"}</strong></div>
       <div className="work-letter-preview-actions">
-        <Button variant="outline" onClick={() => setLocation(`/work-letters/preview?company=astar&language=${language}`)}>{english ? "Astar" : "أستار"}</Button>
-        <Button variant="outline" onClick={() => setLocation(`/work-letters/preview?company=master&language=${language}`)}>{english ? "Master" : "ماستر"}</Button>
+        {COMPANIES.map(company => <Button key={company.id} variant="outline" onClick={() => setLocation(`/work-letters/preview?company=${company.id}&language=${language}`)}>{company.short}</Button>)}
         <Button variant="outline" onClick={() => changeLanguage(language === "en" ? "ar" : "en")}>{english ? "العربية" : "English"}</Button>
         <Button variant="outline" onClick={() => setLocation(`/work-letters?company=${companyId}&language=${language}`)}><FilePenLine size={16} /> {english ? "Edit data" : "تعديل البيانات"}</Button>
         <Button onClick={() => window.print()}><Printer size={16} /> {english ? "Print / PDF" : "طباعة / PDF"}</Button>

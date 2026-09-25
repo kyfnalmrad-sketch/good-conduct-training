@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Copy, Database, FileDown, Languages, List, Printer, Save, Trash2 } from "lucide-react";
+import { Check, Copy, Database, FileDown, Languages, List, Save, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import bwipjs from "@bwip-js/browser";
 import { Button } from "@/components/ui/button";
@@ -10,156 +10,123 @@ import { deleteWorkLetter, draftKey, listWorkLetters, saveWorkLetter, type WorkL
 
 export type Language = "ar" | "en";
 
-type Company = { id: string; nameAr: string; nameEn: string; short: string; template?: string };
-const COMPANIES: Company[] = [
-  { id: "astar", nameAr: "شركة أستار غاز يمن", nameEn: "Aster Gas Yemen Company", short: "ASTAR" },
-  { id: "master", nameAr: "شركة ماستر بلاتينيوم لاستيراد الأجهزة والمستلزمات الطبية والإلكترونية", nameEn: "Master Platinum for Importing Medical and Electronic Equipment and Supplies", short: "MASTER" },
-  { id: "horizon-sanaa", nameAr: "شركة أفق صنعاء للحلول الذكية", nameEn: "Horizon Sana'a Smart Solutions", short: "HORIZON", template: "horizon-sanaa" },
-  { id: "yemen-colors-travel", nameAr: "شركة ألوان اليمن للسياحة والسفر", nameEn: "Yemen Colors Travel and Tourism Co.", short: "COLORS", template: "yemen-colors-travel" },
-  { id: "asas-sanaa", nameAr: "شركة أساس صنعاء للمقاولات والهندسة", nameEn: "Asas Sana'a Contracting & Engineering Co.", short: "ASAS", template: "asas-sanaa" },
-  { id: "yemen-paths-logistics", nameAr: "شركة مسارات اليمن للخدمات اللوجستية", nameEn: "Yemen Paths Logistics Co.", short: "PATHS", template: "yemen-paths-logistics" },
-  { id: "rawafed-sanaa-agricultural", nameAr: "شركة روافد صنعاء للتقنيات الزراعية", nameEn: "Rawafed Sana'a Agricultural Technologies Co.", short: "RAWAFED", template: "rawafed-sanaa-agricultural" },
-  { id: "al-hasani-exchange", nameAr: "شركة الحسني للصرافة", nameEn: "Al Hasani Exchange Company", short: "HASANI", template: "al-hasani-exchange" },
+type Company = {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  short: string;
+  template?: string;
+  activityAr: string;
+  activityEn: string;
+};
+
+export const COMPANIES: Company[] = [
+  { id: "astar", nameAr: "شركة أستار غاز يمن", nameEn: "Aster Gas Yemen Company", short: "ASTAR", activityAr: "حلول الغاز والطاقة والخدمات المرتبطة بها", activityEn: "gas, energy, and related technical services" },
+  { id: "master", nameAr: "شركة ماستر بلاتينيوم لاستيراد الأجهزة والمستلزمات الطبية والإلكترونية", nameEn: "Master Platinum for Importing Medical and Electronic Equipment and Supplies", short: "MASTER", activityAr: "استيراد الأجهزة والمستلزمات الطبية والإلكترونية", activityEn: "the import of medical and electronic equipment and supplies" },
+  { id: "horizon-sanaa", nameAr: "شركة أفق صنعاء للحلول الذكية", nameEn: "Horizon Sana'a Smart Solutions", short: "HORIZON", template: "horizon-sanaa", activityAr: "الحلول الذكية والتقنية والتحول الرقمي", activityEn: "smart solutions, technology, and digital transformation" },
+  { id: "yemen-colors-travel", nameAr: "شركة ألوان اليمن للسياحة والسفر", nameEn: "Yemen Colors Travel and Tourism Co.", short: "COLORS", template: "yemen-colors-travel", activityAr: "السياحة والسفر وتنظيم الرحلات", activityEn: "travel, tourism, and trip organization" },
+  { id: "asas-sanaa", nameAr: "شركة أساس صنعاء للمقاولات والهندسة", nameEn: "Asas Sana'a Contracting & Engineering Co.", short: "ASAS", template: "asas-sanaa", activityAr: "المقاولات والهندسة وإدارة المشاريع", activityEn: "contracting, engineering, and project management" },
+  { id: "yemen-paths-logistics", nameAr: "شركة مسارات اليمن للخدمات اللوجستية", nameEn: "Yemen Paths Logistics Co.", short: "PATHS", template: "yemen-paths-logistics", activityAr: "الخدمات اللوجستية وسلاسل الإمداد والنقل", activityEn: "logistics, supply-chain, and transport services" },
+  { id: "rawafed-sanaa-agricultural", nameAr: "شركة روافد صنعاء للتقنيات الزراعية", nameEn: "Rawafed Sana'a Agricultural Technologies Co.", short: "RAWAFED", template: "rawafed-sanaa-agricultural", activityAr: "التقنيات الزراعية والحلول الحديثة للقطاع الزراعي", activityEn: "agricultural technologies and modern farming solutions" },
+  { id: "al-hasani-exchange", nameAr: "شركة الحسني للصرافة", nameEn: "Al Hasani Exchange Company", short: "HASANI", template: "al-hasani-exchange", activityAr: "خدمات الصرافة والتحويلات المالية", activityEn: "money exchange and remittance services" },
+  { id: "najm-tech-updated", nameAr: "شركة نجم التقنية للحلول الرقمية", nameEn: "Najm Digital Solutions Co.", short: "NAJM", template: "najm-tech-updated", activityAr: "الحلول الرقمية وتقنية المعلومات", activityEn: "digital solutions and information technology" },
+  { id: "safa-pharma", nameAr: "شركة صفا فارما للصناعات الدوائية", nameEn: "Safa Pharma Industries Co.", short: "SAFA", template: "safa-pharma", activityAr: "الصناعات الدوائية والمنتجات الصحية", activityEn: "pharmaceutical manufacturing and health products" },
+  { id: "madar-media", nameAr: "شركة مدار للإعلام والإنتاج", nameEn: "Madar Media & Production Co.", short: "MADAR", template: "madar-media", activityAr: "الإعلام والإنتاج والمحتوى الإبداعي", activityEn: "media, production, and creative content" },
+  { id: "riyadah-agri", nameAr: "شركة ريادة للتنمية الزراعية", nameEn: "Riyadah Agricultural Development Co.", short: "RIYADAH", template: "riyadah-agri", activityAr: "التنمية الزراعية والإنتاج النباتي", activityEn: "agricultural development and crop production" },
+  { id: "tawasul-engineering", nameAr: "شركة تواصل للهندسة والمقاولات", nameEn: "Tawasul Engineering & Contracting Co.", short: "TAWASUL", template: "tawasul-engineering", activityAr: "الهندسة والمقاولات والأعمال الإنشائية", activityEn: "engineering, contracting, and construction works" },
+  { id: "hayat-education", nameAr: "مؤسسة حياة للتعليم والتدريب", nameEn: "Hayat Education & Training Foundation", short: "HAYAT", template: "hayat-education", activityAr: "التعليم والتدريب والتطوير المهني", activityEn: "education, training, and professional development" },
+  { id: "arkan-finance", nameAr: "شركة أركان للحلول المالية", nameEn: "Arkan Financial Solutions Co.", short: "ARKAN", template: "arkan-finance", activityAr: "الاستشارات والحلول المالية وإدارة الأعمال", activityEn: "financial consulting and business solutions" },
 ];
 
 export const INITIAL: WorkLetterData = {
-  companyId: "astar", employeeName: "محمد علي أحمد", jobTitle: "مدير المشتريات", salary: "1500",
-  passportNo: "", identityNo: "",
-  birthPlace: "صنعاء، اليمن", birthDate: "18/04/1992", joiningDate: "12/01/2020", issueDate: "23/09/2026",
+  companyId: "astar", employeeName: "محمد علي أحمد", jobTitle: "مدير المشتريات", salary: "1500", salaryWords: "ألف وخمسمائة دولار أمريكي",
+  passportNo: "", identityNo: "", birthPlace: "صنعاء، اليمن", birthDate: "18/04/1992", joiningDate: "12/01/2020", issueDate: "23/09/2026",
   reference: "ASTAR-HR-041-2026", internalNo: "ASTAR-INT-041-2026", issuerName: "أحمد محمد، مدير الموارد البشرية",
 };
-export const EN_INITIAL: WorkLetterData = {
-  ...INITIAL,
-  employeeName: "Mohammed Ali Ahmed",
-  jobTitle: "Procurement Manager",
-  birthPlace: "Sana'a, Yemen",
-  issuerName: "Ahmed Mohammed, Human Resources Manager",
-};
+export const EN_INITIAL: WorkLetterData = { ...INITIAL, employeeName: "Mohammed Ali Ahmed", jobTitle: "Procurement Manager", birthPlace: "Sana'a, Yemen", issuerName: "Ahmed Mohammed, Human Resources Manager", salaryWords: "one thousand five hundred US dollars" };
 
 function companyFor(id: string) { return COMPANIES.find(company => company.id === id) ?? COMPANIES[0]; }
-export function demoFor(companyId: string, language: Language): WorkLetterData {
-  const company = companyFor(companyId);
-  const base = language === "en" ? EN_INITIAL : INITIAL;
-  return { ...base, companyId: company.id, reference: `${company.short}-HR-041-2026`, internalNo: `${company.short}-INT-041-2026` };
+function businessStatement(company: Company, language: Language) {
+  const statements = {
+    astar: { ar: "حلول الغاز والطاقة والخدمات الفنية المرتبطة بها", en: "the provision of gas, energy, and related technical services" },
+    master: { ar: "استيراد وتوريد الأجهزة والمستلزمات الطبية والإلكترونية", en: "the import and supply of medical and electronic equipment and supplies" },
+    "horizon-sanaa": { ar: "الحلول الذكية والخدمات التقنية الداعمة للتحول الرقمي وتطوير الأعمال", en: "the delivery of smart solutions and technology services supporting digital transformation and business development" },
+    "yemen-colors-travel": { ar: "خدمات السياحة والسفر وتنظيم الرحلات والحجوزات", en: "the provision of travel, tourism, trip organization, and reservation services" },
+    "asas-sanaa": { ar: "المقاولات والأعمال الهندسية وإدارة وتنفيذ المشاريع", en: "contracting, engineering works, and project management and execution" },
+    "yemen-paths-logistics": { ar: "خدمات النقل والخدمات اللوجستية وإدارة سلاسل الإمداد", en: "the provision of transport, logistics, and supply-chain management services" },
+    "rawafed-sanaa-agricultural": { ar: "التقنيات والحلول الحديثة لخدمة القطاع الزراعي وتطوير الإنتاج", en: "the provision of modern technologies and solutions for agricultural development and production" },
+    "al-hasani-exchange": { ar: "خدمات الصرافة والتحويلات المالية وفقًا للأنظمة واللوائح المعمول بها", en: "the provision of money exchange and remittance services in accordance with applicable regulations" },
+    "najm-tech-updated": { ar: "تقنية المعلومات والحلول الرقمية وتطوير الأنظمة والخدمات الإلكترونية", en: "information technology, digital solutions, and the development of systems and electronic services" },
+    "safa-pharma": { ar: "الصناعات الدوائية والمنتجات الصحية وفق معايير الجودة المعتمدة", en: "pharmaceutical manufacturing and health products in accordance with approved quality standards" },
+    "madar-media": { ar: "خدمات الإعلام والإنتاج المرئي والمسموع وصناعة المحتوى الإبداعي", en: "media services, audiovisual production, and creative content development" },
+    "riyadah-agri": { ar: "التنمية الزراعية والإنتاج النباتي وتطوير المشاريع الزراعية", en: "agricultural development, crop production, and the advancement of agricultural projects" },
+    "tawasul-engineering": { ar: "الهندسة والمقاولات وتنفيذ الأعمال الإنشائية والفنية", en: "engineering, contracting, and the execution of construction and technical works" },
+    "hayat-education": { ar: "خدمات التعليم والتدريب والتطوير المهني وبناء القدرات", en: "education, training, professional development, and capacity-building services" },
+    "arkan-finance": { ar: "الاستشارات والحلول المالية وخدمات تطوير وإدارة الأعمال", en: "financial consulting, financial solutions, and business development and management services" },
+  } as Record<string, { ar: string; en: string }>;
+  return (statements[company.id] ?? { ar: company.activityAr, en: company.activityEn })[language];
 }
+function normalizeDigits(value: string) { return value.replace(/[٠-٩]/g, digit => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit))).replace(/[۰-۹]/g, digit => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit))); }
+function numericSalary(value: string) { return Number(normalizeDigits(value).replace(/[,،\s]/g, "")); }
+const AR_ONES = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
+const AR_TENS = ["", "", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
+function arabicIntegerWords(value: number): string {
+  if (!Number.isInteger(value) || value < 0 || value > 999999999) return "";
+  if (value === 0) return "صفر";
+  const under100 = (n: number) => n < 10 ? AR_ONES[n] : n < 20 ? (n === 10 ? "عشرة" : `${AR_ONES[n - 10]} عشر`) : n % 10 ? `${AR_ONES[n % 10]} و${AR_TENS[Math.floor(n / 10)]}` : AR_TENS[n / 10];
+  const hundreds = ["", "مائة", "مائتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة"];
+  const under1000 = (n: number) => n < 100 ? under100(n) : `${hundreds[Math.floor(n / 100)]}${n % 100 ? ` و${under100(n % 100)}` : ""}`;
+  const parts: string[] = [];
+  if (value >= 1000000) { const m = Math.floor(value / 1000000); parts.push(m === 1 ? "مليون" : m === 2 ? "مليونان" : `${arabicIntegerWords(m)} ملايين`); value %= 1000000; }
+  if (value >= 1000) { const k = Math.floor(value / 1000); parts.push(k === 1 ? "ألف" : k === 2 ? "ألفان" : `${arabicIntegerWords(k)} ألف`); value %= 1000; }
+  if (value) parts.push(under1000(value));
+  return parts.join(" و");
+}
+const EN_ONES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+const EN_TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+function englishIntegerWords(value: number): string {
+  if (!Number.isInteger(value) || value < 0 || value > 999999999) return "";
+  if (value < 20) return EN_ONES[value];
+  if (value < 100) return `${EN_TENS[Math.floor(value / 10)]}${value % 10 ? `-${EN_ONES[value % 10]}` : ""}`;
+  if (value < 1000) return `${EN_ONES[Math.floor(value / 100)]} hundred${value % 100 ? ` ${englishIntegerWords(value % 100)}` : ""}`;
+  if (value < 1000000) return `${englishIntegerWords(Math.floor(value / 1000))} thousand${value % 1000 ? ` ${englishIntegerWords(value % 1000)}` : ""}`;
+  return `${englishIntegerWords(Math.floor(value / 1000000))} million${value % 1000000 ? ` ${englishIntegerWords(value % 1000000)}` : ""}`;
+}
+function wordsForSalary(value: string, language: Language) { const numeric = numericSalary(value); if (!Number.isFinite(numeric) || numeric < 0 || !Number.isInteger(numeric)) return ""; return language === "ar" ? `${arabicIntegerWords(numeric)} دولار أمريكي فقط لا غير` : `${englishIntegerWords(numeric)} US dollars only`; }
+function salaryForArabic(value: string, words: string) { const numeric = numericSalary(value); return `${Number.isFinite(numeric) ? numeric.toLocaleString("en-US") : value} دولار أمريكي${words ? ` (${words})` : ""}`; }
+function salaryForEnglish(value: string, words: string) { const numeric = numericSalary(value); return `USD ${Number.isFinite(numeric) ? numeric.toLocaleString("en-US") : value}${words ? ` (${words})` : ""}`; }
+export function demoFor(companyId: string, language: Language): WorkLetterData { const company = companyFor(companyId); const base = language === "en" ? EN_INITIAL : INITIAL; const salary = base.salary; return { ...base, companyId: company.id, reference: `${company.short}-HR-041-2026`, internalNo: `${company.short}-INT-041-2026`, salaryWords: wordsForSalary(salary, language) }; }
+function hydrateData(value: Partial<WorkLetterData>, companyId: string, language: Language) { const base = demoFor(companyId, language); const data = { ...base, ...value, companyId }; return { ...data, salaryWords: data.salaryWords || wordsForSalary(data.salary, language) }; }
 function arabicDate(value: string) { return value ? `${value.replace(/[0-9]/g, digit => "٠١٢٣٤٥٦٧٨٩"[Number(digit)])}م` : value; }
 function dateForEnglish(value: string) { const [day, month, year] = value.split("/"); return `${day} ${["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][Number(month) - 1]} ${year}`; }
-function salaryForArabic(value: string) {
-  const numeric = Number(value.replace(/,/g, ""));
-  return ` ${Number.isFinite(numeric) ? numeric.toLocaleString("en-US") : value} دولار أمريكي`;
-}
-function salaryForEnglish(value: string) {
-  const numeric = Number(value.replace(/,/g, ""));
-  if (numeric === 1500) return "USD 1,500 (one thousand five hundred US dollars)";
-  return `USD ${Number.isFinite(numeric) ? numeric.toLocaleString("en-US") : value}`;
-}
-function codePayload(data: WorkLetterData, language: Language) {
-  if (language === "ar") {
-    return [
-      `اسم الموظف: ${data.employeeName}`,
-      `المسمى الوظيفي: ${data.jobTitle}`,
-      `الراتب الشهري:${salaryForArabic(data.salary)}`,
-      `مكان الميلاد: ${data.birthPlace}`,
-      `تاريخ الميلاد: ${arabicDate(data.birthDate)}`,
-      `تاريخ الالتحاق: ${arabicDate(data.joiningDate)}`,
-      ...(data.passportNo ? [`رقم الجواز: ${data.passportNo}`] : []),
-      ...(data.identityNo ? [`رقم الهوية: ${data.identityNo}`] : []),
-    ].join("\n");
-  }
-  return [
-    `Employee name: ${data.employeeName}`,
-    `Job title: ${data.jobTitle}`,
-    `Salary: ${salaryForEnglish(data.salary)}`,
-    `Place of birth: ${data.birthPlace}`,
-    `Date of birth: ${dateForEnglish(data.birthDate)}`,
-    `Date of joining: ${dateForEnglish(data.joiningDate)}`,
-    ...(data.passportNo ? [`Passport number: ${data.passportNo}`] : []),
-    ...(data.identityNo ? [`Identity number: ${data.identityNo}`] : []),
-  ].join("\n");
-}
-function brandColor(companyId: string) {
-  return ({
-    astar: "8b3f35",
-    master: "17375e",
-    "horizon-sanaa": "0b567a",
-    "yemen-colors-travel": "0e858d",
-    "asas-sanaa": "a47a25",
-    "yemen-paths-logistics": "176ba6",
-    "rawafed-sanaa-agricultural": "3f6f56",
-    "al-hasani-exchange": "123d6b",
-  } as Record<string, string>)[companyId] ?? "203f5c";
-}
-function barcodeSvg(data: WorkLetterData, companyId: string) {
-  const payload = [
-    `Reference: ${data.reference}`,
-    `Internal number: ${data.internalNo}`,
-    `Issue date: ${data.issueDate}`,
-  ].join("\n");
-  try { return bwipjs.toSVG({ bcid: "pdf417", text: payload, barcolor: brandColor(companyId), scale: 2, columns: 5, rows: 8, includetext: false, paddingwidth: 2, paddingheight: 2 } as any); } catch { return ""; }
-}
+function codePayload(data: WorkLetterData, language: Language) { return (language === "ar" ? [`اسم الموظف: ${data.employeeName}`, `المسمى الوظيفي: ${data.jobTitle}`, `الراتب الشهري: ${salaryForArabic(data.salary, data.salaryWords)}`, `مكان الميلاد: ${data.birthPlace}`, `تاريخ الميلاد: ${arabicDate(data.birthDate)}`, `تاريخ الالتحاق: ${arabicDate(data.joiningDate)}`] : [`Employee name: ${data.employeeName}`, `Job title: ${data.jobTitle}`, `Salary: ${salaryForEnglish(data.salary, data.salaryWords)}`, `Place of birth: ${data.birthPlace}`, `Date of birth: ${dateForEnglish(data.birthDate)}`, `Date of joining: ${dateForEnglish(data.joiningDate)}`]).concat(data.passportNo ? [language === "ar" ? `رقم الجواز: ${data.passportNo}` : `Passport number: ${data.passportNo}`] : [], data.identityNo ? [language === "ar" ? `رقم الهوية: ${data.identityNo}` : `Identity number: ${data.identityNo}`] : []).join("\n"); }
+function brandColor(companyId: string) { return ({ astar: "8b3f35", master: "17375e", "horizon-sanaa": "0b567a", "yemen-colors-travel": "0e858d", "asas-sanaa": "a47a25", "yemen-paths-logistics": "176ba6", "rawafed-sanaa-agricultural": "3f6f56", "al-hasani-exchange": "123d6b", "najm-tech-updated": "2d6ca8", "safa-pharma": "1478ad", "madar-media": "8f285f", "riyadah-agri": "7a9940", "tawasul-engineering": "168c88", "hayat-education": "e18a2d", "arkan-finance": "3b6e65" } as Record<string, string>)[companyId] ?? "203f5c"; }
+function barcodeSvg(data: WorkLetterData, companyId: string) { const payload = [`Reference: ${data.reference}`, `Internal number: ${data.internalNo}`, `Issue date: ${data.issueDate}`].join("\n"); try { return bwipjs.toSVG({ bcid: "pdf417", text: payload, barcolor: brandColor(companyId), scale: 2, columns: 5, rows: 8, includetext: false, paddingwidth: 2, paddingheight: 2 } as any); } catch { return ""; } }
 
 export function LetterPreview({ data, language }: { data: WorkLetterData; language: Language }) {
-  const company = companyFor(data.companyId);
-  const issuerName = data.issuerName || (language === "ar" ? "أحمد محمد، مدير الموارد البشرية" : "Ahmed Mohammed, Human Resources Manager");
-  const qr = codePayload(data, language);
-  const barcode = useMemo(() => barcodeSvg(data, company.id), [data, company.id]);
-  const english = language === "en";
-  const officialPaper = true;
-  const paperAsset = company.template ? `/assets/official-work-letter/templates/${company.template}.png` : `/assets/official-work-letter/${company.id}-official-paper.png`;
+  const company = companyFor(data.companyId); const issuerName = data.issuerName || (language === "ar" ? "أحمد محمد، مدير الموارد البشرية" : "Ahmed Mohammed, Human Resources Manager"); const qr = codePayload(data, language); const barcode = useMemo(() => barcodeSvg(data, company.id), [data, company.id]); const english = language === "en"; const paperAsset = company.template ? `/assets/official-work-letter/templates/${company.template}.png` : `/assets/official-work-letter/${company.id}-official-paper.png`;
   const optionalArabic = <>{data.passportNo ? <> ورقم الجواز <strong>{data.passportNo}</strong></> : null}{data.identityNo ? <> ورقم الهوية <strong>{data.identityNo}</strong></> : null}</>;
   const optionalEnglish = <>{data.passportNo ? <>; passport number: <strong>{data.passportNo}</strong></> : null}{data.identityNo ? <>; identity number: <strong>{data.identityNo}</strong></> : null}</>;
-  return <article className={`work-letter-paper company-${company.id} ${officialPaper ? "is-official-paper" : ""} ${english ? "is-english" : "is-arabic"}`} dir={english ? "ltr" : "rtl"}>
+  return <article className={`work-letter-paper company-${company.id} is-official-paper ${english ? "is-english" : "is-arabic"}`} dir={english ? "ltr" : "rtl"}>
     <img className="company-official-paper" src={paperAsset} alt="" />
-    <div className="official-letter-content">
-      <div className="letter-meta"><div><span>{english ? "Internal No." : "الرقم الداخلي"}</span><b>{data.internalNo}</b></div><div><span>{english ? "Reference" : "المرجع"}</span><b>{data.reference}</b></div><div><span>{english ? "Date" : "التاريخ"}</span><b>{english ? dateForEnglish(data.issueDate) : arabicDate(data.issueDate)}</b></div></div>
-      <div className="letter-main">
-        <div className="letter-qr"><QRCodeSVG value={qr} size={92} level="M" fgColor={`#${brandColor(company.id)}`} /></div>
-        <h1>{english ? "To Whom It May Concern" : "إلى من يهمه الأمر"}</h1>
-        {english ? <p className="letter-copy">{company.nameEn} presents its compliments. This is to certify that <strong>{data.employeeName}</strong> is employed by our company as <strong>{data.jobTitle}</strong>, with a monthly salary of <strong>{salaryForEnglish(data.salary)}</strong>. Place of birth: <strong>{data.birthPlace}</strong>; date of birth: <strong>{dateForEnglish(data.birthDate)}</strong>; date of joining: <strong>{dateForEnglish(data.joiningDate)}</strong>{optionalEnglish}.<br /><br />This certificate is issued at his request without any responsibility or obligation on the company.</p> : <p className="letter-copy">تهديكم <strong>{company.nameAr}</strong> أطيب تحياتها، ونفيدكم بأن الأخ <strong>{data.employeeName}</strong> يعمل لدى شركتنا بوظيفة <strong>{data.jobTitle}</strong>، ويتقاضى راتباً شهرياً قدره <strong>{salaryForArabic(data.salary)}</strong>. كما نود الإشارة إلى أن مكان ميلاده <strong>{data.birthPlace}</strong>، وتاريخ ميلاده <strong>{arabicDate(data.birthDate)}</strong>، وقد التحق بالعمل لدينا بتاريخ <strong>{arabicDate(data.joiningDate)}</strong>.{optionalArabic}<br /><br />وقد أُصدرت له هذه الإفادة بناءً على طلبه، دون أدنى مسؤولية أو التزام على الشركة تجاه أي طرف آخر.</p>}
-        <p className="letter-closing">{english ? "Yours faithfully," : "وتفضلوا بقبول خالص الاحترام والتقدير،،،"}</p>
-      </div>
-    </div>
-    <div className="letter-signature"><strong>{english ? "Human Resources Department" : "إدارة الموارد البشرية"}</strong><div className="signature-issuer"><span>{english ? "Issued by:" : "صادر من:"}</span><b>{issuerName}</b></div></div>
-    <div className="letter-barcode" dangerouslySetInnerHTML={{ __html: barcode }} />
-    {!officialPaper && <img className="official-letter-footer" src={`/assets/official-work-letter/${company.id}-footer.png`} alt="" />}
+    <div className="official-letter-content"><div className="letter-meta"><div><span>{english ? "Internal No." : "الرقم الداخلي"}</span><b>{data.internalNo}</b></div><div><span>{english ? "Reference" : "المرجع"}</span><b>{data.reference}</b></div><div><span>{english ? "Date" : "التاريخ"}</span><b>{english ? dateForEnglish(data.issueDate) : arabicDate(data.issueDate)}</b></div></div>
+      <div className="letter-main"><div className="letter-qr"><QRCodeSVG value={qr} size={92} level="M" fgColor={`#${brandColor(company.id)}`} /></div><h1>{english ? "To Whom It May Concern" : "إلى من يهمه الأمر"}</h1>
+        {english ? <p className="letter-copy">{company.nameEn} presents its compliments. The company is duly engaged in <strong>{businessStatement(company, "en")}</strong>. This is to certify that <strong>{data.employeeName}</strong> is employed by our company as <strong>{data.jobTitle}</strong>, with a monthly salary of <strong>{salaryForEnglish(data.salary, data.salaryWords)}</strong>. Place of birth: <strong>{data.birthPlace}</strong>; date of birth: <strong>{dateForEnglish(data.birthDate)}</strong>; date of joining: <strong>{dateForEnglish(data.joiningDate)}</strong>{optionalEnglish}.<br /><br />This certificate is issued at his request for official purposes, without any responsibility or obligation on the company beyond the information stated herein.</p> : <p className="letter-copy">تهديكم <strong>{company.nameAr}</strong> أطيب تحياتها، ونفيدكم بأن الشركة تعمل بصورة نظامية في مجال <strong>{businessStatement(company, "ar")}</strong>. كما نفيدكم بأن الأخ <strong>{data.employeeName}</strong> يعمل لدى شركتنا بوظيفة <strong>{data.jobTitle}</strong>، ويتقاضى راتباً شهرياً قدره <strong>{salaryForArabic(data.salary, data.salaryWords)}</strong>. وقد التحق بالعمل لدينا بتاريخ <strong>{arabicDate(data.joiningDate)}</strong>، ومكان ميلاده <strong>{data.birthPlace}</strong>، وتاريخ ميلاده <strong>{arabicDate(data.birthDate)}</strong>{optionalArabic}.<br /><br />وقد أُصدرت له هذه الإفادة بناءً على طلبه وللأغراض الرسمية، دون أدنى مسؤولية أو التزام على الشركة تجاه أي طرف آخر، في حدود صحة البيانات الواردة فيها.</p>}
+        <p className="letter-closing">{english ? "Yours faithfully," : "وتفضلوا بقبول خالص الاحترام والتقدير،،،"}</p></div></div>
+    <div className="letter-signature"><strong>{english ? "Human Resources Department" : "إدارة الموارد البشرية"}</strong><div className="signature-issuer"><span>{english ? "Issued by:" : "صادر من:"}</span><b>{issuerName}</b></div></div><div className="letter-barcode" dangerouslySetInnerHTML={{ __html: barcode }} />
   </article>;
 }
 
 export default function WorkLettersApp() {
-  const [, setLocation] = useLocation();
-  const routeParams = new URLSearchParams(window.location.search);
-  const routeLanguage = routeParams.get("language") === "en" ? "en" : "ar";
-  const routeCompany = routeParams.get("company") || "astar";
-  const [language, setLanguage] = useState<Language>(routeLanguage);
-  const [data, setData] = useState<WorkLetterData>(() => demoFor(routeCompany, routeLanguage));
-  const [records, setRecords] = useState<WorkLetterRecord[]>([]);
-  const [showRecords, setShowRecords] = useState(false);
-  const company = companyFor(data.companyId);
-  const english = language === "en";
-
-  useEffect(() => {
-    const saved = localStorage.getItem(draftKey(data.companyId, language));
-    if (saved) try { setData(JSON.parse(saved)); } catch { /* use defaults */ }
-    else setData(current => demoFor(current.companyId, language));
-    listWorkLetters(data.companyId, language).then(setRecords).catch(() => toast.error(english ? "Database unavailable" : "تعذر قراءة قاعدة البيانات"));
-  }, [data.companyId, language]);
+  const [, setLocation] = useLocation(); const routeParams = new URLSearchParams(window.location.search); const routeLanguage = routeParams.get("language") === "en" ? "en" : "ar"; const routeCompany = routeParams.get("company") || "astar";
+  const [language, setLanguage] = useState<Language>(routeLanguage); const [data, setData] = useState<WorkLetterData>(() => demoFor(routeCompany, routeLanguage)); const [records, setRecords] = useState<WorkLetterRecord[]>([]); const [showRecords, setShowRecords] = useState(false); const company = companyFor(data.companyId); const english = language === "en";
+  useEffect(() => { const saved = localStorage.getItem(draftKey(data.companyId, language)); if (saved) try { setData(hydrateData(JSON.parse(saved), data.companyId, language)); } catch { setData(demoFor(data.companyId, language)); } else setData(current => demoFor(current.companyId, language)); listWorkLetters(data.companyId, language).then(setRecords).catch(() => toast.error(english ? "Database unavailable" : "تعذر قراءة قاعدة البيانات")); }, [data.companyId, language]);
   useEffect(() => { localStorage.setItem(draftKey(data.companyId, language), JSON.stringify(data)); }, [data, language]);
-
   function update(key: keyof WorkLetterData, value: string) { setData(current => ({ ...current, [key]: value })); }
-  function navigateLetter(companyId: string, nextLanguage: Language) {
-    const saved = localStorage.getItem(draftKey(companyId, nextLanguage));
-    let nextData = demoFor(companyId, nextLanguage);
-    if (saved) try { nextData = { ...nextData, ...JSON.parse(saved), companyId }; } catch { /* use demo data */ }
-    setData(nextData);
-    setLanguage(nextLanguage);
-    window.history.replaceState({}, "", `/work-letters?company=${companyId}&language=${nextLanguage}`);
-  }
-  function changeCompany(companyId: string) { navigateLetter(companyId, language); }
+  function updateSalary(value: string) { setData(current => ({ ...current, salary: value, salaryWords: current.salaryWords === wordsForSalary(current.salary, language) || !current.salaryWords ? wordsForSalary(value, language) : current.salaryWords })); }
+  function navigateLetter(companyId: string, nextLanguage: Language) { const saved = localStorage.getItem(draftKey(companyId, nextLanguage)); const nextData = saved ? (() => { try { return hydrateData(JSON.parse(saved), companyId, nextLanguage); } catch { return demoFor(companyId, nextLanguage); } })() : demoFor(companyId, nextLanguage); setData(nextData); setLanguage(nextLanguage); window.history.replaceState({}, "", `/work-letters?company=${companyId}&language=${nextLanguage}`); }
   async function save() { await saveWorkLetter(data, language); setRecords(await listWorkLetters(data.companyId, language)); toast.success(english ? "Saved in the independent database" : "تم الحفظ في قاعدة البيانات المستقلة"); }
   async function remove(id: string) { await deleteWorkLetter(id); setRecords(await listWorkLetters(data.companyId, language)); }
-  const labels = english ? { title: "Work Letters", subtitle: "Independent Arabic / English document workspace", data: "Document data", preview: "Live A4 preview", save: "Save record", print: "Print / PDF", records: "Records", company: "Company", employee: "Employee full name", job: "Job title", salary: "Monthly salary", birthPlace: "Place of birth", birthDate: "Date of birth", joiningDate: "Date of joining", issueDate: "Issue date", reference: "Reference", internal: "Internal number", passport: "Passport number (optional)", identity: "Identity number (optional)", issuer: "Issued by" } : { title: "خطابات العمل", subtitle: "مسار مستقل للوثائق العربية والإنجليزية", data: "بيانات الوثيقة", preview: "معاينة A4 مباشرة", save: "حفظ السجل", print: "طباعة / PDF", records: "السجلات", company: "الشركة", employee: "اسم الموظف الكامل", job: "المسمى الوظيفي", salary: "الراتب الشهري", birthPlace: "مكان الميلاد", birthDate: "تاريخ الميلاد", joiningDate: "تاريخ الالتحاق", issueDate: "تاريخ الإصدار", reference: "المرجع", internal: "الرقم الداخلي", passport: "رقم الجواز (اختياري)", identity: "رقم الهوية (اختياري)", issuer: "صادر من" };
-  return <main className="work-letters-app" dir={english ? "ltr" : "rtl"}>
-    <aside className="work-sidebar"><div className="work-brand"><div className="work-brand-mark">WL</div><div><b>{labels.title}</b><span>{labels.subtitle}</span></div></div><div className="work-language"><Languages size={17} /><button className={language === "ar" ? "active" : ""} onClick={() => navigateLetter(data.companyId, "ar")}>العربية</button><button className={language === "en" ? "active" : ""} onClick={() => navigateLetter(data.companyId, "en")}>English</button></div><div className="company-language-launchers">{COMPANIES.map(item => <div className="company-language-row" key={item.id}><b>{english ? item.nameEn : item.nameAr}</b><span><button onClick={() => navigateLetter(item.id, "ar")}>عربي</button><button onClick={() => navigateLetter(item.id, "en")}>English</button></span></div>)}</div><div className="work-steps"><span>01 · {english ? "Independent path" : "مسار مستقل"}</span><span>02 · {english ? "Separate records" : "سجلات منفصلة"}</span><span>03 · {english ? "A4 output" : "إخراج A4"}</span></div><div className="work-storage-note"><Database size={17} /><div><b>{english ? "IndexedDB active" : "قاعدة IndexedDB فعالة"}</b><span>{english ? "Records are isolated from the original app." : "السجلات معزولة عن النظام الأصلي."}</span></div></div>    </aside>
-    <section className="work-workspace"><header className="work-toolbar"><div><span className="work-eyebrow">WORK-LETTERS / {company.short}</span><h1>{labels.data}</h1></div><div className="work-actions"><Button variant="outline" onClick={() => setShowRecords(value => !value)}><List size={16} /> {labels.records} ({records.length})</Button><Button variant="outline" onClick={() => setLocation(`/work-letters/preview?company=${data.companyId}&language=${language}`)}><FileDown size={16} /> {english ? "Official preview / PDF" : "المعاينة الرسمية / PDF"}</Button><Button onClick={save}><Save size={16} /> {labels.save}</Button></div></header><div className="visible-company-language-controls"><strong>{english ? "Choose company and language" : "اختر الشركة والنسخة"}</strong>{COMPANIES.map(item => <div className="visible-company-row" key={item.id}><span>{english ? item.nameEn : item.nameAr}</span><Button variant={data.companyId === item.id && language === "ar" ? "default" : "outline"} onClick={() => navigateLetter(item.id, "ar")}>عربي</Button><Button variant={data.companyId === item.id && language === "en" ? "default" : "outline"} onClick={() => navigateLetter(item.id, "en")}>English</Button></div>)}</div><div className="work-grid"><div className="work-form-card"><label>{labels.company}<select value={data.companyId} onChange={event => changeCompany(event.target.value)}>{COMPANIES.map(item => <option key={item.id} value={item.id}>{english ? item.nameEn : item.nameAr}</option>)}</select></label><label>{labels.employee}<Input value={data.employeeName} onChange={event => update("employeeName", event.target.value)} /></label><div className="work-form-row"><label>{labels.job}<Input value={data.jobTitle} onChange={event => update("jobTitle", event.target.value)} /></label><label>{labels.salary}<Input value={data.salary} onChange={event => update("salary", event.target.value)} /></label></div><label>{labels.birthPlace}<Input value={data.birthPlace} onChange={event => update("birthPlace", event.target.value)} /></label><div className="work-form-row"><label>{labels.passport}<Input value={data.passportNo || ""} onChange={event => update("passportNo", event.target.value)} placeholder={english ? "Optional" : "اختياري"} /></label><label>{labels.identity}<Input value={data.identityNo || ""} onChange={event => update("identityNo", event.target.value)} placeholder={english ? "Optional" : "اختياري"} /></label></div><div className="work-form-row"><label>{labels.birthDate}<Input value={data.birthDate} onChange={event => update("birthDate", event.target.value)} placeholder="DD/MM/YYYY" /></label><label>{labels.joiningDate}<Input value={data.joiningDate} onChange={event => update("joiningDate", event.target.value)} placeholder="DD/MM/YYYY" /></label></div><div className="work-form-row"><label>{labels.issueDate}<Input value={data.issueDate} onChange={event => update("issueDate", event.target.value)} placeholder="DD/MM/YYYY" /></label><label>{labels.reference}<Input value={data.reference} onChange={event => update("reference", event.target.value)} /></label></div><label>{labels.internal}<Input value={data.internalNo} onChange={event => update("internalNo", event.target.value)} /></label><label>{labels.issuer}<Input value={data.issuerName || (english ? "Ahmed Mohammed, Human Resources Manager" : "أحمد محمد، مدير الموارد البشرية")} onChange={event => update("issuerName", event.target.value)} /></label><div className="work-form-footer"><Button onClick={() => navigator.clipboard?.writeText(JSON.stringify(data))}><Copy size={15} /> {english ? "Copy data" : "نسخ البيانات"}</Button><span><Check size={14} /> {english ? "Auto-saved draft" : "مسودة محفوظة تلقائياً"}</span></div></div><div className="work-preview-card"><div className="work-preview-heading"><span>{labels.preview}</span><small>{english ? "QR + PDF417 · Portrait" : "QR + PDF417 · عمودي"}</small></div><LetterPreview data={data} language={language} /></div></div>{showRecords && <section className="work-records"><div className="work-records-title"><h2>{labels.records}</h2><span>{english ? "Independent IndexedDB records" : "سجلات IndexedDB المستقلة"}</span></div>{records.length === 0 ? <p>{english ? "No records saved for this company yet." : "لا توجد سجلات محفوظة لهذه الشركة بعد."}</p> : records.map(record => <div className="work-record" key={record.id}><div><b>{record.data.employeeName}</b><span>{record.data.reference} · {new Date(record.savedAt).toLocaleString(english ? "en-US" : "ar-YE")}</span></div><Button variant="outline" onClick={() => remove(record.id)}><Trash2 size={15} /> {english ? "Delete" : "حذف"}</Button></div>)}</section>}</section>
-  </main>;
+  const labels = english ? { title: "Work Letters", subtitle: "Independent Arabic / English document workspace", data: "Document data", preview: "Live A4 preview", save: "Save record", records: "Records", company: "Company", employee: "Employee full name", job: "Job title", salary: "Monthly salary", salaryWords: "Amount in words (editable)", birthPlace: "Place of birth", birthDate: "Date of birth", joiningDate: "Date of joining", issueDate: "Issue date", reference: "Reference", internal: "Internal number", passport: "Passport number (optional)", identity: "Identity number (optional)", issuer: "Issued by" } : { title: "خطابات العمل", subtitle: "مسار مستقل للوثائق العربية والإنجليزية", data: "بيانات الوثيقة", preview: "معاينة A4 مباشرة", save: "حفظ السجل", records: "السجلات", company: "الشركة", employee: "اسم الموظف الكامل", job: "المسمى الوظيفي", salary: "الراتب الشهري", salaryWords: "المبلغ كتابةً (قابل للتعديل)", birthPlace: "مكان الميلاد", birthDate: "تاريخ الميلاد", joiningDate: "تاريخ الالتحاق", issueDate: "تاريخ الإصدار", reference: "المرجع", internal: "الرقم الداخلي", passport: "رقم الجواز (اختياري)", identity: "رقم الهوية (اختياري)", issuer: "صادر من" };
+  return <main className="work-letters-app" dir={english ? "ltr" : "rtl"}><aside className="work-sidebar"><div className="work-brand"><div className="work-brand-mark">WL</div><div><b>{labels.title}</b><span>{labels.subtitle}</span></div></div><div className="work-language"><Languages size={17} /><button className={language === "ar" ? "active" : ""} onClick={() => navigateLetter(data.companyId, "ar")}>العربية</button><button className={language === "en" ? "active" : ""} onClick={() => navigateLetter(data.companyId, "en")}>English</button></div><div className="work-steps"><span>01 · {english ? "Choose a company" : "اختر الشركة"}</span><span>02 · {english ? "Edit and save data" : "عدّل واحفظ البيانات"}</span><span>03 · {english ? "Print official A4" : "اطبع الورقة الرسمية A4"}</span></div><div className="work-storage-note"><Database size={17} /><div><b>{english ? "IndexedDB active" : "قاعدة IndexedDB فعالة"}</b><span>{english ? "Records are isolated from the original app." : "السجلات معزولة عن النظام الأصلي."}</span></div></div></aside><section className="work-workspace"><header className="work-toolbar"><div><span className="work-eyebrow">WORK-LETTERS / {company.short}</span><h1>{labels.data}</h1></div><div className="work-actions"><Button variant="outline" onClick={() => setShowRecords(value => !value)}><List size={16} /> {labels.records} ({records.length})</Button><Button variant="outline" onClick={() => setLocation(`/work-letters/preview?company=${data.companyId}&language=${language}`)}><FileDown size={16} /> {english ? "Official preview / PDF" : "المعاينة الرسمية / PDF"}</Button><Button onClick={save}><Save size={16} /> {labels.save}</Button></div></header><div className="work-grid"><div className="work-form-card"><label className="company-selector">{labels.company}<select aria-label={labels.company} value={data.companyId} onChange={event => navigateLetter(event.target.value, language)}>{COMPANIES.map(item => <option key={item.id} value={item.id}>{english ? `${item.short} — ${item.nameEn}` : `${item.short} — ${item.nameAr}`}</option>)}</select></label><label>{labels.employee}<Input value={data.employeeName} onChange={event => update("employeeName", event.target.value)} /></label><div className="work-form-row"><label>{labels.job}<Input value={data.jobTitle} onChange={event => update("jobTitle", event.target.value)} /></label><label>{labels.salary}<Input value={data.salary} onChange={event => updateSalary(event.target.value)} /></label></div><label>{labels.salaryWords}<Input value={data.salaryWords} onChange={event => update("salaryWords", event.target.value)} /></label><label>{labels.birthPlace}<Input value={data.birthPlace} onChange={event => update("birthPlace", event.target.value)} /></label><div className="work-form-row"><label>{labels.passport}<Input value={data.passportNo || ""} onChange={event => update("passportNo", event.target.value)} placeholder={english ? "Optional" : "اختياري"} /></label><label>{labels.identity}<Input value={data.identityNo || ""} onChange={event => update("identityNo", event.target.value)} placeholder={english ? "Optional" : "اختياري"} /></label></div><div className="work-form-row"><label>{labels.birthDate}<Input value={data.birthDate} onChange={event => update("birthDate", event.target.value)} placeholder="DD/MM/YYYY" /></label><label>{labels.joiningDate}<Input value={data.joiningDate} onChange={event => update("joiningDate", event.target.value)} placeholder="DD/MM/YYYY" /></label></div><div className="work-form-row"><label>{labels.issueDate}<Input value={data.issueDate} onChange={event => update("issueDate", event.target.value)} placeholder="DD/MM/YYYY" /></label><label>{labels.reference}<Input value={data.reference} onChange={event => update("reference", event.target.value)} /></label></div><label>{labels.internal}<Input value={data.internalNo} onChange={event => update("internalNo", event.target.value)} /></label><label>{labels.issuer}<Input value={data.issuerName} onChange={event => update("issuerName", event.target.value)} /></label><div className="work-form-footer"><Button onClick={() => navigator.clipboard?.writeText(JSON.stringify(data))}><Copy size={15} /> {english ? "Copy data" : "نسخ البيانات"}</Button><span><Check size={14} /> {english ? "Auto-saved draft" : "مسودة محفوظة تلقائياً"}</span></div></div><div className="work-preview-card"><div className="work-preview-heading"><span>{labels.preview}</span><small>{english ? "QR + PDF417 · Portrait" : "QR + PDF417 · عمودي"}</small></div><LetterPreview data={data} language={language} /></div></div>{showRecords && <section className="work-records"><div className="work-records-title"><h2>{labels.records}</h2><span>{english ? "Independent IndexedDB records" : "سجلات IndexedDB المستقلة"}</span></div>{records.length === 0 ? <p>{english ? "No records saved for this company yet." : "لا توجد سجلات محفوظة لهذه الشركة بعد."}</p> : records.map(record => <div className="work-record" key={record.id}><div><b>{record.data.employeeName}</b><span>{record.data.reference} · {new Date(record.savedAt).toLocaleString(english ? "en-US" : "ar-YE")}</span></div><Button variant="outline" onClick={() => remove(record.id)}><Trash2 size={15} /> {english ? "Delete" : "حذف"}</Button></div>)}</section>}</section></main>;
 }

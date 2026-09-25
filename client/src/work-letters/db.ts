@@ -11,6 +11,7 @@ export type WorkLetterData = {
   employeeName: string;
   jobTitle: string;
   salary: string;
+  salaryWords: string;
   passportNo?: string;
   identityNo?: string;
   birthPlace: string;

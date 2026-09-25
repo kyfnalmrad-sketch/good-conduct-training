@@ -2736,10 +2736,18 @@
 .work-eyebrow { color: #a47a25; font: 700 10px ui-monospace, monospace; letter-spacing: .1em; }
 .work-toolbar h1 { margin: 7px 0 0; color: #253840; font: 700 30px "Noto Naskh Arabic", serif; }
 .work-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.company-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px; margin-bottom: 20px; padding: 9px; border: 1px solid #d8d5cc; border-radius: 12px; background: #f8f7f3; }
+.company-tabs button { min-width: 0; display: grid; gap: 4px; padding: 10px 9px; border: 1px solid #e0ddd5; border-radius: 9px; background: #fff; color: #536166; cursor: pointer; text-align: start; transition: .18s ease; }
+.company-tabs button:hover { border-color: #b28c35; transform: translateY(-1px); }
+.company-tabs button.active { border-color: #b28c35; background: #253840; color: #fff; box-shadow: 0 4px 12px #25384020; }
+.company-tabs button b { color: #a47a25; font: 800 11px ui-monospace, monospace; letter-spacing: .06em; }
+.company-tabs button.active b { color: #f3d890; }
+.company-tabs button span { overflow: hidden; font-size: 10px; line-height: 1.45; text-overflow: ellipsis; white-space: nowrap; }
 .work-grid { display: grid; grid-template-columns: minmax(280px, 390px) minmax(540px, 1fr); gap: 24px; align-items: start; }
 .work-form-card, .work-preview-card, .work-records { background: #f8f7f3; border: 1px solid #d8d5cc; border-radius: 14px; box-shadow: 0 12px 30px #25384010; }
 .work-form-card { display: grid; gap: 14px; padding: 22px; }
 .work-form-card label { display: grid; gap: 6px; color: #6e7476; font-size: 11px; }
+.work-form-card .company-selector { padding: 11px; border: 1px solid #d4c49b; border-radius: 9px; background: #fffaf0; color: #765d20; font-weight: 700; }
 .work-form-card select { min-height: 38px; border: 1px solid #dad7cf; border-radius: 7px; background: #fff; padding: 8px 10px; color: #243238; }
 .work-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .work-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 14px; border-top: 1px solid #e2dfd7; }
@@ -2753,7 +2761,7 @@
 .is-official-paper .letter-main { max-width: 650px; }
 .is-official-paper .letter-main h1 { margin-top: 18px; margin-bottom: 38px; }
 .is-official-paper .letter-copy { color: #17242d; }
-.is-official-paper .letter-signature { bottom: 210px; }
+.is-official-paper .letter-signature { bottom: 180px; }
 .is-official-paper .letter-barcode { bottom: 206px; }
 .is-official-paper.is-english .letter-copy { line-height: 2.05; }
 .is-official-paper.is-arabic .letter-copy { line-height: 2; }
@@ -2832,7 +2840,7 @@
 .work-record b, .work-record span { display: block; }
 .work-record span { margin-top: 4px; color: #798080; font: 10px ui-monospace, monospace; }
 @media (max-width: 1100px) { .work-letters-app { grid-template-columns: 1fr; } .work-sidebar { display: none; } .work-grid { grid-template-columns: 1fr; } .work-preview-card { overflow: auto; } }
-@media (max-width: 680px) { .work-toolbar { align-items: start; flex-direction: column; } .work-form-row { grid-template-columns: 1fr; } .work-letter-paper { transform-origin: top left; } .official-letter-content { right: 40px; left: 40px; } .letter-signature { right: 70px; } .letter-barcode { left: 40px; } }
+@media (max-width: 680px) { .work-toolbar { align-items: start; flex-direction: column; } .work-form-row { grid-template-columns: 1fr; } .company-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } .work-letter-paper { transform-origin: top left; } .official-letter-content { right: 40px; left: 40px; } .letter-signature { right: 70px; } .letter-barcode { left: 40px; } }
 @media print { body { background: #fff !important; } .work-sidebar, .work-toolbar, .work-form-card, .work-preview-heading, .work-records { display: none !important; } .work-letters-app, .work-workspace, .work-grid, .work-preview-card { display: block !important; padding: 0 !important; background: #fff !important; border: 0 !important; box-shadow: none !important; } .work-letter-paper { width: 210mm; height: 297mm; min-height: 297mm; margin: 0; box-shadow: none; } .official-letter-content { right: 15mm; left: 15mm; } .letter-signature { right: 30mm; bottom: 53mm; } .is-english .letter-signature { bottom: 38mm; } .letter-barcode { left: 15mm; bottom: 52mm; } @page { size: A4 portrait; margin: 0; } }
 
 /* Standalone official work-letter preview */
