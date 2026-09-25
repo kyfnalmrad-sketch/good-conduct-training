@@ -2911,3 +2911,23 @@
   .layout-c .letter-closing { transform: none !important; }
   .layout-c .letter-signature { bottom: 45mm !important; }
 }
+
+/* Format 2: English embassy-style letter body, intentionally independent of letterhead/footer. */
+.letter-format-2 { background: #fff; color: #171717; font-family: Georgia, "Times New Roman", serif; }
+.letter-format-2 .company-official-paper { display: none; }
+.letter-format-2 .official-letter-content { position: absolute; top: 88px; right: 92px; bottom: 70px; left: 92px; }
+.letter-format-2 .format2-letter-body { max-width: 610px; margin: 0 auto; font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.48; text-align: left; }
+.letter-format-2 .format2-letter-body p { margin: 0 0 27px; }
+.letter-format-2 .format2-letter-body strong { font-weight: 700; }
+.letter-format-2 .format2-letter-body .format2-subject { margin-top: 12px; margin-bottom: 36px; font-weight: 700; }
+.letter-format-2 .format2-letter-body .format2-regards { margin-top: 4px; margin-bottom: 0; line-height: 1.4; }
+.letter-format-2 .letter-barcode, .letter-format-2 .letter-signature { display: none !important; }
+@media print {
+  .letter-format-2 .official-letter-content { top: 24mm; right: 24mm; bottom: 18mm; left: 24mm; }
+  .letter-format-2 .format2-letter-body { max-width: 162mm; font-size: 14.5pt; line-height: 1.48; }
+}
+
+.letter-format-2 .format2-letter-body { position: relative; }
+.letter-format-2 .format2-qr { float: right; margin: 0 0 12px 22px; padding: 3px; background: #fff; }
+.letter-format-2 .format2-qr svg { display: block; width: 86px; height: 86px; }
+@media print { .letter-format-2 .format2-qr { margin-left: 18px; } }

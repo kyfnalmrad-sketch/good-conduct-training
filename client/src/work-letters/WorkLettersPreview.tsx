@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { draftKey } from "./db";
-import { COMPANIES, demoFor, LetterPreview, type Language } from "./WorkLettersApp";
+import { COMPANIES, demoFor, LetterPreview, type Language, type LetterFormat } from "./WorkLettersApp";
 import type { WorkLetterData } from "./db";
 
 export default function WorkLettersPreview() {
@@ -11,6 +11,7 @@ export default function WorkLettersPreview() {
   const params = new URLSearchParams(window.location.search);
   const companyId = params.get("company") || "astar";
   const language = (params.get("language") === "en" ? "en" : "ar") as Language;
+  const format = (language === "en" && params.get("format") === "2" ? 2 : 1) as LetterFormat;
   const [data, setData] = useState<WorkLetterData>(() => demoFor(companyId, language));
   const english = language === "en";
 
@@ -25,18 +26,20 @@ export default function WorkLettersPreview() {
     return () => { document.title = "نظام إصدار حسن السيرة | معاينة تدريبية"; };
   }, [english]);
 
-  const changeLanguage = (next: Language) => setLocation(`/work-letters/preview?company=${companyId}&language=${next}`);
+  const changeLanguage = (next: Language) => setLocation(`/work-letters/preview?company=${companyId}&language=${next}${next === "en" && format === 2 ? "&format=2" : ""}`);
+  const changeFormat = (next: LetterFormat) => setLocation(`/work-letters/preview?company=${companyId}&language=en&format=${next}`);
   return <main className={`work-letter-preview-page ${english ? "preview-en" : "preview-ar"}`} dir={english ? "ltr" : "rtl"}>
     <header className="work-letter-preview-toolbar">
       <div><span>WORK-LETTERS</span><strong>{english ? "Official document preview" : "المعاينة الرسمية للخطاب"}</strong></div>
       <div className="work-letter-preview-actions">
         {COMPANIES.map(company => <Button key={company.id} variant="outline" onClick={() => setLocation(`/work-letters/preview?company=${company.id}&language=${language}`)}>{company.short}</Button>)}
         <Button variant="outline" onClick={() => changeLanguage(language === "en" ? "ar" : "en")}>{english ? "العربية" : "English"}</Button>
+        {english && <Button variant="outline" onClick={() => changeFormat(format === 2 ? 1 : 2)}>{format === 2 ? "Format 1" : "Format 2 · Embassy letter"}</Button>}
         <Button variant="outline" onClick={() => setLocation(`/work-letters?company=${companyId}&language=${language}`)}><FilePenLine size={16} /> {english ? "Edit data" : "تعديل البيانات"}</Button>
         <Button onClick={() => window.print()}><Printer size={16} /> {english ? "Print / PDF" : "طباعة / PDF"}</Button>
       </div>
     </header>
-    <div className="work-letter-preview-notice"><ArrowLeft size={15} /> {english ? "Only the official A4 paper is printed; the form and controls are excluded." : "تتم طباعة الورقة الرسمية A4 فقط، ولا يظهر نموذج الإدخال أو أدوات الموقع."}</div>
-    <section className="work-letter-preview-stage"><LetterPreview data={{ ...data, companyId }} language={language} /></section>
+    <div className="work-letter-preview-notice"><ArrowLeft size={15} /> {english ? (format === 2 ? "Format 2 · English embassy-style letter structure. Header, footer, QR and barcode are intentionally omitted for review." : "Only the official A4 paper is printed; the form and controls are excluded.") : "تتم طباعة الورقة الرسمية A4 فقط، ولا يظهر نموذج الإدخال أو أدوات الموقع."}</div>
+    <section className="work-letter-preview-stage"><LetterPreview data={{ ...data, companyId }} language={language} format={format} /></section>
   </main>;
 }
