@@ -3010,3 +3010,31 @@
   .company-arkan-finance .letter-barcode,
   .company-hayat-education .letter-barcode { display: none !important; }
 }
+
+/* 1v12 review pass: keep Astar and Horizon signatures above the footer. */
+.company-astar .letter-copy,
+.company-horizon-sanaa .letter-copy { font-size: 17px; line-height: 1.92; }
+.company-astar.is-english .letter-copy,
+.company-horizon-sanaa.is-english .letter-copy { font-size: 16px; line-height: 1.98; }
+.company-astar .letter-closing,
+.company-horizon-sanaa .letter-closing { margin-top: 24px; font-size: 17px; line-height: 1.75; }
+.company-astar .letter-signature,
+.company-horizon-sanaa .letter-signature { bottom: 120px; gap: 10px; }
+.company-astar .letter-signature span,
+.company-horizon-sanaa .letter-signature span { font-size: 9px; }
+.company-astar .letter-signature b,
+.company-horizon-sanaa .letter-signature b { font-size: 10px; }
+.company-astar .letter-barcode,
+.company-horizon-sanaa .letter-barcode { bottom: 108px; }
+@media print {
+  .company-astar .letter-copy,
+  .company-horizon-sanaa .letter-copy { font-size: 17px !important; line-height: 1.88 !important; }
+  .company-astar.is-english .letter-copy,
+  .company-horizon-sanaa.is-english .letter-copy { font-size: 15.5px !important; line-height: 1.92 !important; }
+  .company-astar .letter-closing,
+  .company-horizon-sanaa .letter-closing { margin-top: 20px !important; font-size: 17px !important; line-height: 1.7 !important; }
+  .company-astar .letter-signature,
+  .company-horizon-sanaa .letter-signature { bottom: 86px !important; gap: 8px !important; }
+  .company-astar .letter-barcode,
+  .company-horizon-sanaa .letter-barcode { bottom: 70px !important; }
+}
